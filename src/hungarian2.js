@@ -49,6 +49,8 @@ const scores = {
 //     // ],
 // };
 
+const originalScores = structuredClone(scores);
+console.log('Original weights:', originalScores);
 const rowKeys = Object.keys(scores);
 const colKeys = Object.keys(scores[rowKeys[0]]); // Assumes every row has same column keys (users rated)
 const size = rowKeys.length;
@@ -114,16 +116,13 @@ for (const rowKey of rowKeys) {
     }
 }
 
-// const mapRowToIndex = name => rowKeys.indexOf(name);
-// const mapColToIndex = name => colKeys.indexOf(name);
-// const mapIndexToRow = idx => rowKeys[idx];
-// const mapIndexToCol = idx => colKeys[idx];
+console.log('Modified weights:', scores);
 
 let attempt = 0;
 let fullCover = false;
 let scoreCover;
 while (!fullCover) {
-    console.log(`(#${++attempt}) Trying to cover`);
+    console.log(`Cover attempt #${++attempt}`);
 
     // Solve 0-edges as minimal vertex cover
     const zeroEdges = [];
@@ -136,8 +135,6 @@ while (!fullCover) {
         }
     }
 
-    console.log(scores);
-    console.log(zeroEdges);
     const coveredRows = {};
     const coveredCols = {};
 
@@ -157,11 +154,11 @@ while (!fullCover) {
             }));
 
     const coverSize = scoreCover[0].length + scoreCover[1].length;
-    console.log(coverSize, size);
     fullCover = coverSize >= size;
 
     if (!fullCover) {
         let minUncoveredScore = Infinity;
+        // Find minimum uncovered score
         for (const rowKey of rowKeys) {
             if (coveredRows[rowKey]) continue;
             const row = scores[rowKey];
@@ -172,17 +169,17 @@ while (!fullCover) {
             }
         }
 
+        // Minus from uncovered, add to doubly covered
         for (const rowKey of rowKeys) {
             const rowCovered = coveredRows[rowKey];
             const row = scores[rowKey];
             for (const colKey of colKeys) {
                 const colCovered = coveredCols[colKey];
                 const score = row[colKey];
-                console.log(colKey, rowKey, rowCovered, colCovered, score, minUncoveredScore);
-                if (rowCovered && colCovered) {
-                    row[colKey] = score + minUncoveredScore;
-                } else if (!rowCovered && !colCovered) {
+                if (!rowCovered && !colCovered) {
                     row[colKey] = score - minUncoveredScore;
+                } else if (rowCovered && colCovered) {
+                    row[colKey] = score + minUncoveredScore;
                 }
             }
         }
@@ -191,5 +188,40 @@ while (!fullCover) {
     }
 }
 
-console.log(scores);
-console.log(scoreCover);
+console.log('Found minimal vertex cover:', scoreCover);
+
+// Pick out the solution based on which lines only have 1 zero
+let picked = 0;
+const results = [];
+const pickedRows = {};
+const pickedCols = {};
+let pickAttempt = 0;
+while (picked < size) {
+    console.log(`Picking optimal assignment attempt #${++pickAttempt}`);
+    for (const rowKey of rowKeys) {
+        if (pickedRows[rowKey]) continue;
+        const row = scores[rowKey];
+        let zeroKey = null;
+        let multiZeros = false;
+        for (const colKey of colKeys) {
+            if (pickedCols[colKey]) continue;
+            const score = row[colKey];
+            if (score === 0) {
+                if (zeroKey !== null) {
+                    multiZeros = true;
+                    break;
+                }
+                zeroKey = colKey;
+            }
+        }
+        if (!multiZeros) {
+            picked++;
+            pickedRows[rowKey] = true;
+            pickedCols[zeroKey] = true;
+            results.push([rowKey, zeroKey]);
+        }
+        if (picked === size) break;
+    }
+}
+
+console.log('Found optimal assignment:', results);
