@@ -34,7 +34,7 @@ function bipartiteVertexCover(n, m, edges) {
     const matchL = pool.mallocInt32(n);
     const matchCount = pool.mallocInt32(n);
     const coverL = pool.mallocInt32(n);
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
         adjL[i] = [];
         matchL[i] = -1;
         matchCount[i] = 0;
@@ -43,25 +43,25 @@ function bipartiteVertexCover(n, m, edges) {
     const adjR = new Array(m);
     const matchR = pool.mallocInt32(m);
     const coverR = pool.mallocInt32(m);
-    for (var i = 0; i < m; ++i) {
+    for (let i = 0; i < m; ++i) {
         adjR[i] = [];
         matchR[i] = -1;
         coverR[i] = 0;
     }
 
     // Unpack matching
-    for (var i = 0, l = match.length; i < l; ++i) {
-        var s = match[i][0];
-        var t = match[i][1];
+    for (let i = 0, l = match.length; i < l; ++i) {
+        const s = match[i][0];
+        const t = match[i][1];
         matchL[s] = t;
         matchR[t] = s;
     }
 
     // Loop over edges
-    for (var i = 0, l = edges.length; i < l; ++i) {
+    for (let i = 0, l = edges.length; i < l; ++i) {
         const e = edges[i];
-        var s = e[0];
-        var t = e[1];
+        const s = e[0];
+        const t = e[1];
         if (matchL[s] === t) {
             if (!matchCount[s]++) {
                 continue;
@@ -74,17 +74,18 @@ function bipartiteVertexCover(n, m, edges) {
     // Construct cover
     const left = [];
     const right = [];
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
         walk(right, i, adjL, matchL, coverL, matchR, coverR);
     }
-    for (var i = 0; i < m; ++i) {
+    for (let i = 0; i < m; ++i) {
         walk(left, i, adjR, matchR, coverR, matchL, coverL);
     }
 
     // Clean up any left over edges
-    for (var i = 0; i < n; ++i) {
+    for (let i = 0; i < n; ++i) {
         if (!coverL[i] && matchL[i] >= 0) {
-            coverR[matchL[i]] = coverL[i] = 1;
+            coverL[i] = 1;
+            coverR[matchL[i]] = 1;
             left.push(i);
         }
     }

@@ -122,7 +122,7 @@ let attempt = 0;
 let fullCover = false;
 let scoreCover;
 while (!fullCover) {
-    console.log(`Cover attempt #${++attempt}`);
+    console.log(`Attempt @ Cover #${++attempt}`);
 
     // Solve 0-edges as minimal vertex cover
     const zeroEdges = [];
@@ -189,6 +189,7 @@ while (!fullCover) {
 }
 
 console.log('Found minimal vertex cover:', scoreCover);
+console.log('Final modified weights:', scores);
 
 // Pick out the solution based on which lines only have 1 zero
 let picked = 0;
@@ -197,7 +198,7 @@ const pickedRows = {};
 const pickedCols = {};
 let pickAttempt = 0;
 while (picked < size) {
-    console.log(`Picking optimal assignment attempt #${++pickAttempt}`);
+    console.log(`Attempt @ Picking optimal assignment #${++pickAttempt}`);
     for (const rowKey of rowKeys) {
         if (pickedRows[rowKey]) continue;
         const row = scores[rowKey];
