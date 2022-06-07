@@ -29,6 +29,7 @@
   "dependencies": {
     "bipartite-matching": "^1.0.0",
     "iota-array": "^1.0.0",
+    "node-fetch": "^3.2.5",
     "typedarray-pool": "^1.2.0"
   }
 }
