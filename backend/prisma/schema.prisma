@@ -1,0 +1,122 @@
+// Tables: Users, UserRelations, Interests, UserInterests, Channels, ChannelUsers, Messages, Posts, PostComments, PostReactions, SavedPosts
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id              Int             @id @default(autoincrement())
+    username        String          @unique
+    email           String          @unique
+    password        String
+    firstName       String
+    lastName        String
+    matchPrecision  Int             @default(0)
+    visEmail        Int             @default(0)
+    visInterests    Int             @default(0)
+    userRelations1  UserRelations[] @relation(name: "UserRel1")
+    userRelations2  UserRelations[] @relation(name: "UserRel2")
+    interests       Interest[]
+    channels        Channel[]
+    createdChannels Channel[]       @relation(name: "CreatedChannels")
+    posts           Post[]          @relation(name: "CreatedPosts")
+    comments        Comment[]       @relation(name: "CreatedComments")
+    reactions       Reaction[]      @relation(name: "CreatedReactions")
+    savedPosts      Post[]          @relation(name: "SavedPosts")
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+
+    @@map("users")
+}
+
+model UserRelations {
+    user1         User      @relation(name: "UserRel1", fields: [user1Id], references: [id])
+    user1Id       Int
+    user2         User      @relation(name: "UserRel2", fields: [user2Id], references: [id])
+    user2Id       Int
+    areFriends    Boolean   @default(false)
+    compatibility Int?
+    haveMatched   Boolean   @default(false)
+    matchDate     DateTime?
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+
+    @@id([user1Id, user2Id])
+    @@map("user_relations")
+}
+
+model Interest {
+    id          Int      @id @default(autoincrement())
+    name        String   @unique
+    description String?
+    users       User[]
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map("interests")
+}
+
+model Channel {
+    id          Int      @id @default(autoincrement())
+    type        String // DM | Group
+    name        String?
+    description String?
+    users       User[]
+    creator     User?    @relation(name: "CreatedChannels", fields: [creatorId], references: [id])
+    creatorId   Int?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map("channels")
+}
+
+model Post {
+    id        Int        @id @default(autoincrement())
+    text      String
+    creator   User       @relation(name: "CreatedPosts", fields: [creatorId], references: [id])
+    creatorId Int
+    comments  Comment[]
+    reactions Reaction[]
+    savedBy   User[]     @relation(name: "SavedPosts")
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+
+    @@map("posts")
+}
+
+model Comment {
+    id          Int        @id @default(autoincrement())
+    post        Post       @relation(fields: [postId], references: [id])
+    postId      Int
+    parent      Comment?   @relation(name: "SubComments", fields: [parentId], references: [id])
+    parentId    Int?
+    text        String
+    creator     User       @relation(name: "CreatedComments", fields: [creatorId], references: [id])
+    creatorId   Int
+    subComments Comment[]  @relation(name: "SubComments")
+    reactions   Reaction[]
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+
+    @@map("comments")
+}
+
+model Reaction {
+    id        Int      @id @default(autoincrement())
+    post      Post     @relation(fields: [postId], references: [id])
+    postId    Int
+    comment   Comment? @relation(fields: [commentId], references: [id])
+    commentId Int?
+    reaction  String
+    creator   User     @relation(name: "CreatedReactions", fields: [creatorId], references: [id])
+    creatorId Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("reactions")
+}

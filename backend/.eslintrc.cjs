@@ -10,20 +10,11 @@ module.exports = {
         sourceType: 'module',
         extraFileExtensions: ['.cjs'],
     },
-    plugins: [
-        '@typescript-eslint',
-    ],
-    extends: [
-        'plugin:@typescript-eslint/recommended',
-        'airbnb-typescript/base',
-    ],
+    plugins: ['@typescript-eslint', 'import'],
+    extends: ['plugin:@typescript-eslint/recommended', 'airbnb-typescript/base'],
     ignorePatterns: ['dist/', 'node_modules/', 'src/migrations/', 'src/**/*.js'],
     rules: {
-        'arrow-parens': [
-            'error',
-            'as-needed',
-            { requireForBlockBody: true },
-        ],
+        'arrow-parens': ['error', 'as-needed', { requireForBlockBody: true }],
         // 'class-methods-use-this': 'off',
         '@typescript-eslint/comma-dangle': [
             'error',
@@ -37,10 +28,7 @@ module.exports = {
         ],
         // 'default-case': 'off',
         eqeqeq: 'off',
-        '@typescript-eslint/explicit-module-boundary-types': [
-            'warn',
-            { allowArgumentsExplicitlyTypedAsAny: true },
-        ],
+        '@typescript-eslint/explicit-module-boundary-types': ['warn', { allowArgumentsExplicitlyTypedAsAny: true }],
         // 'func-names': 'off',
         'global-require': 'off',
         'implicit-arrow-linebreak': 'off', // for prettier to handle
@@ -50,10 +38,7 @@ module.exports = {
         '@typescript-eslint/indent': ['error', 4],
         // 'jsx-a11y/href-no-hash': 'off',
         // 'linebreak-style': 'off',
-        'max-len': [
-            'error',
-            { code: 186, tabWidth: 4, ignoreComments: true },
-        ],
+        'max-len': ['error', { code: 186, tabWidth: 4, ignoreComments: true }],
         'no-async-promise-executor': 'off',
         'no-await-in-loop': 'off',
         // 'no-bitwise': 'off',
@@ -82,14 +67,8 @@ module.exports = {
         //     { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
         // ],
         '@typescript-eslint/no-unused-vars': 'off',
-        'object-curly-newline': [
-            'warn',
-            { minProperties: 5, multiline: true, consistent: true },
-        ],
-        'prefer-destructuring': [
-            'error',
-            { array: false, object: true },
-        ],
+        'object-curly-newline': ['warn', { minProperties: 5, multiline: true, consistent: true }],
+        'prefer-destructuring': ['error', { array: false, object: true }],
         // 'quote-props': 'off',
     },
 };
