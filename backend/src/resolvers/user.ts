@@ -22,7 +22,6 @@ export default {
             });
         },
         whoami: (_parent: any, args: any, { userCore }: Context): any => {
-            console.log('Received request for whoami');
             if (!userCore) return 'You are not logged in.';
             return `You are ${userCore.username} (id: ${userCore.id})`;
         },

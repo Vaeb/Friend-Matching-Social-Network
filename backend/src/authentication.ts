@@ -56,11 +56,12 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
     const { tokenAccess, tokenRefresh } = req.cookies;
     if (!tokenAccess || !tokenRefresh) return next();
 
+    console.log('Checking access token...');
     try {
         const userCore = jwt.verify(tokenAccess, auth.SECRET1) as UserCore;
         req.userCore = userCore;
     } catch (err) {
-        console.log('Failed to authenticate with tokenAccess, refreshing tokens...');
+        console.log('Access expired, refreshing tokens...');
         const newTokens = await refreshTokens(tokenAccess, tokenRefresh);
 
         if (!newTokens.tokenRefresh) {
@@ -75,6 +76,7 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
         res.cookie('tokenRefresh', newTokens.tokenRefresh, cookieOptions);
     }
 
+    console.log('Access granted to', req.userCore.username);
     next();
 };
 
