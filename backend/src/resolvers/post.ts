@@ -1,19 +1,20 @@
+import { prisma } from '../server';
 import { formatError } from '../utils/formatError';
-import { Context } from '../types';
+// import { Context } from '../types';
 
 export default {
     Query: {
-        getPost: async (_parent: any, { id }: any, { prisma }: Context): Promise<any> => {
+        getPost: async (_parent: any, { id }: any): Promise<any> => {
             return prisma.user.findUnique({
                 where: { id },
             });
         },
-        getPosts: async (_parent: any, { limit }: any, { prisma }: Context): Promise<any> => {
+        getPosts: async (_parent: any, { limit }: any): Promise<any> => {
             return prisma.user.findMany({
                 take: limit,
             });
         },
-        getPostsFromUser: async (_parent: any, { userId, limit }: any, { prisma }: Context): Promise<any> => {
+        getPostsFromUser: async (_parent: any, { userId, limit }: any): Promise<any> => {
             const userPosts = await prisma.user.findUnique({
                 where: { id: userId },
                 select: {
@@ -27,7 +28,7 @@ export default {
         },
     },
     Mutation: {
-        addPost: async (_parent: any, { creatorId, text }: any, { prisma }: Context): Promise<any> => {
+        addPost: async (_parent: any, { creatorId, text }: any): Promise<any> => {
             try {
                 const post = await prisma.post.create({ data: { creatorId, text } });
 
@@ -41,13 +42,13 @@ export default {
                 console.log('--------------------------------');
                 return {
                     ok: false,
-                    errors: formatError(err, prisma),
+                    error: formatError(err),
                 };
             }
         },
     },
     Post: {
-        creator: async ({ id: postId }: any, args: any, { prisma }: Context): Promise<any> => {
+        creator: async ({ id: postId }: any, args: any): Promise<any> => {
             const post = await prisma.post.findUnique({
                 where: { id: postId },
                 select: {
@@ -57,7 +58,7 @@ export default {
 
             return post?.creator;
         },
-        savedBy: async ({ id: postId }: any, { limit }: any, { prisma }: Context): Promise<any> => {
+        savedBy: async ({ id: postId }: any, { limit }: any): Promise<any> => {
             const post = await prisma.post.findUnique({
                 where: { id: postId },
                 select: {

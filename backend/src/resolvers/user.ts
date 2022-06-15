@@ -1,18 +1,20 @@
 import bcrypt from 'bcrypt';
+import { login } from 'src/authentication';
 
-import { formatError } from '../utils/formatError';
-import { Context } from '../types';
+import { prisma } from '../server';
+import { formatError } from '../utils';
+// import { Context } from '../types';
 
 export default {
     Query: {
-        getUser: (_parent: any, { id }: any, { prisma }: Context): Promise<any> => {
+        getUser: (_parent: any, { id }: any): Promise<any> => {
             console.log('Received request for getUser:', id);
             return prisma.user.findUnique({
                 where: { id },
                 include: { posts: true },
             });
         },
-        getUsers: (_parent: any, { limit }: any, { prisma }: Context): Promise<any> => {
+        getUsers: (_parent: any, { limit }: any): Promise<any> => {
             console.log('Received request for getUsers:', limit);
             return prisma.user.findMany({
                 orderBy: { createdAt: 'desc' },
@@ -21,7 +23,7 @@ export default {
         },
     },
     Mutation: {
-        register: async (_parent: any, args: any, { prisma }: Context): Promise<any> => {
+        register: async (_parent: any, args: any): Promise<any> => {
             try {
                 args.password = await bcrypt.hash(args.password, 5);
                 const user = await prisma.user.create({ data: args });
@@ -36,11 +38,12 @@ export default {
                 console.log('--------------------------------');
                 return {
                     ok: false,
-                    errors: formatError(err, prisma),
+                    error: formatError(err),
                 };
             }
         },
-        deleteUser: async (_parent: any, args: any, { prisma }: Context): Promise<any> => {
+        login: async (_parent: any, { handle, password }: any): Promise<any> => login(handle, password),
+        deleteUser: async (_parent: any, args: any): Promise<any> => {
             try {
                 const user = await prisma.user.delete({ where: { id: args.id } });
 
@@ -54,13 +57,13 @@ export default {
                 console.log('--------------------------------');
                 return {
                     ok: false,
-                    errors: formatError(err, prisma),
+                    error: formatError(err),
                 };
             }
         },
     },
     User: {
-        posts: async ({ id: userId }: any, { limit }: any, { prisma }: Context): Promise<any> => {
+        posts: async ({ id: userId }: any, { limit }: any): Promise<any> => {
             const user = await prisma.user.findUnique({ // Could improve as prisma.posts.findMany where creatorId=userId
                 where: { id: userId },
                 select: {
@@ -70,7 +73,7 @@ export default {
 
             return user?.posts;
         },
-        savedPosts: async ({ id: userId }: any, { limit }: any, { prisma }: Context): Promise<any> => {
+        savedPosts: async ({ id: userId }: any, { limit }: any): Promise<any> => {
             const user = await prisma.user.findUnique({ // Possible equivalent for many-to-many?
                 where: { id: userId },
                 select: {

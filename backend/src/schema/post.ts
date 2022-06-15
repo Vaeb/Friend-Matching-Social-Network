@@ -9,7 +9,7 @@ export default `
 
     type AddPostResponse {
         ok: Boolean!
-        errors: [Error!]
+        error: String
         post: Post
     }
 

@@ -14,8 +14,8 @@ model User {
     username        String          @unique
     email           String          @unique
     password        String
-    firstName       String
-    lastName        String
+    forename        String
+    surname         String
     matchPrecision  Int             @default(0)
     visEmail        Int             @default(0)
     visInterests    Int             @default(0)

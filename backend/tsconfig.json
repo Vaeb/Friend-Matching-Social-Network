@@ -25,6 +25,7 @@
         "sourceMap": true,
         "strictFunctionTypes": true,
         "strictNullChecks": true,
+        "noErrorTruncation": true,
         "target": "es2020"
     },
     "exclude": [

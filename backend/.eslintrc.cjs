@@ -28,7 +28,8 @@ module.exports = {
         ],
         // 'default-case': 'off',
         eqeqeq: 'off',
-        '@typescript-eslint/explicit-module-boundary-types': ['warn', { allowArgumentsExplicitlyTypedAsAny: true }],
+        // '@typescript-eslint/explicit-module-boundary-types': ['warn', { allowArgumentsExplicitlyTypedAsAny: true }],
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
         // 'func-names': 'off',
         'global-require': 'off',
         'implicit-arrow-linebreak': 'off', // for prettier to handle
