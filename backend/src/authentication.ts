@@ -19,13 +19,13 @@ const generateTokens = (user: User, secretRefresh: string) => {
     return { tokenAccess, tokenRefresh, userCore, userIdentifier };
 };
 
-type RefreshTokensPayload =
-    {
-        tokenAccess: string;
-        tokenRefresh: string;
-        user: User;
-        userCore: UserCore;
-    } | Record<string, never>;
+type RefreshTokensPayload = {
+    tokenAccess: string;
+    tokenRefresh: string;
+    user: User;
+    userCore: UserCore;
+} | Record<string, never>;
+
 const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): Promise<RefreshTokensPayload> => {
     let userId: number | undefined;
 
