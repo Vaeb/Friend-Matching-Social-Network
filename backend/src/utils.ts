@@ -8,13 +8,13 @@ export const formatError = (e: any) => {
     return `Unknown error: ${nodeUtils.format(e)}`;
 };
 
-export function badStatus(message: string): { ok: false, error: string };
-export function badStatus<T>(message: string, sound: T): { ok: false, error: string, sound: T };
-export function badStatus<T>(message: string, sound?: T) {
-    return { ok: false, error: message, sound } as const;
+export function badStatus(error: string): { ok: false, error: string };
+export function badStatus<T>(error: string, sound: T): { ok: false, error: string, sound: T };
+export function badStatus<T>(error: string, sound?: T) {
+    return { ok: false, error, sound } as const;
 }
 
-export const stripStatus = (status: any): { ok: boolean, message: string } => {
-    const { ok, message } = status;
-    return { ok, message };
-};
+// export const stripStatus = (status: any): { ok: boolean, error: string } => {
+//     const { ok, error } = status;
+//     return { ok, error };
+// };

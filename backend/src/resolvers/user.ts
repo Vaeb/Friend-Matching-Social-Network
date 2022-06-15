@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
-import { login } from 'src/authentication';
+import { login } from '../authentication';
 
 import { prisma } from '../server';
 import { formatError } from '../utils';
-// import { Context } from '../types';
+import { Context } from '../types';
 
 export default {
     Query: {
@@ -20,6 +20,11 @@ export default {
                 orderBy: { createdAt: 'desc' },
                 take: limit,
             });
+        },
+        whoami: (_parent: any, args: any, { userCore }: Context): any => {
+            console.log('Received request for whoami');
+            if (!userCore) return 'You are not logged in.';
+            return `You are ${userCore.username} (id: ${userCore.id})`;
         },
     },
     Mutation: {
@@ -42,7 +47,7 @@ export default {
                 };
             }
         },
-        login: async (_parent: any, { handle, password }: any): Promise<any> => login(handle, password),
+        login: async (_parent: any, { handle, password }: any, { res }: Context): Promise<any> => login(handle, password, res),
         deleteUser: async (_parent: any, args: any): Promise<any> => {
             try {
                 const user = await prisma.user.delete({ where: { id: args.id } });

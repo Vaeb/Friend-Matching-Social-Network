@@ -4,37 +4,33 @@ import { User } from '@prisma/client';
 
 import { prisma } from './server';
 import { auth } from './private';
-import { badStatus, stripStatus } from './utils';
+import { badStatus } from './utils';
+import { Context, ExpressRequest, UserCore, UserIdentifier } from './types';
 
-export const generateTokens = (user: User, secretRefresh: string) => {
-    const userCore = { id: user.id, username: user.username };
-    const userIdentifier = { id: user.id };
+const cookieOptions = { httpOnly: true };
 
-    const tokenAccess = jwt.sign(
-        { user: userCore },
-        auth.SECRET1,
-        { expiresIn: '45m' }
-    );
+const generateTokens = (user: User, secretRefresh: string) => {
+    const userCore: UserCore = { id: user.id, username: user.username };
+    const userIdentifier: UserIdentifier = { id: user.id };
 
-    const tokenRefresh = jwt.sign(
-        { user: userIdentifier },
-        secretRefresh,
-        { expiresIn: '7d' }
-    );
+    const tokenAccess = jwt.sign(userCore, auth.SECRET1, { expiresIn: '45m' });
+    const tokenRefresh = jwt.sign(userIdentifier, secretRefresh, { expiresIn: '7d' });
 
-    return { tokenAccess, tokenRefresh };
+    return { tokenAccess, tokenRefresh, userCore, userIdentifier };
 };
 
-type RefreshTokensPayload = {
-    tokenAccess: string;
-    tokenRefresh: string;
-    user: User;
-} | Record<string, never>;
-export const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): Promise<RefreshTokensPayload> => {
+type RefreshTokensPayload =
+    {
+        tokenAccess: string;
+        tokenRefresh: string;
+        user: User;
+        userCore: UserCore;
+    } | Record<string, never>;
+const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): Promise<RefreshTokensPayload> => {
     let userId: number | undefined;
 
     try {
-        ({ user: { id: userId } } = (jwt.decode(tokenAccessOld) as any));
+        ({ id: userId } = jwt.decode(tokenAccessOld) as any);
     } catch (err) {
         console.log('Failed to decode tokenAccessOld:', err);
     }
@@ -43,36 +39,72 @@ export const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: str
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return {};
 
-    const secretRefresh = `${user.password}${auth.SECRET2}`;
+    const secretRefresh = `${user.password}${auth.SECRET2BASE}`;
     try {
         jwt.verify(tokenRefreshOld, secretRefresh);
     } catch (err) {
         console.log('Failed to verify tokenRefreshOld:', err);
         return {};
     }
-    
-    const { tokenAccess, tokenRefresh } = generateTokens(user, secretRefresh);
-    return { tokenAccess, tokenRefresh, user };
+
+    const { tokenAccess, tokenRefresh, userCore } = generateTokens(user, secretRefresh);
+    return { tokenAccess, tokenRefresh, user, userCore };
+};
+
+export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['res'], next: any) => {
+    const req = reqOrig as Context['req'];
+    const { tokenAccess, tokenRefresh } = req.cookies;
+    if (!tokenAccess || !tokenRefresh) return next();
+
+    try {
+        const userCore = jwt.verify(tokenAccess, auth.SECRET1) as UserCore;
+        req.userCore = userCore;
+    } catch (err) {
+        console.log('Failed to authenticate with tokenAccess, refreshing tokens...');
+        const newTokens = await refreshTokens(tokenAccess, tokenRefresh);
+
+        if (!newTokens.tokenRefresh) {
+            res.clearCookie('tokenAccess');
+            res.clearCookie('tokenRefresh');
+            console.log('Failed to refresh');
+            return next();
+        }
+
+        req.userCore = newTokens.userCore;
+        res.cookie('tokenAccess', newTokens.tokenAccess, cookieOptions);
+        res.cookie('tokenRefresh', newTokens.tokenRefresh, cookieOptions);
+    }
+
+    next();
 };
 
 const loginLookup = async (handle: string, handleType: string, password: string) => {
     const user = await prisma.user.findUnique({ where: { [handleType]: handle } });
-    if (!user) return badStatus(`Invalid username/email: '${handle}'`, false);
+    if (!user) return badStatus(`Invalid username/email: <${handle}>`, false);
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return badStatus(`Invalid password: ${password}`, true);
+    if (!isValid) return badStatus(`Invalid password: <${password}>`, true);
 
     return { ok: true, user, sound: true } as const;
 };
 
-export const login = async (handle: string, password: string) => {
+export const login = async (handle: string, password: string, res: Context['res']) => {
     let result = await loginLookup(handle, 'username', password);
     if (!result.ok && !result.sound) result = await loginLookup(handle, 'email', password);
-    if (!result.ok) return stripStatus(result);
+    if (!result.ok) {
+        const { sound, ...status } = result;
+        return status;
+    }
 
     const { user } = result;
-    const secretRefresh = `${user.password}${auth.SECRET2}`;
+    const secretRefresh = `${user.password}${auth.SECRET2BASE}`;
     const { tokenAccess, tokenRefresh } = await generateTokens(user, secretRefresh);
 
-    return { ok: true, username: user.username, email: user.email, forename: user.forename, surname: user.surname } as const;
+    res.cookie('tokenAccess', tokenAccess, cookieOptions);
+    res.cookie('tokenRefresh', tokenRefresh, cookieOptions);
+
+    return {
+        ok: true,
+        user,
+    } as const;
 };

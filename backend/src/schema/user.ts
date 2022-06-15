@@ -25,6 +25,7 @@ export default `
     type Query {
         getUser(id: Int!): User
         getUsers(limit: Int): [User]!
+        whoami: String!
     }
 
     type Mutation {

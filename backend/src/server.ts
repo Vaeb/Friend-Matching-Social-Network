@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import typeDefs from './schema';
 import resolvers from './resolvers';
 import { Context } from './types';
+import { authenticateTokens } from './authentication';
 
 const { PrismaClient } = PrismaWrapper;
 
@@ -26,14 +27,17 @@ export const listen = async (): Promise<void> => {
     const app = express();
     app.use(cors(corsConfig));
     app.use(cookieParser());
+    app.use(authenticateTokens);
 
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        context: ({ req }) =>
+        context: ({ req, res }) =>
             ({
-                prisma,
+                req,
+                res,
                 serverUrl: `${req.protocol}://${req.get('host')}`,
+                userCore: (req as Context['req']).userCore,
             } as Context),
         plugins: [ApolloServerPluginLandingPageLocalDefault({ footer: false, embed: true })],
     });

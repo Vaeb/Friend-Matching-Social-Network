@@ -1,5 +1,5 @@
 import { prisma } from '../server';
-import { formatError } from '../utils/formatError';
+import { formatError } from '../utils';
 // import { Context } from '../types';
 
 export default {
