@@ -19,10 +19,11 @@ module.exports = {
     extends: [
         'plugin:@typescript-eslint/recommended',
         'plugin:react/recommended',
+        'plugin:react-hooks/recommended',
         'next/core-web-vitals',
         'airbnb-typescript/base',
     ],
-    ignorePatterns: ['src/**/*.js'],
+    ignorePatterns: ['node_modules/', 'dist/', 'src/**/*.js'],
     rules: {
         'arrow-parens': [
             'error',
@@ -42,14 +43,15 @@ module.exports = {
         ],
         // 'default-case': 'off',
         eqeqeq: 'off',
-        '@typescript-eslint/explicit-module-boundary-types': [
-            'warn',
-            { allowArgumentsExplicitlyTypedAsAny: true },
-        ],
+        // '@typescript-eslint/explicit-module-boundary-types': [
+        //     'warn',
+        //     { allowArgumentsExplicitlyTypedAsAny: true },
+        // ],
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
         // 'func-names': 'off',
         'function-paren-newline': 'off',
         'global-require': 'off',
-        'implicit-arrow-linebreak': 'off', // good?
+        'implicit-arrow-linebreak': 'off', // for prettier to handle
         'import/extensions': 'off',
         'import/prefer-default-export': 'off',
         'import/no-dynamic-require': 'off',
@@ -63,6 +65,7 @@ module.exports = {
         ],
         '@typescript-eslint/naming-convention': 'off',
         'no-async-promise-executor': 'off',
+        // 'no-await-in-loop': 'off',
         // 'no-bitwise': 'off',
         'no-cond-assign': 'off',
         'no-console': 'off',
@@ -79,6 +82,7 @@ module.exports = {
         // 'no-multi-spaces': 'off',
         // * 'no-nested-ternary': 'off',
         'no-new': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
         'no-param-reassign': 'off',
         'no-plusplus': 'off',
         'no-prototype-builtins': 'off',
@@ -91,7 +95,7 @@ module.exports = {
         // ],
         '@typescript-eslint/no-unused-vars': 'off',
         'object-curly-newline': [
-            'error',
+            'warn',
             { minProperties: 6, multiline: true, consistent: true },
         ],
         'prefer-destructuring': [
