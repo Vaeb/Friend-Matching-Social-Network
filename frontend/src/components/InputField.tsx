@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import React, { FC, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { useField } from 'formik';
 import {
     FormControl,
@@ -18,7 +18,7 @@ type GenericFieldProps = { label: string; } & (
         elProps: TextareaHTMLAttributes<HTMLTextAreaElement> & { name: string };
     });
 
-const GenericField: React.FC<GenericFieldProps> = ({
+const GenericField: FC<GenericFieldProps> = ({
     label,
     elType,
     elProps,
@@ -45,7 +45,7 @@ type TextFieldProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
     name: string;
 };
 
-export const InputField: React.FC<InputFieldProps> = ({
+export const InputField: FC<InputFieldProps> = ({
     label,
     size: _,
     ...elProps
@@ -55,7 +55,7 @@ export const InputField: React.FC<InputFieldProps> = ({
     );
 };
 
-export const TextField: React.FC<TextFieldProps> = ({
+export const TextField: FC<TextFieldProps> = ({
     label,
     ...elProps
 }) => {

@@ -3,8 +3,7 @@ export default `
         id: ID!
         username: String!
         email: String!
-        forename: String!
-        surname: String!
+        name: String!
         matchPrecision: Int!
         visEmail: Int!
         visInterests: Int!
@@ -29,7 +28,7 @@ export default `
     }
 
     type Mutation {
-        register(username: String!, email: String!, password: String!, forename: String!, surname: String!): AuthResponse!
+        register(username: String!, email: String!, password: String!, name: String!): AuthResponse!
         login(handle: String!, password: String!): AuthResponse!
         deleteUser(id: Int!): AuthResponse!
     }

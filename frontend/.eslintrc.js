@@ -23,7 +23,7 @@ module.exports = {
         'next/core-web-vitals',
         'airbnb-typescript/base',
     ],
-    ignorePatterns: ['node_modules/', 'dist/', 'src/**/*.js'],
+    ignorePatterns: ['node_modules/', 'dist/', 'src/**/*.js', 'src/generated/*'],
     rules: {
         'arrow-parens': [
             'error',

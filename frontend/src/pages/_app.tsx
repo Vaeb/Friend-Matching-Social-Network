@@ -1,13 +1,17 @@
 import { ChakraProvider } from '@chakra-ui/react';
-
-import theme from '../theme';
 import { AppProps } from 'next/app';
+import { Provider } from 'urql';
+
+import { client, ssrCache } from '../urqlClient';
+import theme from '../theme';
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
-        <ChakraProvider resetCSS theme={theme}>
-            <Component {...pageProps} />
-        </ChakraProvider>
+        <Provider value={client}>
+            <ChakraProvider resetCSS theme={theme}>
+                <Component {...pageProps} />
+            </ChakraProvider>
+        </Provider>
     );
 }
 
