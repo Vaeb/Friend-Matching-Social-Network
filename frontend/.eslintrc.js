@@ -73,6 +73,7 @@ module.exports = {
         'no-control-regex': 'off',
         // * 'no-else-return': 'off',
         // * 'no-empty': ['error', { allowEmptyCatch: true }],
+        '@typescript-eslint/no-empty-interface': 'off',
         'no-eval': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         'no-extend-native': 'off',
