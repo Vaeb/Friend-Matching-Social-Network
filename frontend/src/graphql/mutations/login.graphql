@@ -1,0 +1,15 @@
+mutation Login($handle: String!, $password: String!) {
+    login(handle: $handle, password: $password) {
+        ok
+        errors {
+            field
+            message
+        }
+        user {
+            id
+            username
+            name
+            email
+        }
+    }
+}

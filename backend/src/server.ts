@@ -15,8 +15,8 @@ const { PrismaClient } = PrismaWrapper;
 
 const corsConfig =
     process.env.ENV === 'PROD'
-        ? { origin: 'https://vaeb.io:4000', credentials: true }
-        : { origin: 'http://localhost:4000', credentials: true };
+        ? { origin: 'https://vaeb.io:3000', credentials: true }
+        : { origin: 'http://localhost:3000', credentials: true };
 
 export const prisma = new PrismaClient();
 console.log('Created prisma client!');
@@ -25,6 +25,7 @@ export const listen = async (): Promise<void> => {
     console.log('Starting server...');
 
     const app = express();
+    app.enable('trust proxy');
     app.use(cors(corsConfig));
     app.use(cookieParser());
     app.use(authenticateTokens);
@@ -44,7 +45,7 @@ export const listen = async (): Promise<void> => {
 
     await server.start();
 
-    server.applyMiddleware({ app });
+    server.applyMiddleware({ app, cors: false });
 
     app.use((_req, res) => {
         res.status(200);

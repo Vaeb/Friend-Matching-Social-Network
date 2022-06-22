@@ -2,7 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { AppProps } from 'next/app';
 import { Provider } from 'urql';
 
-import { client, ssrCache } from '../urqlClient';
+import { client } from '../urqlClient';
 import theme from '../theme';
 
 function MyApp({ Component, pageProps }: AppProps) {

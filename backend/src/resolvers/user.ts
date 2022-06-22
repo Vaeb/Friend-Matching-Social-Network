@@ -3,9 +3,9 @@ import { User, UserRelations } from '@prisma/client';
 
 import { login } from '../authentication';
 import { prisma } from '../server';
-import { formatError, pickUser } from '../utils';
+import { formatErrors, pickUser } from '../utils';
 import { Context } from '../types';
-import type { Resolvers } from '../schema/generated';
+import type { Error, Resolvers } from '../schema/generated';
 
 const resolvers: Resolvers = {
     Query: {
@@ -32,8 +32,10 @@ const resolvers: Resolvers = {
     Mutation: {
         register: async (_parent, args) => {
             try {
+                console.log('Received request for register:', args);
                 args.password = await bcrypt.hash(args.password, 5);
                 const user = await prisma.user.create({ data: args });
+                console.log('Success!');
 
                 return {
                     ok: true,
@@ -43,13 +45,31 @@ const resolvers: Resolvers = {
                 console.log('++++++++++++++++++++++++++++++++');
                 console.log('> REGISTER ERROR:', err);
                 console.log('--------------------------------');
+
+                const rawErrors = [err];
+                const parseErrors: Error[] = [];
+                try {
+                    const foundUsername = await prisma.user.findUnique({ where: { username: args.username }, select: { id: true } });
+                    const foundEmail = await prisma.user.findUnique({ where: { email: args.email }, select: { id: true } });
+
+                    if (foundUsername) parseErrors.push({ field: 'username', message: 'Username already exists.' });
+                    if (foundEmail) parseErrors.push({ field: 'email', message: 'Email already exists.' });
+                } catch (err2) {
+                    console.log('********************************');
+                    console.log('> ERROR 2:', err2);
+                    rawErrors.push(err2);
+                }
+
                 return {
                     ok: false,
-                    error: formatError(err),
+                    errors: parseErrors.length ? parseErrors : formatErrors(...rawErrors),
                 };
             }
         },
-        login: async (_parent, { handle, password }, { res }: Context) => login(handle, password, res),
+        login: async (_parent, { handle, password }, { res }: Context) => {
+            console.log('Received request for login:', handle, password);
+            return login(handle, password, res);
+        },
         deleteUser: async (_parent, args) => {
             try {
                 const user = await prisma.user.delete({ where: { id: args.id } });
@@ -64,7 +84,7 @@ const resolvers: Resolvers = {
                 console.log('--------------------------------');
                 return {
                     ok: false,
-                    error: formatError(err),
+                    errors: formatErrors(err),
                 };
             }
         },

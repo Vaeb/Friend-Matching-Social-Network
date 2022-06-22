@@ -7,7 +7,7 @@ type Post {
 
 type AddPostResponse {
     ok: Boolean!
-    error: Error
+    errors: [Error!]
     post: Post
 }
 

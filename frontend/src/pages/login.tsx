@@ -5,6 +5,9 @@ import NextLink from 'next/link';
 
 import { InputField } from '../components/InputField';
 import Page from '../components/Page';
+import { useRouter } from 'next/router';
+import { useLoginMutation } from '../generated/graphql';
+import { mapErrors } from '../utils/mapErrors';
 
 const ItemBoxShadow = `
     0 2.3px 3.6px #4f4f4f,
@@ -16,6 +19,8 @@ const ItemBoxShadow = `
 interface LoginProps {}
 
 const Login: React.FC<LoginProps> = ({}) => {
+    const router = useRouter();
+    const [, login] = useLoginMutation();
 
     return (
         <Page type='center'>
@@ -32,10 +37,19 @@ const Login: React.FC<LoginProps> = ({}) => {
                     </Box>
                 </Box>
                 <Formik
-                    initialValues={{ username: '', email: '', password: '' }}
-                    onSubmit={(values, actions) => {
+                    initialValues={{ handle: '', password: '' }}
+                    onSubmit={async (values, actions) => {
+                        const response = await login({
+                            handle: values.handle,
+                            password: values.password,
+                        });
+                        if (response.data?.login.errors) {
+                            actions.setErrors(mapErrors(response.data.login.errors));
+                            return;
+                        }
                         console.log(values);
-                        // actions.setSubmitting(false);
+                        console.log(response.data?.login);
+                        // router.push('/');
                     }}
                 >
                     {props => (

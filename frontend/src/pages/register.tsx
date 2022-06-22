@@ -6,6 +6,8 @@ import NextLink from 'next/link';
 import { InputField } from '../components/InputField';
 import Page from '../components/Page';
 import { useRegisterMutation } from '../generated/graphql';
+import { mapErrors } from '../utils/mapErrors';
+import { useRouter } from 'next/router';
 
 const ItemBoxShadow = `
     0 2.3px 3.6px #4f4f4f,
@@ -17,7 +19,8 @@ const ItemBoxShadow = `
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = ({}) => {
-    const validateUsername = (value: string) => value && value.length > 3 ? undefined : 'Username must be at least 3 characters';
+    // const validateUsername = (value: string) => value && value.length > 3 ? undefined : 'Username must be at least 3 characters';
+    const router = useRouter();
     const [readonly, setReadonly] = useState(true);
     const [, register] = useRegisterMutation();
 
@@ -44,11 +47,12 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             email: values.email,
                             password: values.password,
                         });
-                        if (response.data?.register.error) {
-                            actions.setErrors(response.data.register.error);
+                        if (response.data?.register.errors) {
+                            actions.setErrors(mapErrors(response.data.register.errors));
+                            return;
                         }
                         console.log(values);
-                        // actions.setSubmitting(false);
+                        // router.push('/');
                     }}
                 >
                     {props => (
@@ -56,14 +60,14 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             <Box>
                                 <InputField name="username" label="USERNAME" placeholder="" type="text" readOnly={readonly} onFocus={() => setReadonly(false)}  />
                             </Box>
-                            <Box>
-                                <InputField name="name" label="NAME" placeholder="" autoComplete='new-password' />
-                            </Box>
                             <Box mt={4}>
                                 <InputField name="email" label="UNIVERSITY EMAIL" placeholder="" autoComplete='new-password' />
                             </Box>
                             <Box mt={4}>
                                 <InputField name="password" label="PASSWORD" placeholder="" type="password" autoComplete='new-password' />
+                            </Box>
+                            <Box mt={4}>
+                                <InputField name="name" label="PREFERRED NAME" placeholder="" autoComplete='new-password' />
                             </Box>
                             <Button mt={8} w="100%" type="submit" colorScheme="blue" isLoading={props.isSubmitting}>
                                 Continue

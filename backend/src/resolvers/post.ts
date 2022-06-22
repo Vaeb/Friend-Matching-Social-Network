@@ -1,5 +1,5 @@
 import { prisma } from '../server';
-import { formatError } from '../utils';
+import { formatErrors } from '../utils';
 // import { Context } from '../types';
 import type { Resolvers } from '../schema/generated';
 
@@ -45,7 +45,7 @@ const resolvers: Resolvers = {
                 console.log('--------------------------------');
                 return {
                     ok: false,
-                    error: formatError(err),
+                    errors: formatErrors(err),
                 };
             }
         },

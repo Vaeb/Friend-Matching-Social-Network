@@ -17,16 +17,22 @@ export type Scalars = {
 
 export type AddPostResponse = {
   __typename?: 'AddPostResponse';
-  error?: Maybe<Scalars['String']>;
+  errors?: Maybe<Array<Error>>;
   ok: Scalars['Boolean'];
   post?: Maybe<Post>;
 };
 
 export type AuthResponse = {
   __typename?: 'AuthResponse';
-  error?: Maybe<Scalars['String']>;
+  errors?: Maybe<Array<Error>>;
   ok: Scalars['Boolean'];
   user?: Maybe<User>;
+};
+
+export type Error = {
+  __typename?: 'Error';
+  field: Scalars['String'];
+  message: Scalars['String'];
 };
 
 export type Mutation = {
@@ -64,10 +70,9 @@ export type MutationRegisterArgs = {
 
 export type Post = {
   __typename?: 'Post';
-  createdAt: Scalars['String'];
   creator: User;
-  id: Scalars['ID'];
-  savedBy: Array<Maybe<User>>;
+  id: Scalars['Int'];
+  savedBy?: Maybe<Array<Maybe<User>>>;
   text: Scalars['String'];
 };
 
@@ -114,24 +119,16 @@ export type QueryGetUsersArgs = {
 
 export type User = {
   __typename?: 'User';
-  comments: Array<Maybe<Scalars['Int']>>;
-  createdAt: Scalars['String'];
   email: Scalars['String'];
-  id: Scalars['ID'];
+  id: Scalars['Int'];
   matchPrecision: Scalars['Int'];
   name: Scalars['String'];
-  posts: Array<Maybe<Post>>;
-  reactions: Array<Maybe<Scalars['Int']>>;
-  relations: Array<Maybe<User>>;
-  savedPosts: Array<Maybe<Post>>;
+  posts?: Maybe<Array<Maybe<Post>>>;
+  relations?: Maybe<Array<Maybe<UserRelation>>>;
+  savedPosts?: Maybe<Array<Maybe<Post>>>;
   username: Scalars['String'];
   visEmail: Scalars['Int'];
   visInterests: Scalars['Int'];
-};
-
-
-export type UserCommentsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -140,14 +137,25 @@ export type UserPostsArgs = {
 };
 
 
-export type UserReactionsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
-};
-
-
 export type UserSavedPostsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
 };
+
+export type UserRelation = {
+  __typename?: 'UserRelation';
+  areFriends: Scalars['Boolean'];
+  compatibility?: Maybe<Scalars['Int']>;
+  haveMatched: Scalars['Boolean'];
+  user: User;
+};
+
+export type LoginMutationVariables = Exact<{
+  handle: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, name: string, email: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -157,7 +165,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, error?: string | null, user?: { __typename?: 'User', id: string } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number } | null } };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -175,10 +183,17 @@ export default {
         "name": "AddPostResponse",
         "fields": [
           {
-            "name": "error",
+            "name": "errors",
             "type": {
-              "kind": "SCALAR",
-              "name": "Any"
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
             },
             "args": []
           },
@@ -210,10 +225,17 @@ export default {
         "name": "AuthResponse",
         "fields": [
           {
-            "name": "error",
+            "name": "errors",
             "type": {
-              "kind": "SCALAR",
-              "name": "Any"
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
             },
             "args": []
           },
@@ -234,6 +256,35 @@ export default {
               "kind": "OBJECT",
               "name": "User",
               "ofType": null
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Error",
+        "fields": [
+          {
+            "name": "field",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "message",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
             },
             "args": []
           }
@@ -394,17 +445,6 @@ export default {
         "name": "Post",
         "fields": [
           {
-            "name": "createdAt",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
-            },
-            "args": []
-          },
-          {
             "name": "creator",
             "type": {
               "kind": "NON_NULL",
@@ -430,14 +470,11 @@ export default {
           {
             "name": "savedBy",
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "User",
-                  "ofType": null
-                }
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
               }
             },
             "args": [
@@ -603,39 +640,6 @@ export default {
         "name": "User",
         "fields": [
           {
-            "name": "comments",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Any"
-                }
-              }
-            },
-            "args": [
-              {
-                "name": "limit",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Any"
-                }
-              }
-            ]
-          },
-          {
-            "name": "createdAt",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
-            },
-            "args": []
-          },
-          {
             "name": "email",
             "type": {
               "kind": "NON_NULL",
@@ -682,36 +686,11 @@ export default {
           {
             "name": "posts",
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Post",
-                  "ofType": null
-                }
-              }
-            },
-            "args": [
-              {
-                "name": "limit",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Any"
-                }
-              }
-            ]
-          },
-          {
-            "name": "reactions",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Any"
-                }
+                "kind": "OBJECT",
+                "name": "Post",
+                "ofType": null
               }
             },
             "args": [
@@ -727,14 +706,11 @@ export default {
           {
             "name": "relations",
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "User",
-                  "ofType": null
-                }
+                "kind": "OBJECT",
+                "name": "UserRelation",
+                "ofType": null
               }
             },
             "args": []
@@ -742,14 +718,11 @@ export default {
           {
             "name": "savedPosts",
             "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Post",
-                  "ofType": null
-                }
+                "kind": "OBJECT",
+                "name": "Post",
+                "ofType": null
               }
             },
             "args": [
@@ -799,6 +772,55 @@ export default {
         "interfaces": []
       },
       {
+        "kind": "OBJECT",
+        "name": "UserRelation",
+        "fields": [
+          {
+            "name": "areFriends",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "compatibility",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "haveMatched",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
         "kind": "SCALAR",
         "name": "Any"
       }
@@ -807,11 +829,35 @@ export default {
   }
 } as unknown as IntrospectionQuery;
 
+export const LoginDocument = gql`
+    mutation Login($handle: String!, $password: String!) {
+  login(handle: $handle, password: $password) {
+    ok
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+      name
+      email
+    }
+  }
+}
+    `;
+
+export function useLoginMutation() {
+  return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
 export const RegisterDocument = gql`
     mutation Register($username: String!, $email: String!, $password: String!, $name: String!) {
   register(username: $username, email: $email, password: $password, name: $name) {
     ok
-    error
+    errors {
+      field
+      message
+    }
     user {
       id
     }

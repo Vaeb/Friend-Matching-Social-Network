@@ -16,14 +16,14 @@ export type Scalars = {
 
 export type AddPostResponse = {
   __typename?: 'AddPostResponse';
-  error?: Maybe<Error>;
+  errors?: Maybe<Array<Error>>;
   ok: Scalars['Boolean'];
   post?: Maybe<Post>;
 };
 
 export type AuthResponse = {
   __typename?: 'AuthResponse';
-  error?: Maybe<Error>;
+  errors?: Maybe<Array<Error>>;
   ok: Scalars['Boolean'];
   user?: Maybe<User>;
 };
@@ -246,14 +246,14 @@ export type ResolversParentTypes = {
 };
 
 export type AddPostResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['AddPostResponse'] = ResolversParentTypes['AddPostResponse']> = {
-  error?: Resolver<Maybe<ResolversTypes['Error']>, ParentType, ContextType>;
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AuthResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthResponse'] = ResolversParentTypes['AuthResponse']> = {
-  error?: Resolver<Maybe<ResolversTypes['Error']>, ParentType, ContextType>;
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

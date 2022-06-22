@@ -42,7 +42,7 @@ const theme = extendTheme({
             },
             body: {
                 color: '#96989d',
-            }
+            },
         }),
     },
 });

@@ -28,6 +28,7 @@ type RefreshTokensPayload = {
 
 const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): Promise<RefreshTokensPayload> => {
     let userId: number | undefined;
+    console.log('Refreshing tokens...');
 
     try {
         ({ id: userId } = jwt.decode(tokenAccessOld) as any);
@@ -54,7 +55,10 @@ const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): P
 export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['res'], next: any) => {
     const req = reqOrig as Context['req'];
     const { tokenAccess, tokenRefresh } = req.cookies;
-    if (!tokenAccess || !tokenRefresh) return next();
+    if (!tokenAccess || !tokenRefresh) {
+        console.log('No tokens, continuing...');
+        return next();
+    }
 
     console.log('Checking access token...');
     try {
@@ -67,6 +71,7 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
         if (!newTokens.tokenRefresh) {
             res.clearCookie('tokenAccess');
             res.clearCookie('tokenRefresh');
+            res.clearCookie('username');
             console.log('Failed to refresh');
             return next();
         }
@@ -74,6 +79,8 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
         req.userCore = newTokens.userCore;
         res.cookie('tokenAccess', newTokens.tokenAccess, cookieOptions);
         res.cookie('tokenRefresh', newTokens.tokenRefresh, cookieOptions);
+        res.cookie('username', newTokens.userCore.username, cookieOptions);
+        console.log('Refreshed tokens cookies!', req.userCore.username, tokenAccess, tokenRefresh);
     }
 
     console.log('Access granted to', req.userCore.username);
@@ -95,6 +102,7 @@ export const login = async (handle: string, password: string, res: Context['res'
     if (!result.ok && !result.sound) result = await loginLookup(handle, 'email', password);
     if (!result.ok) {
         const { sound, ...status } = result;
+        console.log('Bad login:', result);
         return status;
     }
 
@@ -104,6 +112,9 @@ export const login = async (handle: string, password: string, res: Context['res'
 
     res.cookie('tokenAccess', tokenAccess, cookieOptions);
     res.cookie('tokenRefresh', tokenRefresh, cookieOptions);
+    res.cookie('username', user.username, cookieOptions);
+
+    console.log('Login success!', user.username, tokenAccess, tokenRefresh);
 
     return {
         ok: true,

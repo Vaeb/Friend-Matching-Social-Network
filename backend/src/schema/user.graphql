@@ -23,7 +23,7 @@ type UserRelation {
 
 type AuthResponse {
     ok: Boolean!
-    error: Error
+    errors: [Error!]
     user: User
 }
 
