@@ -7,11 +7,9 @@ import PanelR from '../components/PanelR';
 
 const Index = () => (
     <Page>
-        <Flex w="100%" h="100%">
-            <PanelL />
-            <PanelM />
-            <PanelR />
-        </Flex>
+        <PanelL />
+        <PanelM />
+        <PanelR />
     </Page>
 );
 

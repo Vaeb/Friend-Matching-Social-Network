@@ -14,7 +14,7 @@ interface PageProps {
 }
 
 const Regular: FC<HasChildren> = ({ children }) => (
-    <Box mx="auto" w="100vw" h="100vh">
+    <Box display="flex" w="100%" h="100%">
         {children}
     </Box>
 );
@@ -37,7 +37,7 @@ const Page: FC<PageProps> = ({ children, type, needsAuth, title }) => {
             <Head>
                 <title>{title}</title>
             </Head>
-            <PageEl>{children}</PageEl>;
+            <PageEl>{children}</PageEl>
         </>
     );
 };

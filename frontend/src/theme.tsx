@@ -37,7 +37,9 @@ const theme = extendTheme({
     breakpoints,
     styles: {
         global: (props: StyleFunctionProps) => ({
-            'html, body, #root, .App': {
+            'html, body, #__next, #root, .App': {
+                w: '100%',
+                h: '100%',
                 bg: '#2f3136',
             },
             body: {
