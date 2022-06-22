@@ -6,10 +6,12 @@ import { MeDocument } from './generated/graphql';
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
 
-console.log('IS SERVER:', isServer, process.env.ENV);
+const graphqlUrl = process.env.ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql';
+
+console.log('IS SERVER:', isServer, process.env.ENV, graphqlUrl);
 
 const client = createClient({
-    url: process.env.ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql',
+    url: graphqlUrl,
     exchanges: [
         dedupExchange,
         cacheExchange({
