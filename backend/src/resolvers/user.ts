@@ -31,9 +31,20 @@ const resolvers: Resolvers = {
     },
     Mutation: {
         register: async (_parent, args, { res }: Context) => {
+            const parseErrors: Error[] = [];
+
             try {
                 console.log('Received request for register:', args);
                 const rawPass = args.password;
+
+                if (!args.email.includes('@')) {
+                    parseErrors.push({ field: 'email', message: 'Must be a valid email address' });
+                    throw new Error('Bad data');
+                } else if (!args.email.endsWith('.ac.uk')) {
+                    parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
+                    throw new Error('Bad data');
+                }
+
                 args.password = await bcrypt.hash(rawPass, 5);
                 const user = await prisma.user.create({ data: args });
                 console.log('Success! Logging in...');
@@ -49,7 +60,6 @@ const resolvers: Resolvers = {
                 console.log('--------------------------------');
 
                 const rawErrors = [err];
-                const parseErrors: Error[] = [];
                 try {
                     const foundUsername = await prisma.user.findUnique({ where: { username: args.username }, select: { id: true } });
                     const foundEmail = await prisma.user.findUnique({ where: { email: args.email }, select: { id: true } });

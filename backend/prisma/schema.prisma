@@ -15,6 +15,8 @@ model User {
     email           String          @unique
     password        String
     name            String
+    university      University      @relation(fields: [universityId], references: [id])
+    universityId    Int
     matchPrecision  Int             @default(0)
     visEmail        Int             @default(0)
     visInterests    Int             @default(0)
@@ -118,4 +120,14 @@ model Reaction {
     updatedAt DateTime @updatedAt
 
     @@map("reactions")
+}
+
+model University {
+    id        Int      @id @default(autoincrement())
+    name      String   @unique
+    users     User[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("universities")
 }
