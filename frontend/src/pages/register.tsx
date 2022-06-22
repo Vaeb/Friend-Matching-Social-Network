@@ -24,6 +24,9 @@ const Register: React.FC<RegisterProps> = ({}) => {
     const [readonly, setReadonly] = useState(true);
     const [, register] = useRegisterMutation();
 
+    const isServer = typeof window === 'undefined';
+    console.log('CUSTOM CHECK SSR:', isServer);
+
     return (
         <Page type='center' needsAuth={false}>
             <Box bg="rgba(79,84,92,.6)" p="30px" minW="21vw" borderRadius="5px" boxShadow={ItemBoxShadow}>

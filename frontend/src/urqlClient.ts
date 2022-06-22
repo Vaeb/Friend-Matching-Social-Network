@@ -6,9 +6,9 @@ import { MeDocument } from './generated/graphql';
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
 
-const graphqlUrl = process.env.ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql';
+const graphqlUrl = process.env.NEXT_PUBLIC_ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql';
 
-console.log('IS SSR:', isServer, process.env.ENV);
+console.log('IS SSR:', isServer, process.env.NEXT_PUBLIC_ENV);
 
 const client = createClient({
     url: graphqlUrl,
