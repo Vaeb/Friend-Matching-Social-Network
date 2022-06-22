@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { CookieOptions } from 'express';
 import { User } from '@prisma/client';
 
 import { prisma } from './server';
@@ -7,7 +8,7 @@ import { auth } from './private';
 import { badStatus } from './utils';
 import { Context, ExpressRequest, UserCore, UserIdentifier } from './types';
 
-const cookieOptions = { httpOnly: true };
+const cookieOptions: CookieOptions = { httpOnly: true, sameSite: 'none' };
 
 const generateTokens = (user: User, secretRefresh: string) => {
     const userCore: UserCore = { id: user.id, username: user.username };
