@@ -29,6 +29,13 @@ export type AuthResponse = {
   user?: Maybe<User>;
 };
 
+export type AuthResponseCore = {
+  __typename?: 'AuthResponseCore';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  user?: Maybe<UserCore>;
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -40,6 +47,7 @@ export type Mutation = {
   addPost: AddPostResponse;
   deleteUser: AuthResponse;
   login: AuthResponse;
+  logout: AuthResponseCore;
   register: AuthResponse;
 };
 
@@ -88,7 +96,7 @@ export type Query = {
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
   getUser?: Maybe<User>;
   getUsers: Array<Maybe<User>>;
-  whoami: Scalars['String'];
+  me?: Maybe<User>;
 };
 
 
@@ -141,6 +149,12 @@ export type UserSavedPostsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
 };
 
+export type UserCore = {
+  __typename?: 'UserCore';
+  id: Scalars['Int'];
+  username: Scalars['String'];
+};
+
 export type UserRelation = {
   __typename?: 'UserRelation';
   areFriends: Scalars['Boolean'];
@@ -155,7 +169,12 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, name: string, email: string } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'AuthResponseCore', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'UserCore', id: number, username: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -165,7 +184,12 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
+
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string } | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -255,6 +279,48 @@ export default {
             "type": {
               "kind": "OBJECT",
               "name": "User",
+              "ofType": null
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "AuthResponseCore",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "OBJECT",
+              "name": "UserCore",
               "ofType": null
             },
             "args": []
@@ -383,6 +449,18 @@ export default {
                 }
               }
             ]
+          },
+          {
+            "name": "logout",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "AuthResponseCore",
+                "ofType": null
+              }
+            },
+            "args": []
           },
           {
             "name": "register",
@@ -622,13 +700,11 @@ export default {
             ]
           },
           {
-            "name": "whoami",
+            "name": "me",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
             },
             "args": []
           }
@@ -773,6 +849,35 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "UserCore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "username",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "UserRelation",
         "fields": [
           {
@@ -840,8 +945,6 @@ export const LoginDocument = gql`
     user {
       id
       username
-      name
-      email
     }
   }
 }
@@ -849,6 +952,25 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout {
+    ok
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+    }
+  }
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
     mutation Register($username: String!, $email: String!, $password: String!, $name: String!) {
@@ -860,6 +982,7 @@ export const RegisterDocument = gql`
     }
     user {
       id
+      username
     }
   }
 }
@@ -867,4 +990,16 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const MeDocument = gql`
+    query Me {
+  me {
+    id
+    username
+  }
+}
+    `;
+
+export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
+  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };

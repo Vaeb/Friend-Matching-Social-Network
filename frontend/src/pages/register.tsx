@@ -25,7 +25,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
     const [, register] = useRegisterMutation();
 
     return (
-        <Page type='center'>
+        <Page type='center' needsAuth={false}>
             <Box bg="rgba(79,84,92,.6)" p="30px" minW="21vw" borderRadius="5px" boxShadow={ItemBoxShadow}>
                 <Box fontSize="xl" fontWeight="semibold" mb={4}>
                     <Text>Welcome!</Text>
@@ -51,8 +51,8 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             actions.setErrors(mapErrors(response.data.register.errors));
                             return;
                         }
-                        console.log(values);
-                        // router.push('/');
+                        console.log(values, response.data?.register);
+                        router.push('/');
                     }}
                 >
                     {props => (

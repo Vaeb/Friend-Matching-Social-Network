@@ -1,16 +1,20 @@
 import React, { FC, ReactNode } from 'react';
 import { Box } from '@chakra-ui/react';
 import { HasChildren } from '../types';
+import { useCheckAuth } from '../utils/useCheckAuth';
+import Head from 'next/head';
 
 type Type = 'regular' | 'center';
 
 interface PageProps {
-    type?: Type;
     children?: ReactNode;
+    type?: Type;
+    needsAuth?: boolean;
+    title?: string;
 }
 
 const Regular: FC<HasChildren> = ({ children }) => (
-    <Box mx="auto" mt={6} w="100%" maxW="780px">
+    <Box mx="auto" w="100vw" h="100vh">
         {children}
     </Box>
 );
@@ -22,10 +26,20 @@ const Center: FC<HasChildren> = ({ children }) => (
     </Box>
 );
 
-const Page: FC<PageProps> = ({ type, children }) => {
-    if (!type) type = 'regular';
+const Page: FC<PageProps> = ({ children, type, needsAuth, title }) => {
+    if (type === undefined) type = 'regular';
+    if (needsAuth === undefined) needsAuth = true;
+    if (title === undefined) title = 'Uni Social Media';
+    useCheckAuth(needsAuth);
     const PageEl = type === 'center' ? Center : Regular;
-    return <PageEl>{children}</PageEl>;
+    return (
+        <>
+            <Head>
+                <title>{title}</title>
+            </Head>
+            <PageEl>{children}</PageEl>;
+        </>
+    );
 };
 
 export default Page;

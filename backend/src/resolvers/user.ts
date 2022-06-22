@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { User, UserRelations } from '@prisma/client';
 
-import { login } from '../authentication';
+import { login, logout } from '../authentication';
 import { prisma } from '../server';
 import { formatErrors, pickUser } from '../utils';
 import { Context } from '../types';
@@ -24,18 +24,20 @@ const resolvers: Resolvers = {
                 take: limit ?? undefined,
             });
         },
-        whoami: (_parent, args, { userCore }: Context) => {
-            if (!userCore) return 'You are not logged in.';
-            return `You are ${userCore.username} (id: ${userCore.id})`;
+        me: (_parent, _, { userCore }: Context) => {
+            if (!userCore) return null;
+            return prisma.user.findUnique({ where: { id: userCore.id } });
         },
     },
     Mutation: {
-        register: async (_parent, args) => {
+        register: async (_parent, args, { res }: Context) => {
             try {
                 console.log('Received request for register:', args);
-                args.password = await bcrypt.hash(args.password, 5);
+                const rawPass = args.password;
+                args.password = await bcrypt.hash(rawPass, 5);
                 const user = await prisma.user.create({ data: args });
-                console.log('Success!');
+                console.log('Success! Logging in...');
+                await login(args.username, rawPass, res);
 
                 return {
                     ok: true,
@@ -69,6 +71,10 @@ const resolvers: Resolvers = {
         login: async (_parent, { handle, password }, { res }: Context) => {
             console.log('Received request for login:', handle, password);
             return login(handle, password, res);
+        },
+        logout: async (_parent, _, { userCore, res }: Context) => {
+            console.log('Received request for logout');
+            return logout(userCore, res);
         },
         deleteUser: async (_parent, args) => {
             try {

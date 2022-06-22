@@ -23,7 +23,7 @@ const Login: React.FC<LoginProps> = ({}) => {
     const [, login] = useLoginMutation();
 
     return (
-        <Page type='center'>
+        <Page type='center' needsAuth={false}>
             <Box bg="rgba(79,84,92,.6)" p="30px" minW="21vw" borderRadius="5px" boxShadow={ItemBoxShadow}>
                 <Box fontSize="xl" fontWeight="semibold" mb={4}>
                     <Text>Welcome back!</Text>
@@ -47,9 +47,8 @@ const Login: React.FC<LoginProps> = ({}) => {
                             actions.setErrors(mapErrors(response.data.login.errors));
                             return;
                         }
-                        console.log(values);
-                        console.log(response.data?.login);
-                        // router.push('/');
+                        console.log(values, response.data?.login);
+                        router.push('/');
                     }}
                 >
                     {props => (

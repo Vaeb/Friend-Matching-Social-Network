@@ -1,5 +1,5 @@
-mutation Login($handle: String!, $password: String!) {
-    login(handle: $handle, password: $password) {
+mutation Logout {
+    logout {
         ok
         errors {
             field

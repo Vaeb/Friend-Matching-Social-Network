@@ -13,6 +13,11 @@ type User {
     savedPosts(limit: Int): [Post]
 }
 
+type UserCore {
+    id: Int!
+    username: String!
+}
+
 type UserRelation {
     user: User!
     # baseUser: User
@@ -27,14 +32,21 @@ type AuthResponse {
     user: User
 }
 
+type AuthResponseCore {
+    ok: Boolean!
+    errors: [Error!]
+    user: UserCore
+}
+
 type Query {
     getUser(id: Int!): User
     getUsers(limit: Int): [User]!
-    whoami: String!
+    me: User
 }
 
 type Mutation {
     register(username: String!, email: String!, password: String!, name: String!): AuthResponse!
     login(handle: String!, password: String!): AuthResponse!
+    logout: AuthResponseCore!
     deleteUser(id: Int!): AuthResponse!
 }

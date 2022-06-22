@@ -121,3 +121,16 @@ export const login = async (handle: string, password: string, res: Context['res'
         user,
     } as const;
 };
+
+export const logout = async (userCore: Context['userCore'], res: Context['res']) => {
+    res.clearCookie('tokenAccess');
+    res.clearCookie('tokenRefresh');
+    res.clearCookie('username');
+
+    console.log('Logout success!', res.cookie);
+
+    return {
+        ok: true,
+        user: userCore,
+    } as const;
+};

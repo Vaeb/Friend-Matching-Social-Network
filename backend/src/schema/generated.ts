@@ -28,6 +28,13 @@ export type AuthResponse = {
   user?: Maybe<User>;
 };
 
+export type AuthResponseCore = {
+  __typename?: 'AuthResponseCore';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  user?: Maybe<UserCore>;
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -39,6 +46,7 @@ export type Mutation = {
   addPost: AddPostResponse;
   deleteUser: AuthResponse;
   login: AuthResponse;
+  logout: AuthResponseCore;
   register: AuthResponse;
 };
 
@@ -87,7 +95,7 @@ export type Query = {
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
   getUser?: Maybe<User>;
   getUsers: Array<Maybe<User>>;
-  whoami: Scalars['String'];
+  me?: Maybe<User>;
 };
 
 
@@ -138,6 +146,12 @@ export type UserPostsArgs = {
 
 export type UserSavedPostsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
+};
+
+export type UserCore = {
+  __typename?: 'UserCore';
+  id: Scalars['Int'];
+  username: Scalars['String'];
 };
 
 export type UserRelation = {
@@ -219,6 +233,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AddPostResponse: ResolverTypeWrapper<AddPostResponse>;
   AuthResponse: ResolverTypeWrapper<AuthResponse>;
+  AuthResponseCore: ResolverTypeWrapper<AuthResponseCore>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Error: ResolverTypeWrapper<Error>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
@@ -227,6 +242,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<User>;
+  UserCore: ResolverTypeWrapper<UserCore>;
   UserRelation: ResolverTypeWrapper<UserRelation>;
 };
 
@@ -234,6 +250,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AddPostResponse: AddPostResponse;
   AuthResponse: AuthResponse;
+  AuthResponseCore: AuthResponseCore;
   Boolean: Scalars['Boolean'];
   Error: Error;
   Int: Scalars['Int'];
@@ -242,6 +259,7 @@ export type ResolversParentTypes = {
   Query: {};
   String: Scalars['String'];
   User: User;
+  UserCore: UserCore;
   UserRelation: UserRelation;
 };
 
@@ -259,6 +277,13 @@ export type AuthResponseResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type AuthResponseCoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthResponseCore'] = ResolversParentTypes['AuthResponseCore']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['UserCore']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = {
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -269,6 +294,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addPost?: Resolver<ResolversTypes['AddPostResponse'], ParentType, ContextType, RequireFields<MutationAddPostArgs, 'creatorId' | 'text'>>;
   deleteUser?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
+  logout?: Resolver<ResolversTypes['AuthResponseCore'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'username'>>;
 };
 
@@ -286,7 +312,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getPostsFromUser?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
   getUsers?: Resolver<Array<Maybe<ResolversTypes['User']>>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
-  whoami?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -303,6 +329,12 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserCoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserCore'] = ResolversParentTypes['UserCore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserRelationResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserRelation'] = ResolversParentTypes['UserRelation']> = {
   areFriends?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   compatibility?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -314,11 +346,13 @@ export type UserRelationResolvers<ContextType = any, ParentType extends Resolver
 export type Resolvers<ContextType = any> = {
   AddPostResponse?: AddPostResponseResolvers<ContextType>;
   AuthResponse?: AuthResponseResolvers<ContextType>;
+  AuthResponseCore?: AuthResponseCoreResolvers<ContextType>;
   Error?: ErrorResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserCore?: UserCoreResolvers<ContextType>;
   UserRelation?: UserRelationResolvers<ContextType>;
 };
 
