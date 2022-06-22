@@ -13,7 +13,7 @@ import { authenticateTokens } from './authentication';
 
 const { PrismaClient } = PrismaWrapper;
 
-const whitelist = ['https://vaeb.io:3000', 'http://localhost:3000'];
+const whitelist = ['https://vaeb.io:3000', 'http://vaeb.io:3000', 'http://localhost:3000'];
 const corsConfig = {
     origin: function (origin: any, callback: any) {
         if (whitelist.includes(origin)) {
