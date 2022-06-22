@@ -13,10 +13,17 @@ import { authenticateTokens } from './authentication';
 
 const { PrismaClient } = PrismaWrapper;
 
-const corsConfig =
-    process.env.ENV === 'PROD'
-        ? { origin: 'https://vaeb.io:3000', credentials: true }
-        : { origin: 'http://localhost:3000', credentials: true };
+const whitelist = ['https://vaeb.io:3000', 'http://localhost:3000'];
+const corsConfig = {
+    origin: function (origin: any, callback: any) {
+        if (whitelist.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS (bad origin)'));
+        }
+    },
+    credentials: true,
+};
 
 export const prisma = new PrismaClient();
 console.log('Created prisma client!');
