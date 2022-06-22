@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { createClient, ssrExchange, dedupExchange, fetchExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
 
@@ -7,7 +6,7 @@ import { MeDocument } from './generated/graphql';
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
 
-console.log('IS SERVER:', isServer);
+console.log('IS SERVER:', isServer, process.env.ENV);
 
 const client = createClient({
     url: process.env.ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql',
