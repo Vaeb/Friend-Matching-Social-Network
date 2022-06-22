@@ -8,7 +8,7 @@ const ssrCache = ssrExchange({ isClient: !isServer });
 
 const graphqlUrl = process.env.ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql';
 
-console.log('IS SERVER:', isServer, process.env.ENV, graphqlUrl);
+console.log('IS SSR:', isServer, process.env.ENV);
 
 const client = createClient({
     url: graphqlUrl,
