@@ -8,7 +8,7 @@ import { auth } from './private';
 import { badStatus } from './utils';
 import { Context, ExpressRequest, UserCore, UserIdentifier } from './types';
 
-const cookieOptions: CookieOptions = { httpOnly: true, sameSite: 'none' };
+const cookieOptions: CookieOptions = { httpOnly: true };
 
 const generateTokens = (user: User, secretRefresh: string) => {
     const userCore: UserCore = { id: user.id, username: user.username };
