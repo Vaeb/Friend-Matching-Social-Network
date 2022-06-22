@@ -38,7 +38,7 @@ const resolvers: Resolvers = {
                 const rawPass = args.password;
 
                 if (!args.email.includes('@')) {
-                    parseErrors.push({ field: 'email', message: 'Must be a valid email address' });
+                    parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
                     throw new Error('Bad data');
                 } else if (!args.email.endsWith('.ac.uk')) {
                     parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
