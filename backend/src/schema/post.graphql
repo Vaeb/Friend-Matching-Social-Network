@@ -1,0 +1,22 @@
+type Post {
+    id: Int!
+    text: String!
+    creator: User! # Optional once creator and savedBy tested in usage
+    savedBy(limit: Int): [User]
+}
+
+type AddPostResponse {
+    ok: Boolean!
+    error: Error
+    post: Post
+}
+
+type Query {
+    getPost(id: Int!): Post
+    getPosts(limit: Int): [Post]!
+    getPostsFromUser(userId: Int!, limit: Int): [Post]
+}
+
+type Mutation {
+    addPost(creatorId: Int!, text: String!): AddPostResponse!
+}

@@ -1,0 +1,40 @@
+type User {
+    id: Int!
+    username: String!
+    email: String!
+    name: String!
+    matchPrecision: Int!
+    visEmail: Int!
+    visInterests: Int!
+    relations: [UserRelation]
+    posts(limit: Int): [Post]
+    # comments(limit: Int): [Int]!
+    # reactions(limit: Int): [Int]!
+    savedPosts(limit: Int): [Post]
+}
+
+type UserRelation {
+    user: User!
+    # baseUser: User
+    areFriends: Boolean!
+    compatibility: Int
+    haveMatched: Boolean!
+}
+
+type AuthResponse {
+    ok: Boolean!
+    error: Error
+    user: User
+}
+
+type Query {
+    getUser(id: Int!): User
+    getUsers(limit: Int): [User]!
+    whoami: String!
+}
+
+type Mutation {
+    register(username: String!, email: String!, password: String!, name: String!): AuthResponse!
+    login(handle: String!, password: String!): AuthResponse!
+    deleteUser(id: Int!): AuthResponse!
+}

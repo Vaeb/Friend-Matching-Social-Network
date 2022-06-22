@@ -12,7 +12,7 @@ module.exports = {
     },
     plugins: ['@typescript-eslint', 'import'],
     extends: ['plugin:@typescript-eslint/recommended', 'airbnb-typescript/base'],
-    ignorePatterns: ['dist/', 'node_modules/', 'src/migrations/', 'src/**/*.js'],
+    ignorePatterns: ['dist/', 'node_modules/', 'src/migrations/', 'src/schema/generated.ts', 'src/**/*.js'],
     rules: {
         'arrow-parens': ['error', 'as-needed', { requireForBlockBody: true }],
         // 'class-methods-use-this': 'off',

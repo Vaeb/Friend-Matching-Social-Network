@@ -82,10 +82,10 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
 
 const loginLookup = async (handle: string, handleType: string, password: string) => {
     const user = await prisma.user.findUnique({ where: { [handleType]: handle } });
-    if (!user) return badStatus(`Invalid username/email: <${handle}>`, false);
+    if (!user) return badStatus('handle', `Invalid username/email: <${handle}>`, false);
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return badStatus(`Invalid password: <${password}>`, true);
+    if (!isValid) return badStatus('password', `Invalid password: <${password}>`, true);
 
     return { ok: true, user, sound: true } as const;
 };

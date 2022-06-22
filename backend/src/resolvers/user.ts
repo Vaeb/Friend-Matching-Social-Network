@@ -1,33 +1,36 @@
 import bcrypt from 'bcrypt';
+import { User, UserRelations } from '@prisma/client';
+
 import { login } from '../authentication';
-
 import { prisma } from '../server';
-import { formatError } from '../utils';
+import { formatError, pickUser } from '../utils';
 import { Context } from '../types';
+import type { Resolvers } from '../schema/generated';
 
-export default {
+const resolvers: Resolvers = {
     Query: {
-        getUser: (_parent: any, { id }: any): Promise<any> => {
+        getUser: async (_parent, { id }) => {
             console.log('Received request for getUser:', id);
-            return prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { id },
-                include: { posts: true },
             });
+
+            return pickUser(user);
         },
-        getUsers: (_parent: any, { limit }: any): Promise<any> => {
+        getUsers: (_parent, { limit }) => {
             console.log('Received request for getUsers:', limit);
             return prisma.user.findMany({
                 orderBy: { createdAt: 'desc' },
-                take: limit,
+                take: limit ?? undefined,
             });
         },
-        whoami: (_parent: any, args: any, { userCore }: Context): any => {
+        whoami: (_parent, args, { userCore }: Context) => {
             if (!userCore) return 'You are not logged in.';
             return `You are ${userCore.username} (id: ${userCore.id})`;
         },
     },
     Mutation: {
-        register: async (_parent: any, args: any): Promise<any> => {
+        register: async (_parent, args) => {
             try {
                 args.password = await bcrypt.hash(args.password, 5);
                 const user = await prisma.user.create({ data: args });
@@ -46,8 +49,8 @@ export default {
                 };
             }
         },
-        login: async (_parent: any, { handle, password }: any, { res }: Context): Promise<any> => login(handle, password, res),
-        deleteUser: async (_parent: any, args: any): Promise<any> => {
+        login: async (_parent, { handle, password }, { res }: Context) => login(handle, password, res),
+        deleteUser: async (_parent, args) => {
             try {
                 const user = await prisma.user.delete({ where: { id: args.id } });
 
@@ -67,25 +70,61 @@ export default {
         },
     },
     User: {
-        posts: async ({ id: userId }: any, { limit }: any): Promise<any> => {
-            const user = await prisma.user.findUnique({ // Could improve as prisma.posts.findMany where creatorId=userId
-                where: { id: userId },
-                select: {
-                    posts: { take: limit },
-                },
+        relations: async ({ id: userId }) => {
+            // const relations = await prisma.userRelations.findMany({
+            //     // Could improve as prisma.posts.findMany where creatorId=userId
+            //     where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
+            //     include: { user1: true, user2: true },
+            // });
+
+            // Two choices:
+            // 1. Add each relation twice (interchange user1 and user2) and have a separate table for the relation data
+            // b. Possible performance benefit: Can keep each user1 row stored on a server shard close to user1
+            // 2. Add each relation once and require all queries involving relations to be raw SQL + extra TS to parse together
+            const rawRelations = (await prisma.$queryRaw`
+                SELECT areFriends, compatibility, haveMatched, matchDate, user.*
+                FROM user_relations rel
+                JOIN users user ON (rel.user1Id <> ${userId} AND rel.user1Id = user.id) OR (rel.user2Id <> ${userId} AND rel.user2Id = user.id)
+                WHERE rel.user1Id = ${userId} OR rel.user2Id = ${userId}
+            `) as (UserRelations & User)[];
+
+            const relations = rawRelations.map((rawRelation) => {
+                const {
+                    areFriends, compatibility, haveMatched, matchDate, ...userData 
+                } = rawRelation;
+                return {
+                    areFriends,
+                    compatibility,
+                    haveMatched,
+                    matchDate,
+                    user: pickUser(userData)!,
+                };
             });
 
-            return user?.posts;
+            return relations;
         },
-        savedPosts: async ({ id: userId }: any, { limit }: any): Promise<any> => {
-            const user = await prisma.user.findUnique({ // Possible equivalent for many-to-many?
+        posts: async ({ id: userId }, { limit }) => {
+            const posts = await prisma.post.findMany({
+                // Could improve as prisma.posts.findMany where creatorId=userId
+                where: { creatorId: userId },
+                take: limit ?? undefined,
+                include: { creator: true },
+            });
+
+            return posts;
+        },
+        savedPosts: async ({ id: userId }, { limit }) => {
+            const me = await prisma.user.findUnique({
+                // Possible equivalent for many-to-many?
                 where: { id: userId },
                 select: {
-                    savedPosts: { take: limit },
+                    savedPosts: { take: limit ?? undefined, include: { creator: true } },
                 },
             });
 
-            return user?.savedPosts;
+            return me?.savedPosts ?? [];
         },
     },
 };
+
+export default resolvers;

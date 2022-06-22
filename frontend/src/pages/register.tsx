@@ -45,7 +45,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             password: values.password,
                         });
                         if (response.data?.register.error) {
-                            actions.setStatus(response.data.register.error);
+                            actions.setErrors(response.data.register.error);
                         }
                         console.log(values);
                         // actions.setSubmitting(false);
