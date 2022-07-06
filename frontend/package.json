@@ -8,7 +8,6 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
     "@chakra-ui/theme-tools": "^2.0.2",
     "@emotion/react": "^11.9.0",
@@ -24,6 +23,7 @@
     "next-urql": "^3.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
     "react-is": "^18.2.0",
     "urql": "^2.2.2",
     "zustand": "^4.0.0-rc.1"

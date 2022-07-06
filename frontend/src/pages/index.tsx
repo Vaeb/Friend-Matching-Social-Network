@@ -1,5 +1,3 @@
-import { Box, Flex } from '@chakra-ui/react';
-
 import Page from '../components/Page';
 import PanelL from '../components/PanelL';
 import PanelM from '../components/PanelM';

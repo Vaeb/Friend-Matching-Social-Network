@@ -10,15 +10,16 @@ interface PanelLProps {
 
 const PanelL: FC<PanelLProps> = ({ children }) => {
     const router = useRouter();
-    const [{ data, fetching }] = useMeQuery();
-    const [{ fetching: _ }, logout] = useLogoutMutation();
+    const [{ data, fetching: _ }] = useMeQuery();
+    const [{ fetching: __ }, logout] = useLogoutMutation();
     const doLogout = async () => {
         await logout();
         router.push('/');
     };
     return (
-        <Box h="100%" w="11vw" bg="#202225" p={2} display="flex">
-            {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null}
+        <Box borderRight="1px solid rgba(0, 0, 0, 0.7)" h="100%" w="11vw" bg="#202225" px={2} py={3} display="flex">
+            {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
+            {children}
         </Box>
     );
 };
