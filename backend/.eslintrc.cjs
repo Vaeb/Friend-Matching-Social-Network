@@ -16,6 +16,7 @@ module.exports = {
     rules: {
         'arrow-parens': ['error', 'as-needed', { requireForBlockBody: true }],
         // 'class-methods-use-this': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/comma-dangle': [
             'error',
             {

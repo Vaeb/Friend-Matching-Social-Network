@@ -1,16 +1,10 @@
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Select, Text, 
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Input, Select, Text, 
 } from '@chakra-ui/react';
-import React, { FC, useContext, useState } from 'react';
-import { MeQuery } from '../generated/graphql';
+import React, { FC, useState } from 'react';
 
-interface SettingsMidProps {
-    SettingGroupContext: React.Context<{
-        settingGroup: string;
-        setSettingGroup: (group: string) => void;
-    }>;
-    data?: MeQuery;
-}
+import { MeQuery } from '../generated/graphql';
+import { useSettingsStore } from '../state';
 
 const OptionsAccount: FC<any> = ({ username }) => {
     return (
@@ -73,18 +67,26 @@ const OptionsMatching: FC = () => {
                     </AccordionPanel>
                 </AccordionItem>
             </Accordion>
+            <Text mt="12px" fontSize="med" fontWeight="bold" color="#fff" display="inline">
+                Match precision:
+            </Text>
+            <Input></Input>
         </Box>
     );
 };
 
-const settingsDisplays = {
-    account: OptionsAccount,
-    matching: OptionsMatching,
-} as { [key: string]: FC };
+// const settingsDisplays = {
+//     account: OptionsAccount,
+//     matching: OptionsMatching,
+// } as { [key: string]: FC };
 
-const SettingsMid: FC<SettingsMidProps> = ({ SettingGroupContext, data }) => {
-    const { settingGroup } = useContext(SettingGroupContext);
-    const safeTitle = settingGroup.replace(/\b(\w)/g, (m, p1) => p1.toUpperCase());
+interface SettingsMidProps {
+    data?: MeQuery;
+}
+
+const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
+    const section = useSettingsStore(state => state.section);
+    const safeTitle = section.replace(/\b(\w)/g, (m, p1) => p1.toUpperCase());
     // const options = settingsDisplays[settingGroup] as FC;
 
     return (
@@ -92,7 +94,10 @@ const SettingsMid: FC<SettingsMidProps> = ({ SettingGroupContext, data }) => {
             <Text fontSize="3xl" fontWeight="semibold" color="#fff" mb="20px">
                 {safeTitle}
             </Text>
-            {settingGroup === 'account' ? <OptionsAccount username={data?.me?.username} /> : <OptionsMatching />}
+            {{
+                account: <OptionsAccount username={data?.me?.username} />,
+                matching: <OptionsMatching />,
+            }[section]}
         </Box>
     );
 };

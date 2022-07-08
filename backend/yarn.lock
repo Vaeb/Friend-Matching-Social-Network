@@ -1796,6 +1796,18 @@ binary-extensions@^2.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
 
+bipartite-matching@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/bipartite-matching/-/bipartite-matching-1.0.0.tgz#f3e0ed6142eef46f2acc3eac93ee8fa41e9b2742"
+  integrity sha512-yNzOk6eJt/X6+yOq6SSfr1bndNcdoIpizCtS9T5C9bkLLUwOBdOnEVxTD7/MpzCqGVaT8LERT08a/D1COVNYZA==
+  dependencies:
+    typedarray-pool "^1.0.0"
+
+bit-twiddle@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/bit-twiddle/-/bit-twiddle-1.0.2.tgz#0c6c1fabe2b23d17173d9a61b7b7093eb9e1769e"
+  integrity sha512-B9UhK0DKFZhoTFcfvAzhqsjStvGJp9vYWf3+6SNTtdSQnvIgfkHbgHrg/e4+TH71N2GDu8tpmCVoyfrL1d7ntA==
+
 bl@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/bl/-/bl-4.1.0.tgz#451535264182bec2fbbc83a62ab98cf11d9f7b3a"
@@ -2430,6 +2442,11 @@ dset@^3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.2.tgz#89c436ca6450398396dc6538ea00abc0c54cd45a"
   integrity sha512-g/M9sqy3oHe477Ar4voQxWtaPIFw1jTdKZuomOjhCcBx9nHUNn0pu6NopuFFrTh/TRZIKEj+76vLWFu9BNKk+Q==
+
+dup@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/dup/-/dup-1.0.0.tgz#51fc5ac685f8196469df0b905e934b20af5b4029"
+  integrity sha512-Bz5jxMMC0wgp23Zm15ip1x8IhYRqJvF3nFC0UInJUDkN1z4uNPk9jTnfCUJXbOGiQ1JbXLQsiV41Fb+HXcj5BA==
 
 duplexer3@^0.1.4:
   version "0.1.4"
@@ -3384,6 +3401,11 @@ invariant@^2.2.4:
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
   dependencies:
     loose-envify "^1.0.0"
+
+iota-array@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/iota-array/-/iota-array-1.0.0.tgz#81ef57fe5d05814cd58c2483632a99c30a0e8087"
+  integrity sha512-pZ2xT+LOHckCatGQ3DcG/a+QuEqvoxqkiL7tvE8nn3uuu+f6i1TtpB5/FtWFbxUuVr5PZCx8KskuGatbJDXOWA==
 
 ipaddr.js@1.9.1:
   version "1.9.1"
@@ -5303,6 +5325,14 @@ type-is@~1.6.18:
   dependencies:
     media-typer "0.3.0"
     mime-types "~2.1.24"
+
+typedarray-pool@^1.0.0, typedarray-pool@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/typedarray-pool/-/typedarray-pool-1.2.0.tgz#e7e90720144ba02b9ed660438af6f3aacfe33ac3"
+  integrity sha512-YTSQbzX43yvtpfRtIDAYygoYtgT+Rpjuxy9iOpczrjpXLgGoyG7aS5USJXV2d3nn8uHTeb9rXDvzS27zUg5KYQ==
+  dependencies:
+    bit-twiddle "^1.0.0"
+    dup "^1.0.0"
 
 typescript@^4.7.3:
   version "4.7.3"

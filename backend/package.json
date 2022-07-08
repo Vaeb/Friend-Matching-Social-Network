@@ -9,8 +9,8 @@
     "scripts": {
         "start": "node --trace-deprecation --experimental-specifier-resolution=node dist/index.js",
         "dev": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/index.js",
-        "match-s": "node --trace-deprecation --experimental-specifier-resolution=node dist/matcher.js",
-        "match": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/matcher.js",
+        "match-s": "node --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
+        "match": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
         "watch": "tsc -w",
         "startraw": "node dist/index.js",
         "tsnode": "ts-node src/index.ts",
@@ -27,18 +27,21 @@
         "apollo-server-core": "^3.8.2",
         "apollo-server-express": "^3.8.2",
         "bcrypt": "^5.0.1",
+        "bipartite-matching": "^1.0.0",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.0.1",
         "express": "^4.18.1",
         "graphql": "^16.5.0",
         "graphql-tools": "^8.2.12",
+        "iota-array": "^1.0.0",
         "jsonwebtoken": "^8.5.1",
         "lodash-es": "^4.17.21",
         "pg": "^8.7.3",
         "pg-hstore": "^2.3.4",
         "reflect-metadata": "^0.1.13",
-        "tree-kill": "^1.2.2"
+        "tree-kill": "^1.2.2",
+        "typedarray-pool": "^1.2.0"
     },
     "devDependencies": {
         "@graphql-codegen/cli": "2.6.2",
