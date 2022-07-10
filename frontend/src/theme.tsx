@@ -30,8 +30,16 @@ const theme = extendTheme({
             button: '12px',
         },
     },
-    colors: {
-        black: '#16161D',
+    colors: { // Strength
+        black3: '#3c404b', // PanelM
+        black6: '#2f3136', // Body, PanelR
+        black8: '#202225', // PanelL, Borders (32, 34, 37)
+        blackT5: 'rgba(79, 84, 92, 0.4)', // Setting Hover Background
+        blackT6: 'rgba(79, 84, 92, 0.6)', // Icon Hover Background, Setting Background
+        gray4: '#96989d', // Body
+        gray6: '#b9bbbe', // Icon Text, Setting Text
+        gray8: '#dcddde', // Setting Text Hover
+        dividerT: 'rgba(79, 84, 92, 0.48)',
     },
     fonts,
     breakpoints,
@@ -40,10 +48,11 @@ const theme = extendTheme({
             'html, body, #__next, #root, .App': {
                 w: '100%',
                 h: '100%',
-                bg: '#2f3136',
+                bg: 'black6',
+                borderColor: 'black8',
             },
             body: {
-                color: '#96989d',
+                color: 'gray4',
             },
         }),
     },

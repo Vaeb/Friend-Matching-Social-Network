@@ -1,4 +1,4 @@
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
@@ -13,16 +13,16 @@ const SettingsLeft: FC<SettingsLeftProps> = () => {
     const SettingGroupButton: FC<any> = ({ children, name }) => {
         const selected = name === section;
         return (<Button
-            bg={selected ? 'rgba(79, 84, 92, 0.6)' : 'none'}
-            fontSize="large"
-            fontWeight="500"
-            color={selected ? '#fff' : 'b9bbbe'}
-            pl="16px"
-            mb="10px"
-            w="100%"
-            textAlign="left"
-            justifyContent="left"
-            _hover={!selected ? { bg: 'rgba(79, 84, 92, 0.4)', color: '#dcddde' } : {}}
+            bg={selected ? 'blackT6' : 'none'}
+            fontSize='large'
+            fontWeight='500'
+            color={selected ? '#fff' : 'gray6'}
+            pl='16px'
+            mb='10px'
+            w='100%'
+            textAlign='left'
+            justifyContent='left'
+            _hover={!selected ? { bg: 'blackT5', color: 'gray8' } : {}}
             onClick={() => setSection(name)}
         >
             {children}
@@ -30,13 +30,13 @@ const SettingsLeft: FC<SettingsLeftProps> = () => {
     };
 
     return (
-        <Box display="flex" flexDirection="column" w="100%">
-            <Text fontSize="med" fontWeight="bold" color="#96989d" pl="16px" mb="18px">
+        <VStack w='100%'>
+            <Text fontSize='med' fontWeight='bold' color='gray4' pl='16px' mb='18px'>
                 SETTINGS
             </Text>
-            <SettingGroupButton name="account">Account</SettingGroupButton>
-            <SettingGroupButton name="matching">Matching</SettingGroupButton>
-        </Box>
+            <SettingGroupButton name='account'>Account</SettingGroupButton>
+            <SettingGroupButton name='matching'>Matching</SettingGroupButton>
+        </VStack>
     );
 };
 

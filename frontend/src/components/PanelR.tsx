@@ -15,8 +15,6 @@ const ItemBoxShadow = `
     0 30px 40px rgba(0, 0, 0, 0.5)
 `;
 
-// hover bg rgba(79, 84, 92, 0.6)
-
 interface PanelRProps {
     children?: React.ReactNode;
 }
@@ -25,14 +23,14 @@ const PanelR: FC<PanelRProps> = ({ children }) => {
     const setView = useAppStore(state => state.setView);
 
     return (
-        <Box borderLeft="1px solid rgba(0, 0, 0, 0.7)" h="100%" w="80px">
-            <Box h="100%" display="flex" flexDirection="column" justifyContent="space-between" alignItems="center" paddingY="20px">
-                <Box display="flex" flexDirection="column" alignItems="center">
+        <Box h='100%' w='80px' boxShadow='md'>
+            <Box h='100%' display='flex' flexDirection='column' justifyContent='space-between' alignItems='center' paddingY='20px'>
+                <Box display='flex' flexDirection='column' alignItems='center'>
                     {children ?? <BaseRight />}
                 </Box>
                 <Box>
-                    <RoundBox isBottom _hover={{ bg: 'rgba(79, 84, 92, 0.6)', cursor: 'pointer' }} onClick={() => setView('settings')}>
-                        <Icon as={IconSettings} w="70%" h="70%" color="#b9bbbe" />
+                    <RoundBox isBottom _hover={{ bg: 'blackT5', cursor: 'pointer' }} onClick={() => setView('settings')}>
+                        <Icon as={IconSettings} w='70%' h='70%' color='gray6' />
                     </RoundBox>
                 </Box>
             </Box>

@@ -24,7 +24,7 @@ const PanelL: FC<PanelLProps> = () => {
     const view = useAppStore(state => state.left.view);
 
     return (
-        <Box borderRight="1px solid rgba(0, 0, 0, 0.7)" h="100%" w="11vw" bg="#202225" px={2} py={3} display="flex">
+        <Box h='100%' w='11vw' bg='black8' px={2} py={3} display='flex' boxShadow='xl' zIndex={2}>
             {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
             {{
                 settings: <SettingsLeft />,

@@ -14,7 +14,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     const view = useAppStore(state => state.left.view);
 
     return (
-        <Box h="100%" flex="1 1 auto" bg="#3c404b" px={10} py={3}>
+        <Box h='100%' flex='1 1 auto' bg='black3' px={10} py={3}>
             {{
                 settings: <SettingsMid data={data} />,
             }[view]}

@@ -12,11 +12,11 @@ const BaseRight: FC<any> = () => {
 
     return (
         <>
-            <RoundBox _hover={{ bg: 'rgba(79, 84, 92, 0.6)', cursor: 'pointer' }} onClick={() => setView('base')}>
-                <Icon as={IconHome} w="60%" h="60%" color="#b9bbbe" />
+            <RoundBox _hover={{ bg: 'blackT5', cursor: 'pointer' }} onClick={() => setView('base')}>
+                <Icon as={IconHome} w='60%' h='60%' color='gray6' />
             </RoundBox>
-            <RoundBox _hover={{ bg: 'rgba(79, 84, 92, 0.6)', cursor: 'pointer' }} onClick={() => setView('base')}>
-                <Icon as={IconMatches} w="60%" h="60%" color="#b9bbbe" />
+            <RoundBox _hover={{ bg: 'blackT5', cursor: 'pointer' }} onClick={() => setView('base')}>
+                <Icon as={IconMatches} w='60%' h='60%' color='gray6' />
             </RoundBox>
         </>
     );

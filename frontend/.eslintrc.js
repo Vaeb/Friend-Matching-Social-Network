@@ -58,6 +58,7 @@ module.exports = {
         '@typescript-eslint/indent': ['error', 4],
         // * 'jsx-a11y/anchor-is-valid': 'off',
         // * 'jsx-a11y/href-no-hash': 'off',
+        'jsx-quotes': ['error', 'prefer-single'],
         // 'linebreak-style': 'off',
         'max-len': [
             'error',

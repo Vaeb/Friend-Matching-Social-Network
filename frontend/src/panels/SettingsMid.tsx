@@ -8,8 +8,8 @@ import { useSettingsStore } from '../state';
 
 const OptionsAccount: FC<any> = ({ username }) => {
     return (
-        <Box display="flex" flexDirection="column" w="100%">
-            <Text fontSize="med" fontWeight="bold" color="#96989d" mb="18px">
+        <Box display='flex' flexDirection='column' w='100%'>
+            <Text fontSize='med' fontWeight='bold' color='gray4' mb='18px'>
                 Username: {username}
             </Text>
         </Box>
@@ -30,33 +30,33 @@ const OptionsMatching: FC = () => {
     };
 
     return (
-        <Box display="flex" flexDirection="column" w="100%">
-            <Text fontSize="med" fontWeight="bold" color="#96989d" mb="12px">
+        <Box display='flex' flexDirection='column' w='100%'>
+            <Text fontSize='med' fontWeight='bold' color='gray4' mb='12px'>
                 What are your interests?
             </Text>
-            <Box display="flex" alignItems="center" mb="12px">
-                <Text fontSize="med" fontWeight="bold" color="#fff" display="inline">
+            <Box display='flex' alignItems='center' mb='12px'>
+                <Text fontSize='med' fontWeight='bold' color='#fff' display='inline'>
                     Add new:
                 </Text>
-                <Select display="inline-block" ml="20px" mt="4px" width="300px" onChange={handleChange}>
+                <Select display='inline-block' ml='20px' mt='4px' width='300px' onChange={handleChange}>
                     {filteredInterests.map(({ name, id }) => (
                         <option key={`${id}`} value={`${id}`} style={{ color: 'black' }}>
                             {name}
                         </option>
                     ))}
                 </Select>
-                <Button p="0" m="0 0 0 2px" bg="none" _hover={{}} onClick={() => selectedInterest > -1 ? setInterests([...interests, selectedInterest]) : null}>
+                <Button p='0' m='0 0 0 2px' bg='none' _hover={{}} onClick={() => selectedInterest > -1 ? setInterests([...interests, selectedInterest]) : null}>
                     ✔️
                 </Button>
             </Box>
-            <Text fontSize="med" fontWeight="bold" color="#96989d" mb="18px">
+            <Text fontSize='med' fontWeight='bold' color='gray4' mb='18px'>
                 Added:
             </Text>
             <Accordion allowToggle>
                 <AccordionItem>
                     <h2>
                         <AccordionButton>
-                            <Box flex="1" textAlign="left">
+                            <Box flex='1' textAlign='left'>
                                 Interests
                             </Box>
                             <AccordionIcon />
@@ -67,10 +67,10 @@ const OptionsMatching: FC = () => {
                     </AccordionPanel>
                 </AccordionItem>
             </Accordion>
-            <Text mt="12px" fontSize="med" fontWeight="bold" color="#fff" display="inline">
+            <Text mt='12px' fontSize='med' fontWeight='bold' color='#fff' display='inline'>
                 Match precision:
             </Text>
-            <Input></Input>
+            <Input />
         </Box>
     );
 };
@@ -86,13 +86,13 @@ interface SettingsMidProps {
 
 const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
     const section = useSettingsStore(state => state.section);
-    const safeTitle = section.replace(/\b(\w)/g, (m, p1) => p1.toUpperCase());
+    // const safeTitle = section.replace(/\b(\w)/g, (m, p1) => p1.toUpperCase());
     // const options = settingsDisplays[settingGroup] as FC;
 
     return (
         <Box>
-            <Text fontSize="3xl" fontWeight="semibold" color="#fff" mb="20px">
-                {safeTitle}
+            <Text fontSize='3xl' fontWeight='semibold' color='#fff' mb='20px' letterSpacing='wide' textTransform='capitalize'>
+                {section}
             </Text>
             {{
                 account: <OptionsAccount username={data?.me?.username} />,
