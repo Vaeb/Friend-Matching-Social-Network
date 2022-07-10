@@ -1,11 +1,12 @@
-import { Box, Icon } from '@chakra-ui/react';
 import React, { FC } from 'react';
+import { ActionIcon, Box, Stack, useMantineTheme } from '@mantine/core';
+// import { Box, Icon } from '@chakra-ui/react';
 import { MdSettings as IconSettings } from 'react-icons/md';
 // import NextLink from 'next/link';
 
 import { useAppStore } from '../state';
-import RoundBox from './RoundBox';
 import BaseRight from '../panels/BaseRight';
+import PanelAction from './PanelAction';
 // import { IconType } from 'react-icons/lib';
 
 const ItemBoxShadow = `
@@ -20,21 +21,20 @@ interface PanelRProps {
 }
 
 const PanelR: FC<PanelRProps> = ({ children }) => {
+    const theme = useMantineTheme();
     const setView = useAppStore(state => state.setView);
 
     return (
-        <Box h='100%' w='80px' boxShadow='md'>
-            <Box h='100%' display='flex' flexDirection='column' justifyContent='space-between' alignItems='center' paddingY='20px'>
-                <Box display='flex' flexDirection='column' alignItems='center'>
-                    {children ?? <BaseRight />}
-                </Box>
-                <Box>
-                    <RoundBox isBottom _hover={{ bg: 'blackT5', cursor: 'pointer' }} onClick={() => setView('settings')}>
-                        <Icon as={IconSettings} w='70%' h='70%' color='gray6' />
-                    </RoundBox>
-                </Box>
+        <Stack sx={{ width: '80px', boxShadow: theme.shadows.md }} justify='space-between' align='center' py={20}>
+            <Stack align='center' spacing={20}>
+                {children ?? <BaseRight />}
+            </Stack>
+            <Box>
+                <PanelAction onClick={() => setView('settings')} color='blue'>
+                    <IconSettings style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
+                </PanelAction>
             </Box>
-        </Box>
+        </Stack>
     );
 };
 

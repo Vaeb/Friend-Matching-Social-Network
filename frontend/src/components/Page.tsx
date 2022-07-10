@@ -14,13 +14,13 @@ interface PageProps {
 }
 
 const Regular: FC<HasChildren> = ({ children }) => (
-    <Box display="flex" w="100%" h="100%">
+    <Box display='flex' w='100%' h='100%'>
         {children}
     </Box>
 );
 
 const Center: FC<HasChildren> = ({ children }) => (
-    <Box display="flex" alignItems="center" justifyContent="center" w="100%" h="100vh" pb="10vh" overflow="hidden">
+    <Box display='flex' alignItems='center' justifyContent='center' w='100%' h='100vh' pb='10vh' overflow='hidden'>
         {children}
         {/* <Box display="block" height="10vh" width="100%" bg="#f00" /> */}
     </Box>
@@ -36,6 +36,7 @@ const Page: FC<PageProps> = ({ children, type, needsAuth, title }) => {
         <>
             <Head>
                 <title>{title}</title>
+                <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
             </Head>
             <PageEl>{children}</PageEl>
         </>

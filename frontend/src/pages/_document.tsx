@@ -1,11 +1,11 @@
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document';
-import { ColorModeScript } from '@chakra-ui/react';
-// import { createGetInitialProps } from '@mantine/next';
+// import { ColorModeScript } from '@chakra-ui/react';
+import { createGetInitialProps } from '@mantine/next';
 
-// const getInitialProps = createGetInitialProps();
+const getInitialProps = createGetInitialProps();
 
 export default class Document extends NextDocument {
-    // static getInitialProps = getInitialProps;
+    static getInitialProps = getInitialProps;
 
     render() {
         return (
@@ -13,7 +13,7 @@ export default class Document extends NextDocument {
                 <Head />
                 <body>
                     {/* Make Color mode to persists when you refresh the page. */}
-                    <ColorModeScript />
+                    {/* <ColorModeScript /> */}
                     <Main />
                     <NextScript />
                 </body>

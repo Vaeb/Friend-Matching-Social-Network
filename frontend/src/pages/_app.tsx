@@ -1,16 +1,39 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { Global, MantineProvider } from '@mantine/core';
 import { AppProps } from 'next/app';
 import { Provider } from 'urql';
 
 import { client } from '../urqlClient';
-import theme from '../theme';
+import myTheme from '../theme';
+
+function MyGlobalStyles() {
+    return (
+        <Global
+            styles={theme => ({
+                'html, body, #__next, #root, .App': {
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: theme.colors._black[6],
+                    borderColor: theme.colors._black[8],
+                },
+                body: {
+                    color: theme.colors._gray[4],
+                },
+            })}
+        />
+    );
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
         <Provider value={client}>
-            <ChakraProvider resetCSS theme={theme}>
+            <MantineProvider
+                withGlobalStyles
+                withNormalizeCSS
+                theme={myTheme}
+            >
+                <MyGlobalStyles />
                 <Component {...pageProps} />
-            </ChakraProvider>
+            </MantineProvider>
         </Provider>
     );
 }

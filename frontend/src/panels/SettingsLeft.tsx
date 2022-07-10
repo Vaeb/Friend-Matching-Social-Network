@@ -1,28 +1,35 @@
-import { Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
+// import { Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
+import { Box, Button, Stack, Text, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
 import { useSettingsStore } from '../state';
 
-interface SettingsLeftProps {
-}
-
-const SettingsLeft: FC<SettingsLeftProps> = () => {
+const SettingsLeft = () => {
+    const theme = useMantineTheme();
     const { section, setSection } = useSettingsStore(state => ({ section: state.section, setSection: state.setSection }), shallow);
 
     const SettingGroupButton: FC<any> = ({ children, name }) => {
         const selected = name === section;
         return (<Button
-            bg={selected ? 'blackT6' : 'none'}
-            fontSize='large'
-            fontWeight='500'
-            color={selected ? '#fff' : 'gray6'}
-            pl='16px'
-            mb='10px'
-            w='100%'
-            textAlign='left'
-            justifyContent='left'
-            _hover={!selected ? { bg: 'blackT5', color: 'gray8' } : {}}
+            sx={{
+                backgroundColor: selected ? theme.colors._black[6] : 'transparent',
+                color: selected ? '#fff' : theme.colors._gray[6],
+                fontSize: '16px',
+                fontWeight: 500,
+                textAlign: 'left',
+                width: '100%',
+                '&:hover': !selected ? {
+                    backgroundColor: theme.colors._blackT[5],
+                    color: theme.colors._gray[8],
+                } : { backgroundColor: theme.colors._black[6] },
+            }}
+            styles={{
+                inner: {
+                    justifyContent: 'flex-start',
+                },
+            }}
+            pl={20}
             onClick={() => setSection(name)}
         >
             {children}
@@ -30,13 +37,15 @@ const SettingsLeft: FC<SettingsLeftProps> = () => {
     };
 
     return (
-        <VStack w='100%'>
-            <Text fontSize='med' fontWeight='bold' color='gray4' pl='16px' mb='18px'>
+        <Box>
+            <Text size={14} weight='700' color='dimmed' pl={20} mt={8} mb={28}>
                 SETTINGS
             </Text>
-            <SettingGroupButton name='account'>Account</SettingGroupButton>
-            <SettingGroupButton name='matching'>Matching</SettingGroupButton>
-        </VStack>
+            <Stack align='flex-start' justify='flex-start' spacing={14}>
+                <SettingGroupButton name='account'>Account</SettingGroupButton>
+                <SettingGroupButton name='matching'>Matching</SettingGroupButton>
+            </Stack>
+        </Box>
     );
 };
 
