@@ -64,7 +64,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                                 <InputField name='username' label='USERNAME' placeholder='' type='text' readOnly={readonly} onFocus={() => setReadonly(false)}  />
                             </Box>
                             <Box mt={4}>
-                                <InputField name='email' label='UNIVERSITY EMAIL' placeholder='' autoComplete='new-password' />
+                                <InputField name='email' label='EMAIL' placeholder='' autoComplete='new-password' />
                             </Box>
                             <Box mt={4}>
                                 <InputField name='password' label='PASSWORD' placeholder='' type='password' autoComplete='new-password' />
