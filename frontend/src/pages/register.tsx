@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { Box, Button, Text } from '@mantine/core';
+// import { Button, Text } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
-import { Box, Button, Text } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 
 import { InputField } from '../components/InputField';
 import Page from '../components/Page';
 import { useRegisterMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
-import { useRouter } from 'next/router';
 
 const ItemBoxShadow = `
     0 2.3px 3.6px #4f4f4f,
@@ -27,13 +28,13 @@ const Register: React.FC<RegisterProps> = ({}) => {
     const isServer = typeof window === 'undefined';
     console.log('CUSTOM CHECK SSR:', isServer);
 
-    return (
+    return ( // T6
         <Page type='center' needsAuth={false}>
-            <Box bg='rgba(79,84,92,.6)' p='30px' minW='21vw' borderRadius='5px' boxShadow={ItemBoxShadow}>
-                <Box fontSize='xl' fontWeight='semibold' mb={4}>
-                    <Text>Welcome!</Text>
-                    <Text>Please register an account.</Text>
-                    <Box mt={1} fontSize='sm' fontWeight='medium' color='#00aff4'>
+            <Box className='bg-_blackT-600 min-w-[21vw] rounded-md shadow-_box5' p='30px'>
+                <Box className='text-xl font-semibold' mb={4}>
+                    <p>Welcome!</p>
+                    <p>Please register an account.</p>
+                    <Box className='text-sm font-medium text-_sky-500' mt={1}>
                         <NextLink href='/login'>
                             <a>
                                 If you have an account, login.
@@ -72,7 +73,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             <Box mt={4}>
                                 <InputField name='name' label='PREFERRED NAME' placeholder='' autoComplete='new-password' />
                             </Box>
-                            <Button mt={8} w='100%' type='submit' colorScheme='blue' isLoading={props.isSubmitting}>
+                            <Button className='w-full' mt={8} type='submit' colorScheme='blue' isLoading={props.isSubmitting}>
                                 Continue
                             </Button>
                         </Form>
