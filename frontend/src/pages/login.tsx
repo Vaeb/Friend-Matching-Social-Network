@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Text, TextInput } from '@mantine/core';
+import { Box, Button, PasswordInput, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 // import { Box, Button, Text } from '@chakra-ui/react';
 // import { Formik, Form } from 'formik';
@@ -64,7 +64,7 @@ const Login: React.FC<LoginProps> = ({}) => {
                             <TextInput name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
                         </Box>
                         <Box mt={9}>
-                            <TextInput name='password' label='PASSWORD' placeholder='' type='password' {...form.getInputProps('password')} />
+                            <PasswordInput name='password' label='PASSWORD' placeholder='' {...form.getInputProps('password')} />
                         </Box>
                         <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
                             Continue

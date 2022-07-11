@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Text, TextInput } from '@mantine/core';
+import { Box, Button, PasswordInput, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 // import { Button, Text } from '@chakra-ui/react';
 // import { Formik, Form } from 'formik';
@@ -78,7 +78,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                             <TextInput name='email' label='EMAIL' placeholder='your@email.com' autoComplete='new-password' {...form.getInputProps('email')} />
                         </Box>
                         <Box mt={9}>
-                            <TextInput name='password' label='PASSWORD' placeholder='*********' type='password' autoComplete='new-password' {...form.getInputProps('password')} />
+                            <PasswordInput name='password' label='PASSWORD' placeholder='*********' autoComplete='new-password' {...form.getInputProps('password')} />
                         </Box>
                         <Box mt={9}>
                             <TextInput name='name' label='PREFERRED NAME' placeholder='John' autoComplete='new-password' {...form.getInputProps('name')} />
