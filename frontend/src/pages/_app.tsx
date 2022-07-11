@@ -1,12 +1,11 @@
-import { createEmotionCache, Global, MantineProvider } from '@mantine/core';
+import { Global, MantineProvider } from '@mantine/core';
 import { AppProps } from 'next/app';
 import { Provider } from 'urql';
 
 import { client } from '../urqlClient';
 import myTheme from '../theme';
+import { myEmotionCache } from '../emotionCache';
 import '../styles/globals.css';
-
-const myEmotionCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function MyGlobalStyles() {
     return (

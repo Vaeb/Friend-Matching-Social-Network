@@ -5,6 +5,7 @@ import {
     Box,
     Button,
     Group,
+    Highlight,
     NumberInput,
     Slider,
     Stack,
@@ -103,8 +104,24 @@ const Matching = () => {
             {addingInterest !== '' ? (
                 <Box className='relative mt-[-16px]'>
                     <Stack className='absolute w-full h-[200]'>
-                        <Text mt={12}>How do you feel about {addingInterest}?</Text>
-                        <Slider className='shadow-sm' min={-100} max={100} defaultValue={0} marks={sliderMarks} onChangeEnd={setSliderValue} />
+                        <Highlight
+                            mt={12}
+                            highlight={addingInterest}
+                            highlightStyles={{
+                                backgroundImage: theme.fn.linearGradient(45, theme.colors.cyan[5], theme.colors.indigo[5]),
+                                fontWeight: 700,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}
+                        >{`How do you feel about ${addingInterest}?`}</Highlight>
+                        <Slider
+                            className='shadow-sm'
+                            min={-100}
+                            max={100}
+                            defaultValue={0}
+                            marks={sliderMarks}
+                            onChangeEnd={setSliderValue}
+                        />
                         <Group className='mt-10'>
                             <Button className='w-24 shadow-md' variant='outline' onClick={addInterest}>
                                 Save
