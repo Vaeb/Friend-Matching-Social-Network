@@ -1,34 +1,56 @@
-import React from 'react';
-import { Formik, Form } from 'formik';
-import { Box, Button, Text } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Button, Text, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
+// import { Box, Button, Text } from '@chakra-ui/react';
+// import { Formik, Form } from 'formik';
 import NextLink from 'next/link';
 
-import { InputField } from '../components/InputField';
 import Page from '../components/Page';
 import { useRouter } from 'next/router';
 import { useLoginMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
-
-const ItemBoxShadow = `
-    0 2.3px 3.6px #4f4f4f,
-    0 .3px 10px rgba(0, 0, 0, 0.046),
-    0 15.1px 24.1px rgba(0, 0, 0, 0.051),
-    0 30px 40px rgba(0, 0, 0, 0.5)
-`;
 
 interface LoginProps {}
 
 const Login: React.FC<LoginProps> = ({}) => {
     const router = useRouter();
     const [, login] = useLoginMutation();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const form = useForm({
+        initialValues: {
+            handle: '',
+            password: '',
+        },
+        validate: {
+            handle: value => (!value.length ? 'Username is required' : null),
+            password: value => (!value.length ? 'Password is required' : null),
+        },
+    });
+
+    const onSubmit = async (values: any) => {
+        setIsLoading(true);
+        console.log('qq', values);
+        const response = await login({
+            handle: values.handle,
+            password: values.password,
+        });
+        if (response.data?.login.errors) {
+            form.setErrors(mapErrors(response.data.login.errors));
+            setIsLoading(false);
+            return;
+        }
+        console.log(values, response.data?.login);
+        router.push('/');
+    };
 
     return (
         <Page type='center' needsAuth={false}>
-            <Box bg='rgba(79,84,92,.6)' p='30px' minW='21vw' borderRadius='5px' boxShadow={ItemBoxShadow}>
-                <Box fontSize='xl' fontWeight='semibold' mb={4}>
-                    <Text>Welcome back!</Text>
-                    {/* <Text>Please login.</Text> */}
-                    <Box mt={1} fontSize='sm' fontWeight='medium' color='#00aff4'>
+            <Box className='bg-_blackT-600 min-w-[21vw] rounded-md shadow-_box5' p='30px'>
+                <Box className='text-xl font-semibold' mb={4}>
+                    <p>Welcome back!</p>
+                    {/* <p>Please login.</p> */}
+                    <Box className='text-sm font-medium text-_sky-500' mt={1}>
                         <NextLink href='/register'>
                             <a>
                                 If you&apos;re new, create an account.
@@ -36,35 +58,19 @@ const Login: React.FC<LoginProps> = ({}) => {
                         </NextLink>
                     </Box>
                 </Box>
-                <Formik
-                    initialValues={{ handle: '', password: '' }}
-                    onSubmit={async (values, actions) => {
-                        const response = await login({
-                            handle: values.handle,
-                            password: values.password,
-                        });
-                        if (response.data?.login.errors) {
-                            actions.setErrors(mapErrors(response.data.login.errors));
-                            return;
-                        }
-                        console.log(values, response.data?.login);
-                        router.push('/');
-                    }}
-                >
-                    {props => (
-                        <Form>
-                            <Box>
-                                <InputField name='handle' label='USERNAME OR EMAIL' placeholder='' />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField name='password' label='PASSWORD' placeholder='' type='password' />
-                            </Box>
-                            <Button mt={8} w='100%' type='submit' colorScheme='blue' isLoading={props.isSubmitting}>
-                                Continue
-                            </Button>
-                        </Form>
-                    )}
-                </Formik>
+                <Box mt={14}>
+                    <form onSubmit={form.onSubmit(onSubmit)}>
+                        <Box>
+                            <TextInput name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
+                        </Box>
+                        <Box mt={9}>
+                            <TextInput name='password' label='PASSWORD' placeholder='' type='password' {...form.getInputProps('password')} />
+                        </Box>
+                        <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
+                            Continue
+                        </Button>
+                    </form>
+                </Box>
             </Box>
         </Page>
     );

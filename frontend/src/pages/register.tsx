@@ -1,32 +1,59 @@
 import React, { useState } from 'react';
-import { Box, Button, Text } from '@mantine/core';
+import { Box, Button, Text, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
 // import { Button, Text } from '@chakra-ui/react';
-import { Formik, Form } from 'formik';
+// import { Formik, Form } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 
-import { InputField } from '../components/InputField';
 import Page from '../components/Page';
 import { useRegisterMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
-
-const ItemBoxShadow = `
-    0 2.3px 3.6px #4f4f4f,
-    0 .3px 10px rgba(0, 0, 0, 0.046),
-    0 15.1px 24.1px rgba(0, 0, 0, 0.051),
-    0 30px 40px rgba(0, 0, 0, 0.5)
-`;
 
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = ({}) => {
     // const validateUsername = (value: string) => value && value.length > 3 ? undefined : 'Username must be at least 3 characters';
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
     const [readonly, setReadonly] = useState(true);
     const [, register] = useRegisterMutation();
 
     const isServer = typeof window === 'undefined';
     console.log('CUSTOM CHECK SSR:', isServer);
+
+    const form = useForm({
+        initialValues: {
+            username: '',
+            email: '',
+            password: '',
+            // confirmPassword: '',
+            name: '',
+        },
+        validate: {
+            username: value => (!value.length ? 'Username is required' : null),
+            email: value => (!value.length ? 'Email is required' : null),
+            password: value => (!value.length ? 'Password is required' : null),
+            name: value => (!value.length ? 'Name is required' : null),
+        },
+    });
+
+    const onSubmit = async (values: any) => {
+        setIsLoading(true);
+        const response = await register({
+            username: values.username,
+            name: values.name,
+            email: values.email,
+            password: values.password,
+        });
+        if (response.data?.register.errors) {
+            form.setErrors(mapErrors(response.data.register.errors));
+            setIsLoading(false);
+            return;
+        }
+        console.log(values, response.data?.register);
+        router.push('/');
+    };
 
     return ( // T6
         <Page type='center' needsAuth={false}>
@@ -42,43 +69,25 @@ const Register: React.FC<RegisterProps> = ({}) => {
                         </NextLink>
                     </Box>
                 </Box>
-                <Formik
-                    initialValues={{ username: '', name: '', email: '', password: '' }}
-                    onSubmit={async (values, actions) => {
-                        const response = await register({
-                            username: values.username,
-                            name: values.name,
-                            email: values.email,
-                            password: values.password,
-                        });
-                        if (response.data?.register.errors) {
-                            actions.setErrors(mapErrors(response.data.register.errors));
-                            return;
-                        }
-                        console.log(values, response.data?.register);
-                        router.push('/');
-                    }}
-                >
-                    {props => (
-                        <Form autoComplete='new-password'>
-                            <Box>
-                                <InputField name='username' label='USERNAME' placeholder='' type='text' readOnly={readonly} onFocus={() => setReadonly(false)}  />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField name='email' label='EMAIL' placeholder='' autoComplete='new-password' />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField name='password' label='PASSWORD' placeholder='' type='password' autoComplete='new-password' />
-                            </Box>
-                            <Box mt={4}>
-                                <InputField name='name' label='PREFERRED NAME' placeholder='' autoComplete='new-password' />
-                            </Box>
-                            <Button className='w-full' mt={8} type='submit' colorScheme='blue' isLoading={props.isSubmitting}>
-                                Continue
-                            </Button>
-                        </Form>
-                    )}
-                </Formik>
+                <Box mt={14}>
+                    <form onSubmit={form.onSubmit(onSubmit)}>
+                        <Box>
+                            <TextInput name='username' label='USERNAME' placeholder='Username' autoComplete='new-password' {...form.getInputProps('username')} />
+                        </Box>
+                        <Box mt={9}>
+                            <TextInput name='email' label='EMAIL' placeholder='your@email.com' autoComplete='new-password' {...form.getInputProps('email')} />
+                        </Box>
+                        <Box mt={9}>
+                            <TextInput name='password' label='PASSWORD' placeholder='*********' type='password' autoComplete='new-password' {...form.getInputProps('password')} />
+                        </Box>
+                        <Box mt={9}>
+                            <TextInput name='name' label='PREFERRED NAME' placeholder='John' autoComplete='new-password' {...form.getInputProps('name')} />
+                        </Box>
+                        <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
+                            Continue
+                        </Button>
+                    </form>
+                </Box>
             </Box>
         </Page>
     );

@@ -1666,6 +1666,13 @@
     "@mantine/utils" "5.0.0-alpha.19"
     react-dropzone "14.2.1"
 
+"@mantine/form@^5.0.0-alpha.19":
+  version "5.0.0-alpha.19"
+  resolved "https://registry.yarnpkg.com/@mantine/form/-/form-5.0.0-alpha.19.tgz#469ca0a15d02ff3f4b35c5b3d2808df41ae05b37"
+  integrity sha512-e0n6vdZ5OBmViVmt4uY7mxtA3TYlAQRSFUsme/RIL1xba0Fu6pFCBDy8sS8f5tAdzxfL0vIc/t/dt9irS1JghQ==
+  dependencies:
+    lodash.clonedeep "4.5.0"
+
 "@mantine/hooks@^5.0.0-alpha.19":
   version "5.0.0-alpha.19"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.0.0-alpha.19.tgz#57f984c89daf8acaf442372e010a829da3cc5dd9"
@@ -4684,6 +4691,11 @@ lodash-es@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
   integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
+
+lodash.clonedeep@4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
 
 lodash.get@^4:
   version "4.4.2"

@@ -1,12 +1,12 @@
 import React, { FC, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { useField } from 'formik';
-import {
-    FormControl,
-    FormLabel,
-    Input,
-    FormErrorMessage,
-    Textarea,
-} from '@chakra-ui/react';
+// import {
+//     FormControl,
+//     FormLabel,
+//     Input,
+//     FormErrorMessage,
+//     Textarea,
+// } from '@chakra-ui/react';
 
 type GenericFieldProps = { label: string; } & (
     {
