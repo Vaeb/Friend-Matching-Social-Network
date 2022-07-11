@@ -29,12 +29,12 @@ const Register: React.FC<RegisterProps> = ({}) => {
 
     return (
         <Page type='center' needsAuth={false}>
-            <Box bg="rgba(79,84,92,.6)" p="30px" minW="21vw" borderRadius="5px" boxShadow={ItemBoxShadow}>
-                <Box fontSize="xl" fontWeight="semibold" mb={4}>
+            <Box bg='rgba(79,84,92,.6)' p='30px' minW='21vw' borderRadius='5px' boxShadow={ItemBoxShadow}>
+                <Box fontSize='xl' fontWeight='semibold' mb={4}>
                     <Text>Welcome!</Text>
                     <Text>Please register an account.</Text>
-                    <Box mt={1} fontSize="sm" fontWeight="medium" color="#00aff4">
-                        <NextLink href="/login">
+                    <Box mt={1} fontSize='sm' fontWeight='medium' color='#00aff4'>
+                        <NextLink href='/login'>
                             <a>
                                 If you have an account, login.
                             </a>
@@ -61,18 +61,18 @@ const Register: React.FC<RegisterProps> = ({}) => {
                     {props => (
                         <Form autoComplete='new-password'>
                             <Box>
-                                <InputField name="username" label="USERNAME" placeholder="" type="text" readOnly={readonly} onFocus={() => setReadonly(false)}  />
+                                <InputField name='username' label='USERNAME' placeholder='' type='text' readOnly={readonly} onFocus={() => setReadonly(false)}  />
                             </Box>
                             <Box mt={4}>
-                                <InputField name="email" label="UNIVERSITY EMAIL" placeholder="" autoComplete='new-password' />
+                                <InputField name='email' label='UNIVERSITY EMAIL' placeholder='' autoComplete='new-password' />
                             </Box>
                             <Box mt={4}>
-                                <InputField name="password" label="PASSWORD" placeholder="" type="password" autoComplete='new-password' />
+                                <InputField name='password' label='PASSWORD' placeholder='' type='password' autoComplete='new-password' />
                             </Box>
                             <Box mt={4}>
-                                <InputField name="name" label="PREFERRED NAME" placeholder="" autoComplete='new-password' />
+                                <InputField name='name' label='PREFERRED NAME' placeholder='' autoComplete='new-password' />
                             </Box>
-                            <Button mt={8} w="100%" type="submit" colorScheme="blue" isLoading={props.isSubmitting}>
+                            <Button mt={8} w='100%' type='submit' colorScheme='blue' isLoading={props.isSubmitting}>
                                 Continue
                             </Button>
                         </Form>
