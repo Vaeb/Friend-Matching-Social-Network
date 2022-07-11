@@ -1,5 +1,5 @@
 import { ActionIcon, ActionIconProps } from '@mantine/core';
-import React, { FC } from 'react';
+import React from 'react';
 
 type IActionIcon = ActionIconProps & React.ComponentPropsWithoutRef<'button'>;
 

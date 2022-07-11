@@ -1,9 +1,12 @@
-import { Global, MantineProvider } from '@mantine/core';
+import { createEmotionCache, Global, MantineProvider } from '@mantine/core';
 import { AppProps } from 'next/app';
 import { Provider } from 'urql';
 
 import { client } from '../urqlClient';
 import myTheme from '../theme';
+import '../styles/globals.css';
+
+const myEmotionCache = createEmotionCache({ key: 'mantine', prepend: false });
 
 function MyGlobalStyles() {
     return (
@@ -27,6 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     return (
         <Provider value={client}>
             <MantineProvider
+                emotionCache={myEmotionCache}
                 withGlobalStyles
                 withNormalizeCSS
                 theme={myTheme}

@@ -3,9 +3,9 @@ import { useMantineTheme } from '@mantine/core';
 import { MdTimeline as IconHome } from 'react-icons/md';
 import { FaUserFriends as IconMatches } from 'react-icons/fa';
 // import NextLink from 'next/link';
-import { useAppStore } from '../state';
+import { useAppStore } from '../../state';
 
-import PanelAction from '../components/PanelAction';
+import PanelAction from '../PanelAction';
 
 const BaseRight: FC<any> = () => {
     const theme = useMantineTheme();

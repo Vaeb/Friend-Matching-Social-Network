@@ -3,7 +3,7 @@ import { Box, Button, Stack, Text, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
-import { useSettingsStore } from '../state';
+import { useSettingsStore } from '../../state';
 
 const SettingsLeft = () => {
     const theme = useMantineTheme();

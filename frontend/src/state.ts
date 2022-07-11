@@ -31,7 +31,7 @@ export const useAppStore = create<AppState>(set => ({
     },
     setView: (view, panels) =>
         set(produce((state) => {
-            if (!panels) panels = ['left', 'mid'];
+            if (!panels) panels = ['left', 'mid', 'right'];
             if (typeof panels === 'string') panels = [panels];
             panels.forEach((panel) => {
                 state[panel].view = view;

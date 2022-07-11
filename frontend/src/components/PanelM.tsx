@@ -4,7 +4,7 @@ import { useMantineTheme, Box } from '@mantine/core';
 
 import { useMeQuery } from '../generated/graphql';
 import { useAppStore } from '../state';
-import SettingsMid from '../panels/SettingsMid';
+import SettingsMid from './panels/SettingsMid';
 
 interface PanelMProps {
     children?: React.ReactNode;
@@ -17,7 +17,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
 
     return (
         // <Box h='100%' flex='1 1 auto' bg='black3' px={10} py={3}>
-        <Box sx={{ height: '100%', flex: '1 1 auto', backgroundColor: theme.colors._black[3] }} px={40} py={12}>
+        <Box sx={{ height: '100%', flex: '1 1 auto', backgroundColor: theme.colors._black[3] }} px={40} py={14}>
             {{
                 settings: <SettingsMid data={data} />,
             }[view]}
