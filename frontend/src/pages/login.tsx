@@ -50,16 +50,14 @@ const Login: React.FC<LoginProps> = ({}) => {
                     {/* <p>Please login.</p> */}
                     <Box className='text-sm font-medium text-_sky-500' mt={1}>
                         <NextLink href='/register'>
-                            <a>
-                                If you&apos;re new, create an account.
-                            </a>
+                            <a>If you&apos;re new, create an account.</a>
                         </NextLink>
                     </Box>
                 </Box>
                 <Box mt={14}>
                     <form onSubmit={form.onSubmit(onSubmit)}>
                         <Box>
-                            <TextInput name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
+                            <TextInput autoFocus name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
                         </Box>
                         <Box mt={9}>
                             <PasswordInput name='password' label='PASSWORD' placeholder='' {...form.getInputProps('password')} />

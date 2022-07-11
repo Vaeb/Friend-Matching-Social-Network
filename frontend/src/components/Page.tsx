@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { Group } from '@mantine/core';
 import Head from 'next/head';
 
 import { HasChildren } from '../types';
