@@ -19,15 +19,17 @@ const PanelR: FC<PanelRProps> = ({ children }) => {
 
     return (
         <Box sx={{ boxShadow: theme.shadows.md }}>
-            <Stack sx={{ height: '100%', width: '80px' }} justify='space-between' align='center' mr={view === 'settings' ? '22vw' : 0} py={20}>
-                <Stack align='center' spacing={20}>
-                    {children ?? <BaseRight />}
+            <Stack className={`h-full ${view === 'settings' ? 'md:w-[26vw] w-[initial]' : ''}`} align='flex-start'>
+                <Stack sx={{ height: '100%', width: '80px', minWidth: 'fit-content' }} justify='space-between' align='center' py={20}>
+                    <Stack align='center' spacing={20}>
+                        {children ?? <BaseRight />}
+                    </Stack>
+                    <Box>
+                        <PanelAction onClick={() => setView('settings')} color='blue'>
+                            <IconSettings style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
+                        </PanelAction>
+                    </Box>
                 </Stack>
-                <Box>
-                    <PanelAction onClick={() => setView('settings')} color='blue'>
-                        <IconSettings style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
-                    </PanelAction>
-                </Box>
             </Stack>
         </Box>
     );
