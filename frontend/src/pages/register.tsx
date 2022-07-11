@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, PasswordInput, Text, TextInput } from '@mantine/core';
+import { Box, Button, PasswordInput, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-// import { Button, Text } from '@chakra-ui/react';
-// import { Formik, Form } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 

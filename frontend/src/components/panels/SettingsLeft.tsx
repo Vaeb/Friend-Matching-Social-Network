@@ -1,4 +1,3 @@
-// import { Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { Box, Button, Stack, Text, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';

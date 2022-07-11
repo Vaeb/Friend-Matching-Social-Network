@@ -1,4 +1,3 @@
-// import { Box, Button, Text } from '@chakra-ui/react';
 // import { useRouter } from 'next/router';
 import { useMantineTheme, Stack, Box } from '@mantine/core';
 import React, { FC } from 'react';

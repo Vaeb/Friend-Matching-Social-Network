@@ -1,4 +1,3 @@
-// import { Box } from '@chakra-ui/react';
 import React, { FC } from 'react';
 import { useMantineTheme, Box } from '@mantine/core';
 

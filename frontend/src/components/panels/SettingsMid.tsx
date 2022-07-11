@@ -1,6 +1,3 @@
-// import {
-//     Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Button, Input, Select, Text, 
-// } from '@chakra-ui/react';
 import { Box, Text, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import Account from '../settings/Account';
