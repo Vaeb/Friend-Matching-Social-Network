@@ -85,9 +85,6 @@ const Matching = () => {
 
     return (
         <Stack spacing={16}>
-            <Text size='md' weight='bold' color={theme.colors._gray[4]} mb='12px'>
-                What are your interests?
-            </Text>
             {/* <Group mb='12px'> */}
             <Autocomplete
                 mt={4}

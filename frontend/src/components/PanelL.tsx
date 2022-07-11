@@ -27,11 +27,13 @@ const PanelL: FC<PanelLProps> = () => {
 
     return (
         <Box sx={{ backgroundColor: theme.colors._black[8], boxShadow: theme.shadows.xl, zIndex: 2 }}>
-            <Stack sx={{ width: '11vw', zIndex: 2 }} ml={view === 'settings' ? '15vw' : 0} px={2} py={3}>
-                {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
-                {{
-                    settings: <SettingsLeft />,
-                }[view]}
+            <Stack sx={{ width: '26vw', zIndex: 2 }} align='flex-end'>
+                <Stack sx={{ width: '11vw', minWidth: 'fit-content', zIndex: 2 }} px={2} py={3}>
+                    {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
+                    {{
+                        settings: <SettingsLeft />,
+                    }[view]}
+                </Stack>
             </Stack>
         </Box>
     );
