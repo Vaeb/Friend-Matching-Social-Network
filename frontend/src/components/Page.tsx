@@ -33,13 +33,7 @@ const Page: FC<PageProps> = ({ children, type, needsAuth, title }) => {
     useCheckAuth(needsAuth);
     const PageEl = type === 'center' ? Center : Regular;
     return (
-        <>
-            <Head>
-                <title>{title}</title>
-                <meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
-            </Head>
-            <PageEl>{children}</PageEl>
-        </>
+        <PageEl>{children}</PageEl>
     );
 };
 
