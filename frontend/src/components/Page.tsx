@@ -2,7 +2,7 @@ import React, { FC, ReactNode } from 'react';
 import Head from 'next/head';
 
 import { HasChildren } from '../types';
-import { useCheckAuth } from '../utils/useCheckAuth';
+// import { useCheckAuth } from '../utils/useCheckAuth';
 
 type Type = 'regular' | 'center';
 
@@ -30,7 +30,6 @@ const Page: FC<PageProps> = ({ children, type, needsAuth, title }) => {
     if (type === undefined) type = 'regular';
     if (needsAuth === undefined) needsAuth = true;
     if (title === undefined) title = 'Uni Social Media';
-    useCheckAuth(needsAuth);
     const PageEl = type === 'center' ? Center : Regular;
     return (
         <>

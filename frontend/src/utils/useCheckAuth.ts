@@ -5,6 +5,7 @@ import { useMeQuery } from '../generated/graphql';
 export const useCheckAuth = (needsAuth = true) => {
     const [{ data, fetching }] = useMeQuery();
     const router = useRouter();
+
     useEffect(() => {
         if (!needsAuth) {
             console.log('No auth needed...');
@@ -15,4 +16,6 @@ export const useCheckAuth = (needsAuth = true) => {
             console.log('Is authorized', data?.me);
         }
     }, [needsAuth, fetching, data, router]);
+
+    return data;
 };

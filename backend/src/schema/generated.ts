@@ -110,13 +110,13 @@ export type PostSavedByArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  getInterests: Array<Maybe<Interest>>;
+  getInterests: Array<Interest>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
   getUser?: Maybe<User>;
-  getUserInterests: Array<Maybe<UserInterest>>;
-  getUsers: Array<Maybe<User>>;
+  getUserInterests: Array<UserInterest>;
+  getUsers: Array<User>;
   me?: Maybe<User>;
 };
 
@@ -188,7 +188,7 @@ export type UserCore = {
 
 export type UserInterest = {
   __typename?: 'UserInterest';
-  interest?: Maybe<Interest>;
+  interest: Interest;
   interestId: Scalars['Int'];
   score: Scalars['Int'];
   user?: Maybe<User>;
@@ -375,13 +375,13 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getInterests?: Resolver<Array<Maybe<ResolversTypes['Interest']>>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
+  getInterests?: Resolver<Array<ResolversTypes['Interest']>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Array<Maybe<ResolversTypes['Post']>>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromUser?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
-  getUserInterests?: Resolver<Array<Maybe<ResolversTypes['UserInterest']>>, ParentType, ContextType, RequireFields<QueryGetUserInterestsArgs, 'userId'>>;
-  getUsers?: Resolver<Array<Maybe<ResolversTypes['User']>>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
+  getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType, RequireFields<QueryGetUserInterestsArgs, 'userId'>>;
+  getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 };
 
@@ -406,7 +406,7 @@ export type UserCoreResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type UserInterestResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserInterest'] = ResolversParentTypes['UserInterest']> = {
-  interest?: Resolver<Maybe<ResolversTypes['Interest']>, ParentType, ContextType>;
+  interest?: Resolver<ResolversTypes['Interest'], ParentType, ContextType>;
   interestId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;

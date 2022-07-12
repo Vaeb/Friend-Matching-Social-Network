@@ -42,7 +42,7 @@ type UserInterest {
     userId: Int!
     interestId: Int!
     user: User
-    interest: Interest
+    interest: Interest!
     score: Int!
 }
 
@@ -53,8 +53,8 @@ input UserInterestInput {
 
 type Query {
     getUser(id: Int!): User
-    getUsers(limit: Int): [User]!
-    getUserInterests(userId: Int!): [UserInterest]!
+    getUsers(limit: Int): [User!]!
+    getUserInterests(userId: Int!): [UserInterest!]!
     me: User
 }
 

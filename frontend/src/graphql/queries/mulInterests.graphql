@@ -1,0 +1,13 @@
+query MulInterests($userId: Int!) {
+    getInterests {
+        id
+        name
+    }
+    getUserInterests(userId: $userId) {
+        interest {
+            id
+            name
+        }
+        score
+    }
+}

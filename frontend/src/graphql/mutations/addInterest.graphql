@@ -1,0 +1,9 @@
+mutation AddUserInterests($userId: Int!, $userInterests: [UserInterestInput!]!) {
+    addUserInterests(userId: $userId, userInterests: $userInterests) {
+        ok
+        errors {
+            field
+            message
+        }
+    }
+}

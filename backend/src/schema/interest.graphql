@@ -5,5 +5,5 @@ type Interest {
 }
 
 type Query {
-    getInterests(limit: Int): [Interest]!
+    getInterests(limit: Int): [Interest!]!
 }

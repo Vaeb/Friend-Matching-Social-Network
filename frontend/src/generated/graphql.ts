@@ -42,9 +42,23 @@ export type Error = {
   message: Scalars['String'];
 };
 
+export type GenResponse = {
+  __typename?: 'GenResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+};
+
+export type Interest = {
+  __typename?: 'Interest';
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  name: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
+  addUserInterests: GenResponse;
   deleteUser: AuthResponse;
   login: AuthResponse;
   logout: AuthResponseCore;
@@ -55,6 +69,12 @@ export type Mutation = {
 export type MutationAddPostArgs = {
   creatorId: Scalars['Int'];
   text: Scalars['String'];
+};
+
+
+export type MutationAddUserInterestsArgs = {
+  userId: Scalars['Int'];
+  userInterests: Array<UserInterestInput>;
 };
 
 
@@ -91,12 +111,19 @@ export type PostSavedByArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  getInterests: Array<Interest>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
   getUser?: Maybe<User>;
-  getUsers: Array<Maybe<User>>;
+  getUserInterests: Array<UserInterest>;
+  getUsers: Array<User>;
   me?: Maybe<User>;
+};
+
+
+export type QueryGetInterestsArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -118,6 +145,11 @@ export type QueryGetPostsFromUserArgs = {
 
 export type QueryGetUserArgs = {
   id: Scalars['Int'];
+};
+
+
+export type QueryGetUserInterestsArgs = {
+  userId: Scalars['Int'];
 };
 
 
@@ -155,6 +187,20 @@ export type UserCore = {
   username: Scalars['String'];
 };
 
+export type UserInterest = {
+  __typename?: 'UserInterest';
+  interest: Interest;
+  interestId: Scalars['Int'];
+  score: Scalars['Int'];
+  user?: Maybe<User>;
+  userId: Scalars['Int'];
+};
+
+export type UserInterestInput = {
+  interestId: Scalars['Int'];
+  score: Scalars['Int'];
+};
+
 export type UserRelation = {
   __typename?: 'UserRelation';
   areFriends: Scalars['Boolean'];
@@ -162,6 +208,14 @@ export type UserRelation = {
   haveMatched: Scalars['Boolean'];
   user: User;
 };
+
+export type AddUserInterestsMutationVariables = Exact<{
+  userId: Scalars['Int'];
+  userInterests: Array<UserInterestInput> | UserInterestInput;
+}>;
+
+
+export type AddUserInterestsMutation = { __typename?: 'Mutation', addUserInterests: { __typename?: 'GenResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null } };
 
 export type LoginMutationVariables = Exact<{
   handle: Scalars['String'];
@@ -186,10 +240,29 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
 
+export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __typename?: 'Interest', id: number, name: string }> };
+
+export type GetUserInterestsQueryVariables = Exact<{
+  userId: Scalars['Int'];
+}>;
+
+
+export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Array<{ __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string } | null };
+
+export type MulInterestsQueryVariables = Exact<{
+  userId: Scalars['Int'];
+}>;
+
+
+export type MulInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __typename?: 'Interest', id: number, name: string }>, getUserInterests: Array<{ __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -359,6 +432,76 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "GenResponse",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Interest",
+        "fields": [
+          {
+            "name": "description",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "name",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "Mutation",
         "fields": [
           {
@@ -389,6 +532,45 @@ export default {
                   "ofType": {
                     "kind": "SCALAR",
                     "name": "Any"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "addUserInterests",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "GenResponse",
+                "ofType": null
+              }
+            },
+            "args": [
+              {
+                "name": "userId",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "userInterests",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "LIST",
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "Any"
+                      }
+                    }
                   }
                 }
               }
@@ -584,6 +766,32 @@ export default {
         "name": "Query",
         "fields": [
           {
+            "name": "getInterests",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Interest",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "limit",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
+            ]
+          },
+          {
             "name": "getPost",
             "type": {
               "kind": "OBJECT",
@@ -677,15 +885,47 @@ export default {
             ]
           },
           {
+            "name": "getUserInterests",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "UserInterest",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "userId",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
+          },
+          {
             "name": "getUsers",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "LIST",
                 "ofType": {
-                  "kind": "OBJECT",
-                  "name": "User",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "ofType": null
+                  }
                 }
               }
             },
@@ -878,6 +1118,67 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "UserInterest",
+        "fields": [
+          {
+            "name": "interest",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Interest",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "interestId",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "score",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "userId",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "UserRelation",
         "fields": [
           {
@@ -934,6 +1235,21 @@ export default {
   }
 } as unknown as IntrospectionQuery;
 
+export const AddUserInterestsDocument = gql`
+    mutation AddUserInterests($userId: Int!, $userInterests: [UserInterestInput!]!) {
+  addUserInterests(userId: $userId, userInterests: $userInterests) {
+    ok
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+
+export function useAddUserInterestsMutation() {
+  return Urql.useMutation<AddUserInterestsMutation, AddUserInterestsMutationVariables>(AddUserInterestsDocument);
+};
 export const LoginDocument = gql`
     mutation Login($handle: String!, $password: String!) {
   login(handle: $handle, password: $password) {
@@ -991,6 +1307,33 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const GetInterestsDocument = gql`
+    query GetInterests {
+  getInterests {
+    id
+    name
+  }
+}
+    `;
+
+export function useGetInterestsQuery(options?: Omit<Urql.UseQueryArgs<GetInterestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetInterestsQuery>({ query: GetInterestsDocument, ...options });
+};
+export const GetUserInterestsDocument = gql`
+    query GetUserInterests($userId: Int!) {
+  getUserInterests(userId: $userId) {
+    interest {
+      id
+      name
+    }
+    score
+  }
+}
+    `;
+
+export function useGetUserInterestsQuery(options: Omit<Urql.UseQueryArgs<GetUserInterestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserInterestsQuery>({ query: GetUserInterestsDocument, ...options });
+};
 export const MeDocument = gql`
     query Me {
   me {
@@ -1002,4 +1345,23 @@ export const MeDocument = gql`
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const MulInterestsDocument = gql`
+    query MulInterests($userId: Int!) {
+  getInterests {
+    id
+    name
+  }
+  getUserInterests(userId: $userId) {
+    interest {
+      id
+      name
+    }
+    score
+  }
+}
+    `;
+
+export function useMulInterestsQuery(options: Omit<Urql.UseQueryArgs<MulInterestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<MulInterestsQuery>({ query: MulInterestsDocument, ...options });
 };

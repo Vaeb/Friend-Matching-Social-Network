@@ -1,13 +1,13 @@
 mutation Register($username: String!, $email: String!, $password: String!, $name: String!) {
-  register(username: $username, email: $email, password: $password, name: $name) {
-    ok
-    errors {
-        field
-        message
+    register(username: $username, email: $email, password: $password, name: $name) {
+        ok
+        errors {
+            field
+            message
+        }
+        user {
+            id
+            username
+        }
     }
-    user {
-      id
-      username
-    }
-  }
 }

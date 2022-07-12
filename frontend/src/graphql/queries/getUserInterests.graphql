@@ -1,0 +1,9 @@
+query GetUserInterests($userId: Int!) {
+    getUserInterests(userId: $userId) {
+        interest {
+            id
+            name
+        }
+        score
+    }
+}

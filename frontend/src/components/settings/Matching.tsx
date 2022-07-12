@@ -16,36 +16,26 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Interest, useAddUserInterestsMutation, useGetInterestsQuery, useGetUserInterestsQuery, useMeQuery, UserInterest } from '../../generated/graphql';
 
 type InterestData = {
     name: string;
     score: number;
 };
 
-const Matching = () => {
+type InterestResult = Pick<Interest, 'name'> & Partial<Pick<Interest, 'id'>>;
+type UserInterestResult = Pick<UserInterest, 'score'> & { interest: InterestResult };
+
+const Matching = ({ userId }: { userId: number }) => {
     const theme = useMantineTheme();
 
-    const allInterests = [
-        'Football',
-        'Skating',
-        'Basketball',
-        'Hackathons',
-        'Computer Science',
-        'Fishing',
-        'Frisbee',
-        'Photography',
-        'Running',
-        'Skiing',
-        'Soccer',
-        'Swimming',
-        'Tennis',
-        'Volleyball',
-    ];
-    const gotInterests: InterestData[] = [
-        { name: 'Computer Science', score: 90 },
-        { name: 'Hackathons', score: 40 },
-        { name: 'Frisbee', score: -30 },
-    ];
+    const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
+    const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
+    const [, addInterestRequest] = useAddUserInterestsMutation();
+
+    const allInterests = allInterestsParent?.getInterests || [];
+    const origUserInterests = origUserInterestsParent?.getUserInterests || [];
+
     const sliderMarks = [
         { value: -100, label: 'Hate' },
         { value: 0, label: "I don't have an opinion" },
@@ -54,22 +44,36 @@ const Matching = () => {
 
     const [dropdownOpen, dropdownOpenHandlers] = useDisclosure(false);
     const [searchValue, setSearchValue] = useState<string>('');
-    const [userInterests, setUserInterests] = useState<InterestData[]>(gotInterests);
+    const [userInterests, setUserInterests] = useState<UserInterestResult[]>(origUserInterests);
     const [addingInterest, setAddingInterest] = useState<string>('');
     const [sliderValue, setSliderValue] = useState<number>(0);
 
-    const userInterestsMap: Record<string, boolean> = Object.assign({}, ...userInterests.map(interest => ({ [interest.name]: true })));
+    if (userInterests.length === 0 && origUserInterests.length > 0) { // Can add check that userInterests has never been > 0 (for interest removal)
+        setUserInterests(origUserInterests);
+    }
 
-    const filteredInterests = allInterests.filter(name => !userInterestsMap[name]);
+    const userInterestsMap: Record<string, boolean> = Object.assign({}, ...userInterests.map(userInterest => ({ [userInterest.interest.name]: true })));
+
+    const filteredInterests = allInterests.map(interest => interest.name).filter(name => !userInterestsMap[name]);
 
     const focusInterest = (item: AutocompleteItem) => {
         setAddingInterest(item.value);
     };
 
-    const addInterest = () => {
+    const addInterest = async () => {
         setAddingInterest('');
         setSearchValue('');
-        setUserInterests([...userInterests, { name: addingInterest, score: sliderValue }]);
+        setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
+        const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
+        const { data } = await addInterestRequest({
+            userId,
+            userInterests: [{ interestId, score: sliderValue }],
+        });
+        if (!data?.addUserInterests.ok) {
+            console.log('GRAPHQL ERRORS:', data?.addUserInterests.errors);
+            return;
+        }
+        console.log('RESPONSE:', data?.addUserInterests.ok);
     };
 
     const cancelInterest = () => {
@@ -77,10 +81,10 @@ const Matching = () => {
         setSearchValue('');
     };
 
-    const rows = userInterests.map(interest => (
-        <tr key={interest.name}>
-            <td>{interest.name}</td>
-            <td>{interest.score}</td>
+    const rows = userInterests.map(userInterest => (
+        <tr key={userInterest.interest.name}>
+            <td>{userInterest.interest.name}</td>
+            <td>{userInterest.score}</td>
         </tr>
     ));
 

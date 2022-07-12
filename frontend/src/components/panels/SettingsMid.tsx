@@ -19,7 +19,7 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
     const section = useSettingsStore(state => state.section);
     const desc = descriptions[section];
 
-    return (
+    return data?.me ? (
         <Box>
             <Text className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
                 {section}
@@ -28,11 +28,11 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
                 {desc}
             </Text> : null}
             {{
-                account: <Account username={data?.me?.username} />,
-                matching: <Matching />,
+                account: <Account username={data.me.username} />,
+                matching: <Matching userId={data.me.id} />,
             }[section]}
         </Box>
-    );
+    ) : null;
 };
 
 export default SettingsMid;
