@@ -57,6 +57,7 @@ export type Interest = {
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
+  addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
   deleteUser: AuthResponse;
   login: AuthResponse;
@@ -68,6 +69,12 @@ export type Mutation = {
 export type MutationAddPostArgs = {
   creatorId: Scalars['Int'];
   text: Scalars['String'];
+};
+
+
+export type MutationAddUserInterestArgs = {
+  userId: Scalars['Int'];
+  userInterest: UserInterestInput;
 };
 
 
@@ -200,6 +207,13 @@ export type UserInterestInput = {
   score: Scalars['Int'];
 };
 
+export type UserInterestResponse = {
+  __typename?: 'UserInterestResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  userInterest?: Maybe<UserInterest>;
+};
+
 export type UserRelation = {
   __typename?: 'UserRelation';
   areFriends: Scalars['Boolean'];
@@ -293,6 +307,7 @@ export type ResolversTypes = {
   UserCore: ResolverTypeWrapper<UserCore>;
   UserInterest: ResolverTypeWrapper<UserInterest>;
   UserInterestInput: UserInterestInput;
+  UserInterestResponse: ResolverTypeWrapper<UserInterestResponse>;
   UserRelation: ResolverTypeWrapper<UserRelation>;
 };
 
@@ -314,6 +329,7 @@ export type ResolversParentTypes = {
   UserCore: UserCore;
   UserInterest: UserInterest;
   UserInterestInput: UserInterestInput;
+  UserInterestResponse: UserInterestResponse;
   UserRelation: UserRelation;
 };
 
@@ -359,6 +375,7 @@ export type InterestResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPost?: Resolver<ResolversTypes['AddPostResponse'], ParentType, ContextType, RequireFields<MutationAddPostArgs, 'creatorId' | 'text'>>;
+  addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userId' | 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userId' | 'userInterests'>>;
   deleteUser?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
@@ -414,6 +431,13 @@ export type UserInterestResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserInterestResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserInterestResponse'] = ResolversParentTypes['UserInterestResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  userInterest?: Resolver<Maybe<ResolversTypes['UserInterest']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserRelationResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserRelation'] = ResolversParentTypes['UserRelation']> = {
   areFriends?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   compatibility?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -435,6 +459,7 @@ export type Resolvers<ContextType = any> = {
   User?: UserResolvers<ContextType>;
   UserCore?: UserCoreResolvers<ContextType>;
   UserInterest?: UserInterestResolvers<ContextType>;
+  UserInterestResponse?: UserInterestResponseResolvers<ContextType>;
   UserRelation?: UserRelationResolvers<ContextType>;
 };
 

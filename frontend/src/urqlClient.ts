@@ -1,7 +1,7 @@
 import { createClient, ssrExchange, dedupExchange, fetchExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
 
-import { MeDocument } from './generated/graphql';
+import { GetUserInterestsDocument, MeDocument } from './generated/graphql';
 
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
@@ -55,6 +55,24 @@ const client = createClient({
                                 } as any;
                             }
                         });
+                    },
+                    addUserInterest: (_result, _args, cache, _info) => {
+                        const result = _result as any;
+                        if (result?.addUserInterest?.ok) {
+                            cache.updateQuery(
+                                {
+                                    query: GetUserInterestsDocument,
+                                    variables: { userId: _args.userId },
+                                },
+                                (_data) => {
+                                    const data = _data as any;
+                                    console.log('Updating data.getUserInterests', data.getUserInterests,
+                                        'by pushing _result.addUserInterest.userInterest', result.addUserInterest.userInterest);
+                                    data.getUserInterests.push(result.addUserInterest.userInterest);
+                                    return data;
+                                }
+                            );
+                        }
                     },
                 },
             },

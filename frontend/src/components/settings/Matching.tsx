@@ -16,7 +16,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Interest, useAddUserInterestsMutation, useGetInterestsQuery, useGetUserInterestsQuery, useMeQuery, UserInterest } from '../../generated/graphql';
+import { Interest, useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery, useMeQuery, UserInterest } from '../../generated/graphql';
 
 type InterestData = {
     name: string;
@@ -31,10 +31,11 @@ const Matching = ({ userId }: { userId: number }) => {
 
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
     const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
-    const [, addInterestRequest] = useAddUserInterestsMutation();
+    const [, addInterestRequest] = useAddUserInterestMutation();
 
     const allInterests = allInterestsParent?.getInterests || [];
-    const origUserInterests = origUserInterestsParent?.getUserInterests || [];
+    const userInterests = origUserInterestsParent?.getUserInterests || [];
+    console.log('origUserInterests', userInterests);
 
     const sliderMarks = [
         { value: -100, label: 'Hate' },
@@ -44,13 +45,13 @@ const Matching = ({ userId }: { userId: number }) => {
 
     const [dropdownOpen, dropdownOpenHandlers] = useDisclosure(false);
     const [searchValue, setSearchValue] = useState<string>('');
-    const [userInterests, setUserInterests] = useState<UserInterestResult[]>(origUserInterests);
+    // const [userInterests, setUserInterests] = useState<UserInterestResult[]>(origUserInterests);
     const [addingInterest, setAddingInterest] = useState<string>('');
     const [sliderValue, setSliderValue] = useState<number>(0);
 
-    if (userInterests.length === 0 && origUserInterests.length > 0) { // Can add check that userInterests has never been > 0 (for interest removal)
-        setUserInterests(origUserInterests);
-    }
+    // if (userInterests.length === 0 && origUserInterests.length > 0) { // Can add check that userInterests has never been > 0 (for interest removal)
+    //     setUserInterests(origUserInterests);
+    // }
 
     const userInterestsMap: Record<string, boolean> = Object.assign({}, ...userInterests.map(userInterest => ({ [userInterest.interest.name]: true })));
 
@@ -63,17 +64,17 @@ const Matching = ({ userId }: { userId: number }) => {
     const addInterest = async () => {
         setAddingInterest('');
         setSearchValue('');
-        setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
+        // setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
         const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
         const { data } = await addInterestRequest({
             userId,
-            userInterests: [{ interestId, score: sliderValue }],
+            userInterest: { interestId, score: sliderValue },
         });
-        if (!data?.addUserInterests.ok) {
-            console.log('GRAPHQL ERRORS:', data?.addUserInterests.errors);
+        if (!data?.addUserInterest.ok) {
+            console.log('GRAPHQL ERRORS:', data?.addUserInterest.errors);
             return;
         }
-        console.log('RESPONSE:', data?.addUserInterests.ok);
+        console.log('RESPONSE:', data?.addUserInterest.ok);
     };
 
     const cancelInterest = () => {

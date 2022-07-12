@@ -1,9 +1,16 @@
-mutation AddUserInterests($userId: Int!, $userInterests: [UserInterestInput!]!) {
-    addUserInterests(userId: $userId, userInterests: $userInterests) {
+mutation AddUserInterest($userId: Int!, $userInterest: UserInterestInput!) {
+    addUserInterest(userId: $userId, userInterest: $userInterest) {
         ok
         errors {
             field
             message
+        }
+        userInterest {
+            interest {
+              id
+              name
+            }
+            score
         }
     }
 }

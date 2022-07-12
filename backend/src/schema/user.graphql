@@ -51,6 +51,12 @@ input UserInterestInput {
     score: Int!
 }
 
+type UserInterestResponse {
+    ok: Boolean!
+    errors: [Error!]
+    userInterest: UserInterest
+}
+
 type Query {
     getUser(id: Int!): User
     getUsers(limit: Int): [User!]!
@@ -63,5 +69,6 @@ type Mutation {
     login(handle: String!, password: String!): AuthResponse!
     logout: AuthResponseCore!
     deleteUser(id: Int!): AuthResponse!
+    addUserInterest(userId: Int!, userInterest: UserInterestInput!): UserInterestResponse!
     addUserInterests(userId: Int!, userInterests: [UserInterestInput!]!): GenResponse!
 }
