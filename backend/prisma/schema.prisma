@@ -68,6 +68,8 @@ model UserInterest {
     interest   Interest @relation(fields: [interestId], references: [id])
     interestId Int
     score      Int
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
     @@id([userId, interestId])
     @@map("user_interests")

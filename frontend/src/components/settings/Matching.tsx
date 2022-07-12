@@ -1,5 +1,4 @@
 import {
-    Accordion,
     Autocomplete,
     AutocompleteItem,
     Box,
@@ -10,21 +9,16 @@ import {
     Slider,
     Stack,
     Table,
-    Text,
     useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Interest, useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery, useMeQuery, UserInterest } from '../../generated/graphql';
+import { useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery } from '../../generated/graphql';
+import { properToSlider, sliderToProper } from '../../utils/convertScore';
 
-type InterestData = {
-    name: string;
-    score: number;
-};
-
-type InterestResult = Pick<Interest, 'name'> & Partial<Pick<Interest, 'id'>>;
-type UserInterestResult = Pick<UserInterest, 'score'> & { interest: InterestResult };
+// type InterestResult = Pick<Interest, 'name'> & Partial<Pick<Interest, 'id'>>;
+// type UserInterestResult = Pick<UserInterest, 'score'> & { interest: InterestResult };
 
 const Matching = ({ userId }: { userId: number }) => {
     const theme = useMantineTheme();
@@ -35,7 +29,6 @@ const Matching = ({ userId }: { userId: number }) => {
 
     const allInterests = allInterestsParent?.getInterests || [];
     const userInterests = origUserInterestsParent?.getUserInterests || [];
-    console.log('origUserInterests', userInterests);
 
     const sliderMarks = [
         { value: -100, label: 'Hate' },
@@ -66,9 +59,10 @@ const Matching = ({ userId }: { userId: number }) => {
         setSearchValue('');
         // setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
         const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
+        const score = sliderToProper(sliderValue);
         const { data } = await addInterestRequest({
             userId,
-            userInterest: { interestId, score: sliderValue },
+            userInterest: { interestId, score },
         });
         if (!data?.addUserInterest.ok) {
             console.log('GRAPHQL ERRORS:', data?.addUserInterest.errors);
@@ -85,7 +79,7 @@ const Matching = ({ userId }: { userId: number }) => {
     const rows = userInterests.map(userInterest => (
         <tr key={userInterest.interest.name}>
             <td>{userInterest.interest.name}</td>
-            <td>{userInterest.score}</td>
+            <td>{properToSlider(userInterest.score)}</td>
         </tr>
     ));
 
@@ -123,6 +117,7 @@ const Matching = ({ userId }: { userId: number }) => {
                             className='shadow-sm'
                             min={-100}
                             max={100}
+                            step={2}
                             defaultValue={0}
                             marks={sliderMarks}
                             onChangeEnd={setSliderValue}
