@@ -3,7 +3,7 @@ import { User, UserRelations } from '@prisma/client';
 
 import { login, logout } from '../authentication';
 import { prisma } from '../server';
-import { formatErrors, pickUser } from '../utils';
+import { consoleError, formatErrors, pickUser } from '../utils';
 import { Context } from '../types';
 import type { Error, Resolvers } from '../schema/generated';
 
@@ -27,6 +27,13 @@ const resolvers: Resolvers = {
         me: (_parent, _, { userCore }: Context) => {
             if (!userCore) return null;
             return prisma.user.findUnique({ where: { id: userCore.id } });
+        },
+        getUserInterests: (_parent, { userId }) => {
+            console.log('Received request for getUserInterests:', userId);
+            return prisma.userInterest.findMany({
+                where: { userId },
+                include: { interest: true },
+            });
         },
     },
     Mutation: {
@@ -56,9 +63,7 @@ const resolvers: Resolvers = {
                     user,
                 };
             } catch (err) {
-                console.log('++++++++++++++++++++++++++++++++');
-                console.log('> REGISTER ERROR:', err);
-                console.log('--------------------------------');
+                consoleError('REGISTER', err);
 
                 const rawErrors = [err];
                 try {
@@ -96,9 +101,32 @@ const resolvers: Resolvers = {
                     user,
                 };
             } catch (err) {
-                console.log('++++++++++++++++++++++++++++++++');
-                console.log('> DELETE_USER ERROR:', err);
-                console.log('--------------------------------');
+                consoleError('DELETE_USER', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        addUserInterests: async (_parent, { userId, userInterests }) => {
+            try {
+                console.log('Received request for addUserInterests:', userId, userInterests);
+                // const user = await prisma.user.findUnique({ where: { id: userId } });
+                // if (!user) return { ok: false, errors: [{ field: 'userId', message: 'User not found.' }] };
+
+                // const interests = await prisma.interest.findMany({ where: { id_in: userInterests } });
+                // if (!interests.length) return { ok: false, errors: [{ field: 'userInterests', message: 'Interests not found.' }] };
+
+                const userInterestsToCreate = userInterests.map(userInterest => ({
+                    ...userInterest,
+                    userId,
+                }));
+
+                await prisma.userInterest.createMany({ data: userInterestsToCreate });
+
+                return { ok: true };
+            } catch (err) {
+                consoleError('ADD_USER_INTERESTS', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

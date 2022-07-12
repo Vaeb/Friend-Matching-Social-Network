@@ -74,3 +74,9 @@ export const pickUser = (user: User | null) => {
 
     return newUser;
 };
+
+export const consoleError = (name: string, err: any) => {
+    console.log('++++++++++++++++++++++++++++++++');
+    console.log(`> ${name} ERROR:`, err);
+    console.log('--------------------------------');
+};

@@ -1,0 +1,9 @@
+type Interest {
+    id: Int!
+    name: String!
+    description: String
+}
+
+type Query {
+    getInterests(limit: Int): [Interest]!
+}

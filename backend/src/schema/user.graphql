@@ -38,9 +38,23 @@ type AuthResponseCore {
     user: UserCore
 }
 
+type UserInterest {
+    userId: Int!
+    interestId: Int!
+    user: User
+    interest: Interest
+    score: Int!
+}
+
+input UserInterestInput {
+    interestId: Int!
+    score: Int!
+}
+
 type Query {
     getUser(id: Int!): User
     getUsers(limit: Int): [User]!
+    getUserInterests(userId: Int!): [UserInterest]!
     me: User
 }
 
@@ -49,4 +63,5 @@ type Mutation {
     login(handle: String!, password: String!): AuthResponse!
     logout: AuthResponseCore!
     deleteUser(id: Int!): AuthResponse!
+    addUserInterests(userId: Int!, userInterests: [UserInterestInput!]!): GenResponse!
 }

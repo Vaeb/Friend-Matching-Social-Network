@@ -1,0 +1,9 @@
+type Error {
+    field: String!
+    message: String!
+}
+
+type GenResponse {
+    ok: Boolean!
+    errors: [Error!]
+}

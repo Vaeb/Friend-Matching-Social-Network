@@ -1,5 +1,5 @@
 import { prisma } from '../server';
-import { formatErrors } from '../utils';
+import { consoleError, formatErrors } from '../utils';
 // import { Context } from '../types';
 import type { Resolvers } from '../schema/generated';
 
@@ -40,9 +40,7 @@ const resolvers: Resolvers = {
                     post,
                 };
             } catch (err) {
-                console.log('++++++++++++++++++++++++++++++++');
-                console.log('> ADD_POST ERROR:', err);
-                console.log('--------------------------------');
+                consoleError('ADD_POST', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),
