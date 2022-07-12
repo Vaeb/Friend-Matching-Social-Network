@@ -11,7 +11,7 @@ import {
     Table,
     useMantineTheme,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery } from '../../generated/graphql';
@@ -26,6 +26,7 @@ const Matching = ({ userId }: { userId: number }) => {
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
     const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
     const [, addInterestRequest] = useAddUserInterestMutation();
+    const [filterValue, setFilterValue] = useLocalStorage({ key: 'filter-value', defaultValue: 0 });
 
     const allInterests = allInterestsParent?.getInterests || [];
     const userInterests = origUserInterestsParent?.getUserInterests || [];
@@ -146,10 +147,11 @@ const Matching = ({ userId }: { userId: number }) => {
                 </Table>
             </motion.div>
             <NumberInput
-                defaultValue={0}
-                min={0}
                 className='shadow-sm'
+                defaultValue={filterValue}
+                min={0}
                 max={10}
+                onChange={(val => val !== undefined && setFilterValue(val))}
                 placeholder='Match filter'
                 label='Match filter'
                 description='From 0 to 10, reduce match frequency by ignoring lower quality matches'
