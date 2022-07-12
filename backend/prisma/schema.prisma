@@ -10,42 +10,44 @@ datasource db {
 }
 
 model User {
-    id              Int             @id @default(autoincrement())
-    username        String          @unique
-    email           String          @unique
-    password        String
-    name            String
-    university      University?     @relation(fields: [universityId], references: [id])
-    universityId    Int?
-    matchPrecision  Int             @default(0)
-    visEmail        Int             @default(0)
-    visInterests    Int             @default(0)
-    userRelations1  UserRelations[] @relation(name: "UserRel1")
-    userRelations2  UserRelations[] @relation(name: "UserRel2")
-    interests       UserInterest[]
-    channels        Channel[]
-    createdChannels Channel[]       @relation(name: "CreatedChannels")
-    posts           Post[]          @relation(name: "CreatedPosts")
-    comments        Comment[]       @relation(name: "CreatedComments")
-    reactions       Reaction[]      @relation(name: "CreatedReactions")
-    savedPosts      Post[]          @relation(name: "SavedPosts")
-    createdAt       DateTime        @default(now())
-    updatedAt       DateTime        @updatedAt
+    id               Int             @id @default(autoincrement())
+    username         String          @unique
+    email            String          @unique
+    password         String
+    name             String
+    university       University?     @relation(fields: [universityId], references: [id])
+    universityId     Int?
+    matchPrecision   Int             @default(0)
+    visEmail         Int             @default(0)
+    visInterests     Int             @default(0)
+    userRelations1   UserRelations[] @relation(name: "UserRel1")
+    userRelations2   UserRelations[] @relation(name: "UserRel2")
+    interests        UserInterest[]
+    channels         Channel[]
+    createdChannels  Channel[]       @relation(name: "CreatedChannels")
+    posts            Post[]          @relation(name: "CreatedPosts")
+    comments         Comment[]       @relation(name: "CreatedComments")
+    reactions        Reaction[]      @relation(name: "CreatedReactions")
+    savedPosts       Post[]          @relation(name: "SavedPosts")
+    updatedInterests DateTime?
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
 
     @@map("users")
 }
 
 model UserRelations {
-    user1         User      @relation(name: "UserRel1", fields: [user1Id], references: [id])
-    user1Id       Int
-    user2         User      @relation(name: "UserRel2", fields: [user2Id], references: [id])
-    user2Id       Int
-    areFriends    Boolean   @default(false)
-    compatibility Int?
-    haveMatched   Boolean   @default(false)
-    matchDate     DateTime?
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    user1                User      @relation(name: "UserRel1", fields: [user1Id], references: [id])
+    user1Id              Int
+    user2                User      @relation(name: "UserRel2", fields: [user2Id], references: [id])
+    user2Id              Int
+    areFriends           Boolean   @default(false)
+    compatibility        Int?
+    haveMatched          Boolean   @default(false)
+    matchDate            DateTime?
+    updatedCompatibility DateTime?
+    createdAt            DateTime  @default(now())
+    updatedAt            DateTime  @updatedAt
 
     @@id([user1Id, user2Id])
     @@map("user_relations")

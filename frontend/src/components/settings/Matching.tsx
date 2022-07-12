@@ -32,8 +32,8 @@ const Matching = ({ userId }: { userId: number }) => {
     const userInterests = origUserInterestsParent?.getUserInterests || [];
 
     const sliderMarks = [
-        { value: -100, label: 'Hate' },
-        { value: 0, label: "I don't have an opinion" },
+        { value: 0, label: 'Hate' },
+        { value: 50, label: "I don't have an opinion" },
         { value: 100, label: 'Love' },
     ];
 
@@ -77,10 +77,16 @@ const Matching = ({ userId }: { userId: number }) => {
         setSearchValue('');
     };
 
-    const rows = userInterests.map(userInterest => (
-        <tr key={userInterest.interest.name}>
-            <td>{userInterest.interest.name}</td>
-            <td>{properToSlider(userInterest.score)}</td>
+    const topRow = (
+        <tr className='bg-_black-600'>
+            <th>Name</th>
+            <th>Score</th>
+        </tr>
+    );
+    const rows = userInterests.map(({ interest: { name }, score }) => (
+        <tr className={`${score > 50 ? 'bg-green-800/[.4] text-zinc-300' : score < 50 ? 'bg-red-800/[.4] text-zinc-300' : ''}`} key={name}>
+            <td>{name}</td>
+            <td>{properToSlider(score)}</td>
         </tr>
     ));
 
@@ -116,10 +122,10 @@ const Matching = ({ userId }: { userId: number }) => {
                         >{`How do you feel about ${addingInterest}?`}</Highlight>
                         <Slider
                             className='shadow-sm'
-                            min={-100}
+                            min={0}
                             max={100}
-                            step={2}
-                            defaultValue={0}
+                            step={1}
+                            defaultValue={50}
                             marks={sliderMarks}
                             onChangeEnd={setSliderValue}
                         />
@@ -136,12 +142,9 @@ const Matching = ({ userId }: { userId: number }) => {
             ) : null}
             {/* </Group> */}
             <motion.div animate={addingInterest !== '' || dropdownOpen ? { marginTop: '200px' } : {}} transition={{ ease: 'easeOut' }}>
-                <Table className='shadow-md' striped horizontalSpacing='lg'>
+                <Table className='shadow-md' horizontalSpacing='lg'>
                     <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Fondness</th>
-                        </tr>
+                        {topRow}
                     </thead>
                     <tbody>{rows}</tbody>
                 </Table>

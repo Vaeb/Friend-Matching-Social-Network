@@ -108,26 +108,6 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        addUserInterest: async (_parent, { userId, userInterest }) => {
-            try {
-                console.log('Received request for addUserInterest:', userId, userInterest);
-
-                const userInterestToCreate = {
-                    ...userInterest,
-                    userId,
-                };
-
-                const newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
-
-                return { ok: true, userInterest: newUserInterest };
-            } catch (err) {
-                consoleError('ADD_USER_INTERESTS', err);
-                return {
-                    ok: false,
-                    errors: formatErrors(err),
-                };
-            }
-        },
         addUserInterests: async (_parent, { userId, userInterests }) => {
             try {
                 console.log('Received request for addUserInterests:', userId, userInterests);
@@ -145,6 +125,26 @@ const resolvers: Resolvers = {
                 await prisma.userInterest.createMany({ data: userInterestsToCreate });
 
                 return { ok: true };
+            } catch (err) {
+                consoleError('ADD_USER_INTERESTS', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        addUserInterest: async (_parent, { userId, userInterest }) => {
+            try {
+                console.log('Received request for addUserInterest:', userId, userInterest);
+
+                const userInterestToCreate = {
+                    ...userInterest,
+                    userId,
+                };
+
+                const newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
+
+                return { ok: true, userInterest: newUserInterest };
             } catch (err) {
                 consoleError('ADD_USER_INTERESTS', err);
                 return {
