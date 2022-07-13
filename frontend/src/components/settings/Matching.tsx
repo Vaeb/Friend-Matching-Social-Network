@@ -42,25 +42,28 @@ const Matching = ({ userId }: { userId: number }) => {
     // const [userInterests, setUserInterests] = useState<UserInterestResult[]>(origUserInterests);
     const [addingInterest, setAddingInterest] = useState<string>('');
     const [addingType, setAddingType] = useState<string>('');
-    const [sliderValue, setSliderValue] = useState<number>(0);
+    const [sliderValue, setSliderValue] = useState<number>(50);
 
     // if (userInterests.length === 0 && origUserInterests.length > 0) { // Can add check that userInterests has never been > 0 (for interest removal)
     //     setUserInterests(origUserInterests);
     // }
 
-    const userInterestsMap: Record<string, boolean> = Object.assign(
+    const userInterestsMap: Record<string, any> = Object.assign(
         {},
-        ...userInterests.map(userInterest => ({ [userInterest.interest.name]: true }))
+        ...userInterests.map(userInterest => ({ [userInterest.interest.name]: userInterest }))
     );
 
     const filteredInterests = allInterests.map(interest => interest.name).filter(name => !userInterestsMap[name]);
 
     const focusInterest = (item: AutocompleteItem) => {
+        setSliderValue(50);
         setAddingInterest(item.value);
         setAddingType('new');
     };
 
     const setChangeInterest = (name: string) => {
+        setSearchValue('');
+        setSliderValue(properToSlider(userInterestsMap[name].score));
         setAddingInterest(name);
         setAddingType('existing');
     };
@@ -68,10 +71,8 @@ const Matching = ({ userId }: { userId: number }) => {
     const addInterest = async (override = false, score = sliderValue) => {
         setAddingInterest('');
         setSearchValue('');
-        // setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
         const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
-        console.log('qq', score);
-        // score = sliderToProper(sliderValue);
+        score = sliderToProper(score);
         const { data } = await addInterestRequest({
             userId,
             userInterest: { interestId, score },
@@ -122,7 +123,7 @@ const Matching = ({ userId }: { userId: number }) => {
                 label='Add new interest'
                 value={searchValue}
                 onChange={setSearchValue}
-                onDropdownOpen={dropdownOpenHandlers.open}
+                onDropdownOpen={() => { if (!dropdownOpen) { setSearchValue(''); } console.log('opening'); dropdownOpenHandlers.open(); }}
                 onDropdownClose={dropdownOpenHandlers.close}
                 onItemSubmit={focusInterest}
                 data={filteredInterests}
@@ -148,9 +149,10 @@ const Matching = ({ userId }: { userId: number }) => {
                             min={0}
                             max={100}
                             step={1}
-                            defaultValue={50}
+                            defaultValue={addingType === 'new' ? 50 : userInterestsMap[addingInterest]?.score}
                             marks={sliderMarks}
-                            onChangeEnd={setSliderValue}
+                            value={sliderValue}
+                            onChange={setSliderValue}
                         />
                         <Group className='mt-10'>
                             <Button className='w-24 shadow-md' variant='outline' onClick={() => addInterest(addingType === 'new' ? false : true) }>
