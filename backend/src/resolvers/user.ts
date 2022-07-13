@@ -28,7 +28,8 @@ const resolvers: Resolvers = {
             if (!userCore) return null;
             return prisma.user.findUnique({ where: { id: userCore.id } });
         },
-        getUserInterests: (_parent, { userId }) => {
+        getUserInterests: (_parent, _, { userCore }: Context) => {
+            const userId = userCore.id;
             console.log('Received request for getUserInterests:', userId);
             return prisma.userInterest.findMany({
                 where: { userId },
@@ -109,8 +110,9 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        addUserInterests: async (_parent, { userId, userInterests }) => {
+        addUserInterests: async (_parent, { userInterests }, { userCore }: Context) => {
             try {
+                const userId = userCore.id;
                 console.log('Received request for addUserInterests:', userId, userInterests);
                 // const user = await prisma.user.findUnique({ where: { id: userId } });
                 // if (!user) return { ok: false, errors: [{ field: 'userId', message: 'User not found.' }] };
@@ -134,8 +136,9 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        addUserInterest: async (_parent, { userId, userInterest, override }) => {
+        addUserInterest: async (_parent, { userInterest, override }, { userCore }: Context) => {
             try {
+                const userId = userCore.id;
                 console.log('Received request for addUserInterest:', userId, userInterest);
 
                 const userInterestToCreate = {

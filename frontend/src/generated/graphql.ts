@@ -13,6 +13,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** Date custom scalar type */
+  Date: any;
 };
 
 export type AddPostResponse = {
@@ -55,6 +57,12 @@ export type Interest = {
   name: Scalars['String'];
 };
 
+export type Match = {
+  __typename?: 'Match';
+  matchDate: Scalars['Date'];
+  user: User;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
@@ -75,13 +83,11 @@ export type MutationAddPostArgs = {
 
 export type MutationAddUserInterestArgs = {
   override?: InputMaybe<Scalars['Boolean']>;
-  userId: Scalars['Int'];
   userInterest: UserInterestInput;
 };
 
 
 export type MutationAddUserInterestsArgs = {
-  userId: Scalars['Int'];
   userInterests: Array<UserInterestInput>;
 };
 
@@ -120,6 +126,7 @@ export type PostSavedByArgs = {
 export type Query = {
   __typename?: 'Query';
   getInterests: Array<Interest>;
+  getMatches: Array<Match>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
@@ -153,11 +160,6 @@ export type QueryGetPostsFromUserArgs = {
 
 export type QueryGetUserArgs = {
   id: Scalars['Int'];
-};
-
-
-export type QueryGetUserInterestsArgs = {
-  userId: Scalars['Int'];
 };
 
 
@@ -225,7 +227,6 @@ export type UserRelation = {
 };
 
 export type AddUserInterestMutationVariables = Exact<{
-  userId: Scalars['Int'];
   userInterest: UserInterestInput;
   override?: InputMaybe<Scalars['Boolean']>;
 }>;
@@ -261,9 +262,7 @@ export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __typename?: 'Interest', id: number, name: string }> };
 
-export type GetUserInterestsQueryVariables = Exact<{
-  userId: Scalars['Int'];
-}>;
+export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Array<{ __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
@@ -272,13 +271,6 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string } | null };
-
-export type MulInterestsQueryVariables = Exact<{
-  userId: Scalars['Int'];
-}>;
-
-
-export type MulInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __typename?: 'Interest', id: number, name: string }>, getUserInterests: Array<{ __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -518,6 +510,36 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "Match",
+        "fields": [
+          {
+            "name": "matchDate",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "Mutation",
         "fields": [
           {
@@ -572,16 +594,6 @@ export default {
                 }
               },
               {
-                "name": "userId",
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Any"
-                  }
-                }
-              },
-              {
                 "name": "userInterest",
                 "type": {
                   "kind": "NON_NULL",
@@ -604,16 +616,6 @@ export default {
               }
             },
             "args": [
-              {
-                "name": "userId",
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Any"
-                  }
-                }
-              },
               {
                 "name": "userInterests",
                 "type": {
@@ -848,6 +850,24 @@ export default {
             ]
           },
           {
+            "name": "getMatches",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Match",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          },
+          {
             "name": "getPost",
             "type": {
               "kind": "OBJECT",
@@ -956,18 +976,7 @@ export default {
                 }
               }
             },
-            "args": [
-              {
-                "name": "userId",
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Any"
-                  }
-                }
-              }
-            ]
+            "args": []
           },
           {
             "name": "getUsers",
@@ -1334,12 +1343,8 @@ export default {
 } as unknown as IntrospectionQuery;
 
 export const AddUserInterestDocument = gql`
-    mutation AddUserInterest($userId: Int!, $userInterest: UserInterestInput!, $override: Boolean) {
-  addUserInterest(
-    userId: $userId
-    userInterest: $userInterest
-    override: $override
-  ) {
+    mutation AddUserInterest($userInterest: UserInterestInput!, $override: Boolean) {
+  addUserInterest(userInterest: $userInterest, override: $override) {
     ok
     errors {
       field
@@ -1429,8 +1434,8 @@ export function useGetInterestsQuery(options?: Omit<Urql.UseQueryArgs<GetInteres
   return Urql.useQuery<GetInterestsQuery>({ query: GetInterestsDocument, ...options });
 };
 export const GetUserInterestsDocument = gql`
-    query GetUserInterests($userId: Int!) {
-  getUserInterests(userId: $userId) {
+    query GetUserInterests {
+  getUserInterests {
     interest {
       id
       name
@@ -1440,7 +1445,7 @@ export const GetUserInterestsDocument = gql`
 }
     `;
 
-export function useGetUserInterestsQuery(options: Omit<Urql.UseQueryArgs<GetUserInterestsQueryVariables>, 'query'>) {
+export function useGetUserInterestsQuery(options?: Omit<Urql.UseQueryArgs<GetUserInterestsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetUserInterestsQuery>({ query: GetUserInterestsDocument, ...options });
 };
 export const MeDocument = gql`
@@ -1454,23 +1459,4 @@ export const MeDocument = gql`
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
-};
-export const MulInterestsDocument = gql`
-    query MulInterests($userId: Int!) {
-  getInterests {
-    id
-    name
-  }
-  getUserInterests(userId: $userId) {
-    interest {
-      id
-      name
-    }
-    score
-  }
-}
-    `;
-
-export function useMulInterestsQuery(options: Omit<Urql.UseQueryArgs<MulInterestsQueryVariables>, 'query'>) {
-  return Urql.useQuery<MulInterestsQuery>({ query: MulInterestsDocument, ...options });
 };

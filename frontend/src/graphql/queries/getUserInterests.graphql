@@ -1,5 +1,5 @@
-query GetUserInterests($userId: Int!) {
-    getUserInterests(userId: $userId) {
+query GetUserInterests {
+    getUserInterests {
         interest {
             id
             name

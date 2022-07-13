@@ -24,8 +24,8 @@ const Matching = ({ userId }: { userId: number }) => {
     const theme = useMantineTheme();
 
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
-    const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
-    const [, addInterestRequest] = useAddUserInterestMutation();
+    const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery();
+    const [, sendAddUserInterest] = useAddUserInterestMutation();
     const [filterValue, setFilterValue] = useLocalStorage({ key: 'filter-value', defaultValue: 0 });
 
     const allInterests = allInterestsParent?.getInterests || [];
@@ -73,11 +73,9 @@ const Matching = ({ userId }: { userId: number }) => {
         setSearchValue('');
         const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
         score = sliderToProper(score);
-        const { data } = await addInterestRequest({
-            userId,
+        const { data } = await sendAddUserInterest({
             userInterest: { interestId, score },
             override,
-            
         });
         if (!data?.addUserInterest.ok) {
             console.log('GRAPHQL ERRORS:', data?.addUserInterest.errors);

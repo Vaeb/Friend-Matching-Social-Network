@@ -63,7 +63,7 @@ const client = createClient({
                             cache.updateQuery(
                                 {
                                     query: GetUserInterestsDocument,
-                                    variables: { userId: args.userId },
+                                    // variables: { userId: args.userId },
                                 },
                                 (_data) => {
                                     const data = _data as any;

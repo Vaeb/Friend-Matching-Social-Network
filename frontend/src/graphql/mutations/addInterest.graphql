@@ -1,5 +1,5 @@
-mutation AddUserInterest($userId: Int!, $userInterest: UserInterestInput!, $override: Boolean) {
-    addUserInterest(userId: $userId, userInterest: $userInterest, override: $override) {
+mutation AddUserInterest($userInterest: UserInterestInput!, $override: Boolean) {
+    addUserInterest(userInterest: $userInterest, override: $override) {
         ok
         errors {
             field

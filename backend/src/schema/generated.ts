@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -12,6 +12,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
 };
 
 export type AddPostResponse = {
@@ -54,6 +55,12 @@ export type Interest = {
   name: Scalars['String'];
 };
 
+export type Match = {
+  __typename?: 'Match';
+  matchDate: Scalars['Date'];
+  user: User;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
@@ -74,13 +81,11 @@ export type MutationAddPostArgs = {
 
 export type MutationAddUserInterestArgs = {
   override?: InputMaybe<Scalars['Boolean']>;
-  userId: Scalars['Int'];
   userInterest: UserInterestInput;
 };
 
 
 export type MutationAddUserInterestsArgs = {
-  userId: Scalars['Int'];
   userInterests: Array<UserInterestInput>;
 };
 
@@ -119,6 +124,7 @@ export type PostSavedByArgs = {
 export type Query = {
   __typename?: 'Query';
   getInterests: Array<Interest>;
+  getMatches: Array<Match>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
@@ -152,11 +158,6 @@ export type QueryGetPostsFromUserArgs = {
 
 export type QueryGetUserArgs = {
   id: Scalars['Int'];
-};
-
-
-export type QueryGetUserInterestsArgs = {
-  userId: Scalars['Int'];
 };
 
 
@@ -296,10 +297,12 @@ export type ResolversTypes = {
   AuthResponse: ResolverTypeWrapper<AuthResponse>;
   AuthResponseCore: ResolverTypeWrapper<AuthResponseCore>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Date: ResolverTypeWrapper<Scalars['Date']>;
   Error: ResolverTypeWrapper<Error>;
   GenResponse: ResolverTypeWrapper<GenResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Interest: ResolverTypeWrapper<Interest>;
+  Match: ResolverTypeWrapper<Match>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   Query: ResolverTypeWrapper<{}>;
@@ -318,10 +321,12 @@ export type ResolversParentTypes = {
   AuthResponse: AuthResponse;
   AuthResponseCore: AuthResponseCore;
   Boolean: Scalars['Boolean'];
+  Date: Scalars['Date'];
   Error: Error;
   GenResponse: GenResponse;
   Int: Scalars['Int'];
   Interest: Interest;
+  Match: Match;
   Mutation: {};
   Post: Post;
   Query: {};
@@ -355,6 +360,10 @@ export type AuthResponseCoreResolvers<ContextType = any, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
+  name: 'Date';
+}
+
 export type ErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Error'] = ResolversParentTypes['Error']> = {
   field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -374,10 +383,16 @@ export type InterestResolvers<ContextType = any, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MatchResolvers<ContextType = any, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = {
+  matchDate?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPost?: Resolver<ResolversTypes['AddPostResponse'], ParentType, ContextType, RequireFields<MutationAddPostArgs, 'creatorId' | 'text'>>;
-  addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userId' | 'userInterest'>>;
-  addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userId' | 'userInterests'>>;
+  addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
+  addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
   deleteUser?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
   logout?: Resolver<ResolversTypes['AuthResponseCore'], ParentType, ContextType>;
@@ -394,11 +409,12 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getInterests?: Resolver<Array<ResolversTypes['Interest']>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
+  getMatches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Array<Maybe<ResolversTypes['Post']>>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromUser?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
-  getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType, RequireFields<QueryGetUserInterestsArgs, 'userId'>>;
+  getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;
   getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 };
@@ -451,9 +467,11 @@ export type Resolvers<ContextType = any> = {
   AddPostResponse?: AddPostResponseResolvers<ContextType>;
   AuthResponse?: AuthResponseResolvers<ContextType>;
   AuthResponseCore?: AuthResponseCoreResolvers<ContextType>;
+  Date?: GraphQLScalarType;
   Error?: ErrorResolvers<ContextType>;
   GenResponse?: GenResponseResolvers<ContextType>;
   Interest?: InterestResolvers<ContextType>;
+  Match?: MatchResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

@@ -57,10 +57,16 @@ type UserInterestResponse {
     userInterest: UserInterest
 }
 
+type Match {
+    user: User!
+    matchDate: Date!
+}
+
 type Query {
     getUser(id: Int!): User
     getUsers(limit: Int): [User!]!
-    getUserInterests(userId: Int!): [UserInterest!]!
+    getUserInterests: [UserInterest!]!
+    getMatches: [Match!]!
     me: User
 }
 
@@ -69,6 +75,6 @@ type Mutation {
     login(handle: String!, password: String!): AuthResponse!
     logout: AuthResponseCore!
     deleteUser(id: Int!): AuthResponse!
-    addUserInterests(userId: Int!, userInterests: [UserInterestInput!]!): GenResponse!
-    addUserInterest(userId: Int!, userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
+    addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
+    addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
 }
