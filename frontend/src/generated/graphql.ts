@@ -74,6 +74,7 @@ export type MutationAddPostArgs = {
 
 
 export type MutationAddUserInterestArgs = {
+  override?: InputMaybe<Scalars['Boolean']>;
   userId: Scalars['Int'];
   userInterest: UserInterestInput;
 };
@@ -226,6 +227,7 @@ export type UserRelation = {
 export type AddUserInterestMutationVariables = Exact<{
   userId: Scalars['Int'];
   userInterest: UserInterestInput;
+  override?: InputMaybe<Scalars['Boolean']>;
 }>;
 
 
@@ -562,6 +564,13 @@ export default {
               }
             },
             "args": [
+              {
+                "name": "override",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
               {
                 "name": "userId",
                 "type": {
@@ -1325,8 +1334,12 @@ export default {
 } as unknown as IntrospectionQuery;
 
 export const AddUserInterestDocument = gql`
-    mutation AddUserInterest($userId: Int!, $userInterest: UserInterestInput!) {
-  addUserInterest(userId: $userId, userInterest: $userInterest) {
+    mutation AddUserInterest($userId: Int!, $userInterest: UserInterestInput!, $override: Boolean) {
+  addUserInterest(
+    userId: $userId
+    userInterest: $userInterest
+    override: $override
+  ) {
     ok
     errors {
       field

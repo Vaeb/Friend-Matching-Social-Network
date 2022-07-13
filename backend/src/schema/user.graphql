@@ -69,6 +69,6 @@ type Mutation {
     login(handle: String!, password: String!): AuthResponse!
     logout: AuthResponseCore!
     deleteUser(id: Int!): AuthResponse!
-    addUserInterest(userId: Int!, userInterest: UserInterestInput!): UserInterestResponse!
     addUserInterests(userId: Int!, userInterests: [UserInterestInput!]!): GenResponse!
+    addUserInterest(userId: Int!, userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
 }

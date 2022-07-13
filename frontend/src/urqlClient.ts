@@ -58,19 +58,27 @@ const client = createClient({
                     },
                     addUserInterest: (_result, _args, cache, _info) => {
                         const result = _result as any;
+                        const args = _args as any;
                         if (result?.addUserInterest?.ok) {
                             cache.updateQuery(
                                 {
                                     query: GetUserInterestsDocument,
-                                    variables: { userId: _args.userId },
+                                    variables: { userId: args.userId },
                                 },
                                 (_data) => {
                                     const data = _data as any;
                                     const { userInterest } = result.addUserInterest;
                                     console.log('Updating data.getUserInterests', data.getUserInterests,
                                         'by pushing _result.addUserInterest.userInterest', userInterest);
-                                    const nextLowestIndex = data.getUserInterests.findIndex(({ score }: any) => score < userInterest.score);
-                                    data.getUserInterests.splice(nextLowestIndex > -1 ? nextLowestIndex : data.getUserInterests.length, 0, userInterest);
+                                    const oldIndex = data.getUserInterests.findIndex(({ interest: { id } }: any) => id == args.userInterest.interestId);
+                                    if (oldIndex != -1) {
+                                        console.log('Deleting old from cache...', oldIndex);
+                                        data.getUserInterests.splice(oldIndex, 1);
+                                    }
+                                    if (userInterest != null) {
+                                        const nextLowestIndex = data.getUserInterests.findIndex(({ score }: any) => score < userInterest.score);
+                                        data.getUserInterests.splice(nextLowestIndex > -1 ? nextLowestIndex : data.getUserInterests.length, 0, userInterest);
+                                    }
                                     return data;
                                 }
                             );

@@ -134,7 +134,7 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        addUserInterest: async (_parent, { userId, userInterest }) => {
+        addUserInterest: async (_parent, { userId, userInterest, override }) => {
             try {
                 console.log('Received request for addUserInterest:', userId, userInterest);
 
@@ -143,7 +143,21 @@ const resolvers: Resolvers = {
                     userId,
                 };
 
-                const newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
+                let newUserInterest;
+
+                if (override && userInterest.score == -1) {
+                    await prisma.userInterest.delete({
+                        where: { userId_interestId: { userId, interestId: userInterest.interestId } },
+                    });
+                } else if (override) {
+                    newUserInterest = await prisma.userInterest.update({
+                        data: userInterestToCreate,
+                        include: { interest: true },
+                        where: { userId_interestId: { userId, interestId: userInterest.interestId } },
+                    });
+                } else {
+                    newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
+                }
 
                 const meInterests = await prisma.userInterest.findMany({
                     where: { userId },
@@ -230,7 +244,7 @@ const resolvers: Resolvers = {
                 return { ok: true, userInterest: newUserInterest };
                 // return { ok: false, errors: formatErrors('test') };
             } catch (err) {
-                consoleError('ADD_USER_INTERESTS', err);
+                consoleError('ADD_USER_INTEREST', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

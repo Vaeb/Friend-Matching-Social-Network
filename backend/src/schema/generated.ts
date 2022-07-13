@@ -73,6 +73,7 @@ export type MutationAddPostArgs = {
 
 
 export type MutationAddUserInterestArgs = {
+  override?: InputMaybe<Scalars['Boolean']>;
   userId: Scalars['Int'];
   userInterest: UserInterestInput;
 };

@@ -41,35 +41,52 @@ const Matching = ({ userId }: { userId: number }) => {
     const [searchValue, setSearchValue] = useState<string>('');
     // const [userInterests, setUserInterests] = useState<UserInterestResult[]>(origUserInterests);
     const [addingInterest, setAddingInterest] = useState<string>('');
+    const [addingType, setAddingType] = useState<string>('');
     const [sliderValue, setSliderValue] = useState<number>(0);
 
     // if (userInterests.length === 0 && origUserInterests.length > 0) { // Can add check that userInterests has never been > 0 (for interest removal)
     //     setUserInterests(origUserInterests);
     // }
 
-    const userInterestsMap: Record<string, boolean> = Object.assign({}, ...userInterests.map(userInterest => ({ [userInterest.interest.name]: true })));
+    const userInterestsMap: Record<string, boolean> = Object.assign(
+        {},
+        ...userInterests.map(userInterest => ({ [userInterest.interest.name]: true }))
+    );
 
     const filteredInterests = allInterests.map(interest => interest.name).filter(name => !userInterestsMap[name]);
 
     const focusInterest = (item: AutocompleteItem) => {
         setAddingInterest(item.value);
+        setAddingType('new');
     };
 
-    const addInterest = async () => {
+    const setChangeInterest = (name: string) => {
+        setAddingInterest(name);
+        setAddingType('existing');
+    };
+
+    const addInterest = async (override = false, score = sliderValue) => {
         setAddingInterest('');
         setSearchValue('');
         // setUserInterests([...userInterests, { interest: { name: addingInterest }, score: sliderValue }]);
         const interestId = allInterests.find(interest => interest.name === addingInterest)!.id;
-        const score = sliderToProper(sliderValue);
+        console.log('qq', score);
+        // score = sliderToProper(sliderValue);
         const { data } = await addInterestRequest({
             userId,
             userInterest: { interestId, score },
+            override,
+            
         });
         if (!data?.addUserInterest.ok) {
             console.log('GRAPHQL ERRORS:', data?.addUserInterest.errors);
             return;
         }
         console.log('RESPONSE:', data?.addUserInterest.ok);
+    };
+
+    const deleteInterest = () => {
+        addInterest(true, -1);
     };
 
     const cancelInterest = () => {
@@ -84,7 +101,13 @@ const Matching = ({ userId }: { userId: number }) => {
         </tr>
     );
     const rows = userInterests.map(({ interest: { name }, score }) => (
-        <tr className={`${score > 50 ? 'bg-green-800/[.4] text-zinc-300' : score < 50 ? 'bg-red-800/[.4] text-zinc-300' : ''}`} key={name}>
+        <tr
+            className={`${
+                score > 50 ? 'bg-green-800/[.4] hover:bg-green-800/[.6] text-zinc-300' : score < 50 ? 'bg-red-800/[.4] hover:bg-red-800/[.6] text-zinc-300' : ''
+            } cursor-pointer`}
+            key={name}
+            onClick={() => setChangeInterest(name)}
+        >
             <td>{name}</td>
             <td>{properToSlider(score)}</td>
         </tr>
@@ -130,9 +153,12 @@ const Matching = ({ userId }: { userId: number }) => {
                             onChangeEnd={setSliderValue}
                         />
                         <Group className='mt-10'>
-                            <Button className='w-24 shadow-md' variant='outline' onClick={addInterest}>
+                            <Button className='w-24 shadow-md' variant='outline' onClick={() => addInterest(addingType === 'new' ? false : true) }>
                                 Save
                             </Button>
+                            {addingType === 'existing' ? <Button className='w-24 shadow-md' variant='outline' color='red' onClick={deleteInterest}>
+                                Delete
+                            </Button> : null}
                             <Button className='w-24 shadow-md' variant='outline' color='red' onClick={cancelInterest}>
                                 Cancel
                             </Button>
@@ -143,9 +169,7 @@ const Matching = ({ userId }: { userId: number }) => {
             {/* </Group> */}
             <motion.div animate={addingInterest !== '' || dropdownOpen ? { marginTop: '200px' } : {}} transition={{ ease: 'easeOut' }}>
                 <Table className='shadow-md' horizontalSpacing='lg'>
-                    <thead>
-                        {topRow}
-                    </thead>
+                    <thead>{topRow}</thead>
                     <tbody>{rows}</tbody>
                 </Table>
             </motion.div>
@@ -154,7 +178,7 @@ const Matching = ({ userId }: { userId: number }) => {
                 defaultValue={filterValue}
                 min={0}
                 max={10}
-                onChange={(val => val !== undefined && setFilterValue(val))}
+                onChange={val => val !== undefined && setFilterValue(val)}
                 placeholder='Match filter'
                 label='Match filter'
                 description='From 0 to 10, reduce match frequency by ignoring lower quality matches'
