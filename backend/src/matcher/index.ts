@@ -1,14 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { prisma } from '../server';
+import { cloneObj } from '../utils';
+import findMinCover from './koenig';
 
 const interval = 1000 * 60 * 10;
 
-const match = (compats) => {
-    const originalCompats = structuredClone(compats);
+const matchAlgorithm = (compats, allUsers) => {
+    const originalCompats = cloneObj(compats);
     console.log('Original weights:', originalCompats);
-    const rowKeys = Object.keys(compats);
-    const colKeys = Object.keys(compats[rowKeys[0]]); // Assumes every row has same column keys (users rated)
+    const rowKeys = allUsers;
+    const colKeys = allUsers; // Assumes every row has same column keys (users rated)
     const size = rowKeys.length;
     if (size !== colKeys.length) {
         throw new Error('Matrix must be square');
@@ -47,7 +49,7 @@ const match = (compats) => {
     // ///////////////////////////// MAIN /////////////////////////////
 
     for (const rowKey of rowKeys) {
-    // Can do some optimization to get smallest in each column here
+        // Can do some optimization to get smallest in each column here
         const row = compats[rowKey];
         let smallestInRow = Infinity;
         // Find smallest in row
@@ -62,6 +64,8 @@ const match = (compats) => {
             if (score < smallestInCols[colKey]) smallestInCols[colKey] = score;
         }
     }
+
+    // console.log('QQQModified weights:', compats);
 
     // For each column (in each row), minus smallest
     for (const rowKey of rowKeys) {
@@ -94,13 +98,19 @@ const match = (compats) => {
         // console.log(compats);
         // console.log(zeroEdges);
 
-        scoreCover = [...new Set(findMinCover(size, size, zeroEdges)
-            .map(rowOrCol =>
-                rowOrCol.map((idx) => {
-                    const name = rowKeys[idx];
-                    coveredLines[name] = true;
-                    return name;
-                })).flat(1))];
+        scoreCover = [
+            ...new Set(
+                findMinCover(size, size, zeroEdges)
+                    .map(rowOrCol =>
+                        rowOrCol.map((idx) => {
+                            const name = rowKeys[idx];
+                            coveredLines[name] = true;
+                            return name;
+                        })
+                    )
+                    .flat(1)
+            ),
+        ];
 
         // console.log('scoreCover', scoreCover);
         const coverSize = scoreCover.length;
@@ -135,12 +145,14 @@ const match = (compats) => {
                 }
             }
 
-        // if (attempt === 3) break;
+            // if (attempt === 3) break;
         }
     }
 
     console.log('Found minimal vertex cover:', scoreCover);
     console.log('Final modified weights:', compats);
+
+    // return;
 
     // Pick out the solution based on which lines only have 1 zero
     let picked = 0;
@@ -177,17 +189,81 @@ const match = (compats) => {
     }
 
     console.log('Found optimal assignment:', results);
+
+    return results;
 };
 
-setInterval(async () => {
+const doMatch = async () => {
     const compatibilities = await prisma.userRelations.findMany({
         select: {
             user1: { select: { id: true, username: true } },
-            user2Id: { select: { id: true, username: true } },
+            user2: { select: { id: true, username: true } },
             compatibility: true,
         },
         where: {
             haveMatched: false,
+            areFriends: false,
         },
     });
-}, interval);
+
+    const allUsersMap = {};
+    const compats = {};
+    for (const c of compatibilities) {
+        const user1 = c.user1.username;
+        const user2 = c.user2.username;
+        if (!compats[user1]) compats[user1] = { [user1]: Infinity };
+        if (!compats[user2]) compats[user2] = { [user2]: Infinity };
+        const compats1 = compats[user1];
+        const compats2 = compats[user2];
+        compats1[user2] = 1e4 - c.compatibility;
+        compats2[user1] = 1e4 - c.compatibility;
+        console.log(user1, user2, c.compatibility);
+        allUsersMap[user1] = c.user1.id;
+        allUsersMap[user2] = c.user2.id;
+    }
+
+    const allUsers = Object.keys(allUsersMap);
+    if (allUsers.length % 2 === 1) {
+        const newUser = '__NO_MATCH__';
+        compats[newUser] = { [newUser]: Infinity };
+        for (const user of allUsers) {
+            compats[user][newUser] = 1e4;
+            compats[newUser][user] = 1e4;
+        }
+        allUsers.push(newUser);
+    }
+
+    console.log('allUsers', allUsers);
+    // console.log('compats', compats);
+
+    if (allUsers.length === 0) {
+        console.log('Not enough users to match!');
+        return;
+    }
+
+    const result = matchAlgorithm(compats, allUsers);
+
+    const updateRows = [];
+    for (const pair of result) {
+        const id1 = allUsersMap[pair[0]];
+        const id2 = allUsersMap[pair[1]];
+        if (!id1 || !id2) continue;
+        updateRows.push({ user1Id: id1, user2Id: id2 }, { user1Id: id2, user2Id: id1 });
+    }
+
+    console.log(updateRows);
+    // return;
+
+    const nowDate = new Date();
+    const numUpdated = await prisma.userRelations.updateMany({
+        where: {
+            OR: updateRows,
+        },
+        data: { haveMatched: true, matchDate: nowDate },
+    });
+
+    console.log('Added new matches!', numUpdated);
+};
+
+setInterval(doMatch, interval);
+doMatch();

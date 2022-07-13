@@ -4,7 +4,7 @@ import pool from 'typedarray-pool';
 import iota from 'iota-array';
 import bipartiteMatching from 'bipartite-matching';
 
-function walk(list, v, adjL, matchL, coverL, matchR, coverR) {
+const walk = (list, v, adjL, matchL, coverL, matchR, coverR) => {
     if (coverL[v] || matchL[v] >= 0) {
         return;
     }
@@ -26,9 +26,9 @@ function walk(list, v, adjL, matchL, coverL, matchR, coverR) {
         list.push(next);
         v = matchR[next];
     }
-}
+};
 
-function bipartiteVertexCover(n, m, edges) {
+const bipartiteVertexCover = (n, m, edges) => {
     const match = bipartiteMatching(n, m, edges);
 
     // Initialize adjacency lists
@@ -100,6 +100,6 @@ function bipartiteVertexCover(n, m, edges) {
     pool.free(matchL);
 
     return [left, right];
-}
+};
 
-module.exports = bipartiteVertexCover;
+export default bipartiteVertexCover;

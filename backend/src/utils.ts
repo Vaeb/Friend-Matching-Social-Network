@@ -80,3 +80,43 @@ export const consoleError = (name: string, err: any) => {
     console.log(`> ${name} ERROR:`, err);
     console.log('--------------------------------');
 };
+
+export const cloneDeepJson = (obj: any) => JSON.parse(JSON.stringify(obj));
+
+export const cloneObj = <T>(obj: T, fixBuffer?: boolean): T => {
+    let copy;
+
+    if (obj == null || typeof (obj) !== 'object') return obj;
+
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy as unknown as T;
+    }
+
+    if (obj instanceof Array) {
+        copy = [];
+        const len = obj.length;
+        for (let i = 0; i < len; i++) {
+            copy[i] = cloneObj(obj[i], fixBuffer);
+        }
+        return copy as unknown as T;
+    }
+
+    if (fixBuffer && obj instanceof Buffer) {
+        copy = obj.readUIntBE(0, 1);
+        return copy as unknown as T;
+    }
+
+    if (obj instanceof Object && !(obj instanceof Buffer)) {
+        copy = {} as Record<string, any>;
+        for (const [attr, objAttr] of Object.entries(obj)) {
+            copy[attr] = cloneObj(objAttr, fixBuffer);
+        }
+        return copy as T;
+    }
+
+    console.log("Couldn't clone obj, returning real value");
+
+    return obj;
+};
