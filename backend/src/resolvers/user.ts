@@ -33,6 +33,7 @@ const resolvers: Resolvers = {
             return prisma.userInterest.findMany({
                 where: { userId },
                 include: { interest: true },
+                orderBy: { score: 'desc' },
             });
         },
     },
@@ -48,9 +49,9 @@ const resolvers: Resolvers = {
                     // parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
                     parseErrors.push({ field: 'email', message: 'Must be a valid email address' });
                     throw new Error('Bad data');
-                // } else if (!args.email.endsWith('.ac.uk')) {
-                //     parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
-                //     throw new Error('Bad data');
+                    // } else if (!args.email.endsWith('.ac.uk')) {
+                    //     parseErrors.push({ field: 'email', message: 'Must be a valid .ac.uk email address' });
+                    //     throw new Error('Bad data');
                 }
 
                 args.password = await bcrypt.hash(rawPass, 5);
@@ -144,7 +145,90 @@ const resolvers: Resolvers = {
 
                 const newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
 
+                const meInterests = await prisma.userInterest.findMany({
+                    where: { userId },
+                    select: { interestId: true, score: true },
+                });
+
+                if (meInterests.length > 0) {
+                    const eligibleUsers: any = (await prisma.$queryRaw`
+                        SELECT u.id, COALESCE(rel."compatibility", 0) as "compatibility", (case when u.id <> rel."user2Id" then 1 else 0 end) as "isSecond"
+                        FROM users u
+                        LEFT JOIN user_relations rel ON ((rel."user1Id" = ${userId} AND rel."user2Id" = u.id) OR (rel."user1Id" = u.id AND rel."user2Id" = ${userId}))
+                        WHERE (rel."user1Id" IS NULL OR (rel."areFriends" = false AND rel."haveMatched" = false)) AND u.id <> ${userId};
+                    `);
+
+                    const eligbleUserIds: number[] = [];
+                    const eligbleUserMap: Record<string, any> = {};
+                    for (const eligibleUser of eligibleUsers) {
+                        eligbleUserIds.push(eligibleUser.id);
+                        eligbleUserMap[eligibleUser.id] = eligibleUser;
+                    }
+
+                    const eligibleUsersInterests = await prisma.user.findMany({
+                        where: {
+                            id: { in: eligbleUserIds },
+                        },
+                        select: {
+                            id: true,
+                            interests: {
+                                select: {
+                                    interestId: true,
+                                    score: true,
+                                },
+                            },
+                        },
+                    });
+
+                    const k = 1;
+                    const insertRecords: string[] = [];
+                    console.log(eligibleUsersInterests);
+                    for (const userDetails of eligibleUsersInterests) {
+                        const youId = userDetails.id;
+                        let compatibility = 0;
+
+                        const youInterestsMap: Record<string, number> = {};
+                        for (const youInterest of userDetails.interests) {
+                            youInterestsMap[youInterest.interestId] = youInterest.score;
+                        }
+
+                        for (const { interestId, score: meScore } of meInterests) {
+                            const youScore = youInterestsMap[interestId];
+                            if (youScore === undefined) continue;
+                            compatibility += ( // Negative for majorly apart
+                                (50 - Math.abs(meScore - youScore))
+                                * (k ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
+                            ) / k;
+                        }
+
+                        const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
+                        if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
+                            const isFirst = !isSecond;
+                            insertRecords.push(`(${isFirst ? userId : youId}, ${isFirst ? youId : userId}, ${compatibility}, current_timestamp, current_timestamp)`);
+                        }
+                    }
+
+                    if (insertRecords.length > 0) {
+                        const queryUpsertRows = `
+                            INSERT INTO user_relations
+                                ("user1Id", "user2Id", "compatibility", "updatedCompatibility", "updatedAt")
+                            VALUES
+                                ${insertRecords.join(', ')}
+                            ON CONFLICT ("user1Id", "user2Id") DO UPDATE
+                                SET "compatibility" = excluded."compatibility", "updatedCompatibility" = excluded."updatedCompatibility", "updatedAt" = excluded."updatedAt";
+                        `;
+
+                        console.log(queryUpsertRows);
+                        const upsertResult = await prisma.$executeRawUnsafe(queryUpsertRows);
+
+                        console.log('Compatibility update success!', upsertResult);
+                    } else {
+                        console.log('No records to upsert');
+                    }
+                }
+
                 return { ok: true, userInterest: newUserInterest };
+                // return { ok: false, errors: formatErrors('test') };
             } catch (err) {
                 consoleError('ADD_USER_INTERESTS', err);
                 return {

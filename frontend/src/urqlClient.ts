@@ -66,9 +66,11 @@ const client = createClient({
                                 },
                                 (_data) => {
                                     const data = _data as any;
+                                    const { userInterest } = result.addUserInterest;
                                     console.log('Updating data.getUserInterests', data.getUserInterests,
-                                        'by pushing _result.addUserInterest.userInterest', result.addUserInterest.userInterest);
-                                    data.getUserInterests.push(result.addUserInterest.userInterest);
+                                        'by pushing _result.addUserInterest.userInterest', userInterest);
+                                    const nextLowestIndex = data.getUserInterests.findIndex(({ score }: any) => score < userInterest.score);
+                                    data.getUserInterests.splice(nextLowestIndex > -1 ? nextLowestIndex : data.getUserInterests.length, 0, userInterest);
                                     return data;
                                 }
                             );
