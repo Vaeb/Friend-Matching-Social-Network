@@ -167,6 +167,7 @@ export type QueryGetUsersArgs = {
 
 export type User = {
   __typename?: 'User';
+  createdAt?: Maybe<Scalars['Date']>;
   email: Scalars['String'];
   id: Scalars['Int'];
   matchPrecision: Scalars['Int'];
@@ -174,6 +175,8 @@ export type User = {
   posts?: Maybe<Array<Maybe<Post>>>;
   relations?: Maybe<Array<Maybe<UserRelation>>>;
   savedPosts?: Maybe<Array<Maybe<Post>>>;
+  updatedAt?: Maybe<Scalars['Date']>;
+  updatedInterests?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
   visEmail: Scalars['Int'];
   visInterests: Scalars['Int'];
@@ -420,6 +423,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchPrecision?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -427,6 +431,8 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   posts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<UserPostsArgs>>;
   relations?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserRelation']>>>, ParentType, ContextType>;
   savedPosts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<UserSavedPostsArgs>>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  updatedInterests?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   visEmail?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   visInterests?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

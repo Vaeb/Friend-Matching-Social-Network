@@ -169,6 +169,7 @@ export type QueryGetUsersArgs = {
 
 export type User = {
   __typename?: 'User';
+  createdAt?: Maybe<Scalars['Date']>;
   email: Scalars['String'];
   id: Scalars['Int'];
   matchPrecision: Scalars['Int'];
@@ -176,6 +177,8 @@ export type User = {
   posts?: Maybe<Array<Maybe<Post>>>;
   relations?: Maybe<Array<Maybe<UserRelation>>>;
   savedPosts?: Maybe<Array<Maybe<Post>>>;
+  updatedAt?: Maybe<Scalars['Date']>;
+  updatedInterests?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
   visEmail: Scalars['Int'];
   visInterests: Scalars['Int'];
@@ -1021,6 +1024,14 @@ export default {
         "name": "User",
         "fields": [
           {
+            "name": "createdAt",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
             "name": "email",
             "type": {
               "kind": "NON_NULL",
@@ -1115,6 +1126,22 @@ export default {
                 }
               }
             ]
+          },
+          {
+            "name": "updatedAt",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "updatedInterests",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
           },
           {
             "name": "username",

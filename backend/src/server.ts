@@ -48,6 +48,11 @@ export const listen = async (): Promise<void> => {
                 serverUrl: `${req.protocol}://${req.get('host')}`,
                 userCore: (req as Context['req']).userCore,
             } as Context),
+        formatError: (err) => {
+            console.log('\n>>> Error from GraphQL resolver:');
+            console.error(err);
+            return err;
+        },
         plugins: [ApolloServerPluginLandingPageLocalDefault({ footer: false, embed: true })],
     });
 

@@ -3,9 +3,9 @@ import { User, UserRelations } from '@prisma/client';
 
 import { login, logout } from '../authentication';
 import { prisma } from '../server';
-import { consoleError, formatErrors, pickUser } from '../utils';
+import { consoleError, formatErrors, getUserRelations, pickUserData } from '../utils';
 import { Context } from '../types';
-import type { Error, Resolvers } from '../schema/generated';
+import type { Error as NewError, Resolvers } from '../schema/generated';
 
 const resolvers: Resolvers = {
     Query: {
@@ -15,7 +15,7 @@ const resolvers: Resolvers = {
                 where: { id },
             });
 
-            return pickUser(user);
+            return user;
         },
         getUsers: (_parent, { limit }) => {
             console.log('Received request for getUsers:', limit);
@@ -37,10 +37,17 @@ const resolvers: Resolvers = {
                 orderBy: { score: 'desc' },
             });
         },
+        getMatches: async (_parent, _, { userCore }: Context) => {
+            const userId = userCore.id;
+
+            const matches = await getUserRelations(userId);
+
+            return matches as any;
+        },
     },
     Mutation: {
         register: async (_parent, args, { res }: Context) => {
-            const parseErrors: Error[] = [];
+            const parseErrors: NewError[] = [];
 
             try {
                 console.log('Received request for register:', args);
@@ -139,6 +146,7 @@ const resolvers: Resolvers = {
         addUserInterest: async (_parent, { userInterest, override }, { userCore }: Context) => {
             try {
                 const userId = userCore.id;
+                const nowDate = new Date();
                 console.log('Received request for addUserInterest:', userId, userInterest);
 
                 const userInterestToCreate = {
@@ -162,71 +170,75 @@ const resolvers: Resolvers = {
                     newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
                 }
 
+                await prisma.user.update({
+                    where: { id: userId },
+                    data: { updatedInterests: nowDate },
+                });
+
                 const meInterests = await prisma.userInterest.findMany({
                     where: { userId },
                     select: { interestId: true, score: true },
                 });
 
-                if (meInterests.length > 0) {
-                    const eligibleUsers: any = (await prisma.$queryRaw`
+                const eligibleUsers: any = (await prisma.$queryRaw`
                         SELECT u.id, COALESCE(rel."compatibility", 0) as "compatibility", (case when u.id <> rel."user2Id" then 1 else 0 end) as "isSecond"
                         FROM users u
                         LEFT JOIN user_relations rel ON ((rel."user1Id" = ${userId} AND rel."user2Id" = u.id) OR (rel."user1Id" = u.id AND rel."user2Id" = ${userId}))
                         WHERE (rel."user1Id" IS NULL OR (rel."areFriends" = false AND rel."haveMatched" = false)) AND u.id <> ${userId};
                     `);
 
-                    const eligbleUserIds: number[] = [];
-                    const eligbleUserMap: Record<string, any> = {};
-                    for (const eligibleUser of eligibleUsers) {
-                        eligbleUserIds.push(eligibleUser.id);
-                        eligbleUserMap[eligibleUser.id] = eligibleUser;
-                    }
+                const eligbleUserIds: number[] = [];
+                const eligbleUserMap: Record<string, any> = {};
+                for (const eligibleUser of eligibleUsers) {
+                    eligbleUserIds.push(eligibleUser.id);
+                    eligbleUserMap[eligibleUser.id] = eligibleUser;
+                }
 
-                    const eligibleUsersInterests = await prisma.user.findMany({
-                        where: {
-                            id: { in: eligbleUserIds },
-                        },
-                        select: {
-                            id: true,
-                            interests: {
-                                select: {
-                                    interestId: true,
-                                    score: true,
-                                },
+                const eligibleUsersInterests = await prisma.user.findMany({
+                    where: {
+                        id: { in: eligbleUserIds },
+                    },
+                    select: {
+                        id: true,
+                        interests: {
+                            select: {
+                                interestId: true,
+                                score: true,
                             },
                         },
-                    });
+                    },
+                });
 
-                    const k = 1;
-                    const insertRecords: string[] = [];
-                    console.log(eligibleUsersInterests);
-                    for (const userDetails of eligibleUsersInterests) {
-                        const youId = userDetails.id;
-                        let compatibility = 0;
+                const k = 1;
+                const insertRecords: string[] = [];
+                console.log(eligibleUsersInterests);
+                for (const userDetails of eligibleUsersInterests) {
+                    const youId = userDetails.id;
+                    let compatibility = 0;
 
-                        const youInterestsMap: Record<string, number> = {};
-                        for (const youInterest of userDetails.interests) {
-                            youInterestsMap[youInterest.interestId] = youInterest.score;
-                        }
-
-                        for (const { interestId, score: meScore } of meInterests) {
-                            const youScore = youInterestsMap[interestId];
-                            if (youScore === undefined) continue;
-                            compatibility += ( // Negative for majorly apart
-                                (50 - Math.abs(meScore - youScore))
-                                * (k ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
-                            ) / k;
-                        }
-
-                        const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
-                        if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
-                            const isFirst = !isSecond;
-                            insertRecords.push(`(${isFirst ? userId : youId}, ${isFirst ? youId : userId}, ${compatibility}, current_timestamp, current_timestamp)`);
-                        }
+                    const youInterestsMap: Record<string, number> = {};
+                    for (const youInterest of userDetails.interests) {
+                        youInterestsMap[youInterest.interestId] = youInterest.score;
                     }
 
-                    if (insertRecords.length > 0) {
-                        const queryUpsertRows = `
+                    for (const { interestId, score: meScore } of meInterests) {
+                        const youScore = youInterestsMap[interestId];
+                        if (youScore === undefined) continue;
+                        compatibility += ( // Negative for majorly apart
+                            (50 - Math.abs(meScore - youScore))
+                                * (k ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
+                        ) / k;
+                    }
+
+                    const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
+                    if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
+                        const isFirst = !isSecond;
+                        insertRecords.push(`(${isFirst ? userId : youId}, ${isFirst ? youId : userId}, ${compatibility}, current_timestamp, current_timestamp)`);
+                    }
+                }
+
+                if (insertRecords.length > 0) {
+                    const queryUpsertRows = `
                             INSERT INTO user_relations
                                 ("user1Id", "user2Id", "compatibility", "updatedCompatibility", "updatedAt")
                             VALUES
@@ -235,13 +247,12 @@ const resolvers: Resolvers = {
                                 SET "compatibility" = excluded."compatibility", "updatedCompatibility" = excluded."updatedCompatibility", "updatedAt" = excluded."updatedAt";
                         `;
 
-                        console.log(queryUpsertRows);
-                        const upsertResult = await prisma.$executeRawUnsafe(queryUpsertRows);
+                    console.log(queryUpsertRows);
+                    const upsertResult = await prisma.$executeRawUnsafe(queryUpsertRows);
 
-                        console.log('Compatibility update success!', upsertResult);
-                    } else {
-                        console.log('No records to upsert');
-                    }
+                    console.log('Compatibility update success!', upsertResult);
+                } else {
+                    console.log('No records to upsert');
                 }
 
                 return { ok: true, userInterest: newUserInterest };
@@ -283,7 +294,7 @@ const resolvers: Resolvers = {
                     compatibility,
                     haveMatched,
                     matchDate,
-                    user: pickUser(userData)!,
+                    user: pickUserData(userData)!,
                 };
             });
 

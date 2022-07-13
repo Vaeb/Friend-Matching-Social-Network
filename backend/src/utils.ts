@@ -1,7 +1,8 @@
 import nodeUtils from 'util';
 import pick from 'lodash-es/pick';
-import { User } from '@prisma/client';
+import { User, UserRelations } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { prisma } from './server';
 
 type Modify<O, R> = Omit<O, keyof R> & R;
 
@@ -52,28 +53,49 @@ export function badStatus<T extends boolean>(field: string, message: string, sou
 //     // return object2;
 // }
 
-export const pickUser = (user: User | null) => {
-    if (!user) return null;
+// export const pickUser = (user: User | null) => {
+//     if (!user) return null;
 
-    const dateNum = +user.createdAt;
+//     const dateNum = +user.createdAt;
 
-    const pickedUser = pick(user, [
-        'id',
-        'username',
-        'email',
-        'name',
-        'matchPrecision',
-        'visEmail',
-        'visInterests',
-        'createdAt',
-    ]);
-    const newUser = pickedUser as unknown as Modify<typeof pickedUser, { createdAt: number }>;
-    newUser.createdAt = dateNum;
+//     const pickedUser = pick(user, [
+//         'id',
+//         'username',
+//         'email',
+//         'name',
+//         'matchPrecision',
+//         'visEmail',
+//         'visInterests',
+//         'createdAt',
+//     ]);
+//     const newUser = pickedUser as unknown as Modify<typeof pickedUser, { createdAt: number }>;
+//     newUser.createdAt = dateNum;
     
-    // const newUser2 = edit(newUser, 'createdAt', dateNum);
+//     // const newUser2 = edit(newUser, 'createdAt', dateNum);
 
-    return newUser;
-};
+//     return newUser;
+// };
+
+export function pickUserData<T extends User>(userExtended: T): User;
+export function pickUserData<T extends User>(userExtended: T | null): User | null;
+export function pickUserData<T extends User>(userExtended: T | null) {
+    if (!userExtended) return null;
+
+    // @ts-ignore
+    const userFieldData: any[] = prisma._dmmf.modelMap.User.fields;
+    const user: any = {};
+
+    for (const data of userFieldData) {
+        const { name, type }: any = data;
+        let value = (userExtended as any)[name];
+        if (type === 'DateTime' && value != null) {
+            value = new Date(value);
+        }
+        user[name] = value;
+    }
+
+    return user as User;
+}
 
 export const consoleError = (name: string, err: any) => {
     console.log('++++++++++++++++++++++++++++++++');
@@ -119,4 +141,26 @@ export const cloneObj = <T>(obj: T, fixBuffer?: boolean): T => {
     console.log("Couldn't clone obj, returning real value");
 
     return obj;
+};
+
+export const getUserRelations = async (userId: number, bonusWhere?: string) => {
+    const rawRelations = (await prisma.$queryRaw`
+        SELECT "areFriends", "compatibility", "updatedCompatibility", "haveMatched", "matchDate", u.*
+        FROM user_relations rel
+        JOIN users u ON (rel."user1Id" <> ${userId} AND rel."user1Id" = u.id) OR (rel."user2Id" <> ${userId} AND rel."user2Id" = u.id)
+        WHERE rel."user1Id" = ${userId} OR rel."user2Id" = ${userId}
+    `) as (UserRelations & User)[];
+
+    const relations = rawRelations.map((rawRelation) => {
+        const user = pickUserData(rawRelation);
+        const result: Record<string, any> = { user };
+        for (const [key, value] of Object.entries(rawRelation)) {
+            if (!(key in user)) {
+                result[key] = value;
+            }
+        }
+        return result;
+    });
+
+    return relations;
 };

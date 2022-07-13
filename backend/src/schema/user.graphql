@@ -11,6 +11,9 @@ type User {
     # comments(limit: Int): [Int]!
     # reactions(limit: Int): [Int]!
     savedPosts(limit: Int): [Post]
+    updatedInterests: Date
+    updatedAt: Date
+    createdAt: Date
 }
 
 type UserCore {
