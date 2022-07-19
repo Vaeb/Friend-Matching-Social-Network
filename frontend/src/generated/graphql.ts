@@ -265,6 +265,11 @@ export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __typename?: 'Interest', id: number, name: string }> };
 
+export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string } }> };
+
 export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1459,6 +1464,22 @@ export const GetInterestsDocument = gql`
 
 export function useGetInterestsQuery(options?: Omit<Urql.UseQueryArgs<GetInterestsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetInterestsQuery>({ query: GetInterestsDocument, ...options });
+};
+export const GetMatchesDocument = gql`
+    query GetMatches {
+  getMatches {
+    user {
+      id
+      username
+      name
+    }
+    matchDate
+  }
+}
+    `;
+
+export function useGetMatchesQuery(options?: Omit<Urql.UseQueryArgs<GetMatchesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetMatchesQuery>({ query: GetMatchesDocument, ...options });
 };
 export const GetUserInterestsDocument = gql`
     query GetUserInterests {

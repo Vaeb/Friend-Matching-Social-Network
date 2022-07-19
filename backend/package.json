@@ -9,8 +9,8 @@
     "scripts": {
         "start": "node --trace-deprecation --experimental-specifier-resolution=node dist/index.js",
         "dev": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/index.js",
-        "match-s": "node --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
-        "match": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
+        "match": "node --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
+        "match-w": "nodemon --trace-deprecation --experimental-specifier-resolution=node dist/matcher/index.js",
         "watch": "tsc -w",
         "startraw": "node dist/index.js",
         "tsnode": "ts-node src/index.ts",

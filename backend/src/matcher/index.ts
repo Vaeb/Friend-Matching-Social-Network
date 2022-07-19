@@ -1,5 +1,4 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { prisma } from '../server';
 import { cloneObj } from '../utils';
 import findMinCover from './koenig';
@@ -39,7 +38,7 @@ const matchAlgorithm = (compats, allUsers) => {
 
     // ///////////////////////////// FUNCS /////////////////////////////
 
-    const getSmallestInRow = row => Object.values(row).reduce((acc, v) => Math.min(acc, v));
+    const getSmallestInRow = row => Object.values(row).reduce((acc: any, v: any) => Math.min(acc, v));
     const addToEachInRow = (row, num) => {
         for (const colKey of colKeys) {
             row[colKey] += num;
@@ -194,7 +193,7 @@ const matchAlgorithm = (compats, allUsers) => {
 };
 
 const doMatch = async () => {
-    const compatibilities = await prisma.userRelations.findMany({
+    const compatibilitiesBase = await prisma.userRelation.findMany({
         select: {
             user1: { select: { id: true, username: true } },
             user2: { select: { id: true, username: true } },
@@ -203,8 +202,11 @@ const doMatch = async () => {
         where: {
             haveMatched: false,
             areFriends: false,
+            compatibility: { not: null },
         },
     });
+
+    const compatibilities = compatibilitiesBase as (typeof compatibilitiesBase[0] & { compatibility: number })[];
 
     const allUsersMap = {};
     const compats = {};
@@ -255,7 +257,7 @@ const doMatch = async () => {
     // return;
 
     const nowDate = new Date();
-    const numUpdated = await prisma.userRelations.updateMany({
+    const numUpdated = await prisma.userRelation.updateMany({
         where: {
             OR: updateRows,
         },
@@ -265,5 +267,5 @@ const doMatch = async () => {
     console.log('Added new matches!', numUpdated);
 };
 
-setInterval(doMatch, interval);
+// setInterval(doMatch, interval);
 doMatch();

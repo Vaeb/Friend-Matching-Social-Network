@@ -1,4 +1,4 @@
-// Tables: Users, UserRelations, Interests, UserInterests, Channels, ChannelUsers, Messages, Posts, PostComments, PostReactions, SavedPosts
+// Tables: Users, UserRelation, Interests, UserInterests, Channels, ChannelUsers, Messages, Posts, PostComments, PostReactions, SavedPosts
 
 generator client {
     provider = "prisma-client-js"
@@ -10,33 +10,33 @@ datasource db {
 }
 
 model User {
-    id               Int             @id @default(autoincrement())
-    username         String          @unique
-    email            String          @unique
+    id               Int            @id @default(autoincrement())
+    username         String         @unique
+    email            String         @unique
     password         String
     name             String
-    university       University?     @relation(fields: [universityId], references: [id])
+    university       University?    @relation(fields: [universityId], references: [id])
     universityId     Int?
-    matchPrecision   Int             @default(0)
-    visEmail         Int             @default(0)
-    visInterests     Int             @default(0)
-    userRelations1   UserRelations[] @relation(name: "UserRel1")
-    userRelations2   UserRelations[] @relation(name: "UserRel2")
+    matchPrecision   Int            @default(0)
+    visEmail         Int            @default(0)
+    visInterests     Int            @default(0)
+    relations1       UserRelation[] @relation(name: "UserRel1")
+    relations2       UserRelation[] @relation(name: "UserRel2")
     interests        UserInterest[]
     channels         Channel[]
-    createdChannels  Channel[]       @relation(name: "CreatedChannels")
-    posts            Post[]          @relation(name: "CreatedPosts")
-    comments         Comment[]       @relation(name: "CreatedComments")
-    reactions        Reaction[]      @relation(name: "CreatedReactions")
-    savedPosts       Post[]          @relation(name: "SavedPosts")
+    createdChannels  Channel[]      @relation(name: "CreatedChannels")
+    posts            Post[]         @relation(name: "CreatedPosts")
+    comments         Comment[]      @relation(name: "CreatedComments")
+    reactions        Reaction[]     @relation(name: "CreatedReactions")
+    savedPosts       Post[]         @relation(name: "SavedPosts")
     updatedInterests DateTime?
-    createdAt        DateTime        @default(now())
-    updatedAt        DateTime        @updatedAt
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
 
     @@map("users")
 }
 
-model UserRelations {
+model UserRelation {
     user1                User      @relation(name: "UserRel1", fields: [user1Id], references: [id])
     user1Id              Int
     user2                User      @relation(name: "UserRel2", fields: [user2Id], references: [id])

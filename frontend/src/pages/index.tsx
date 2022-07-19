@@ -1,9 +1,9 @@
 import { Loader } from '@mantine/core';
 
 import Page from '../components/Page';
-import PanelR from '../components/PanelR';
-import PanelL from '../components/PanelL';
-import PanelM from '../components/PanelM';
+import PanelR from '../components/PanelRight';
+import PanelL from '../components/PanelLeft';
+import PanelM from '../components/PanelMid';
 import { useCheckAuth } from '../utils/useCheckAuth';
 
 const Index = () => {

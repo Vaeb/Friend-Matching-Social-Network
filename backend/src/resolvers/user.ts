@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
-import { User, UserRelations } from '@prisma/client';
 
 import { login, logout } from '../authentication';
 import { prisma } from '../server';
-import { consoleError, formatErrors, getUserRelations, pickUserData } from '../utils';
+import { consoleError, formatErrors, getUserRelations } from '../utils';
 import { Context } from '../types';
-import type { Error as NewError, Resolvers } from '../schema/generated';
+import type { Error, Resolvers } from '../schema/generated';
 
 const resolvers: Resolvers = {
     Query: {
@@ -40,14 +39,15 @@ const resolvers: Resolvers = {
         getMatches: async (_parent, _, { userCore }: Context) => {
             const userId = userCore.id;
 
-            const matches = await getUserRelations(userId);
+            const matches = await getUserRelations(userId, '"haveMatched" = true');
+            console.log(matches);
 
             return matches as any;
         },
     },
     Mutation: {
         register: async (_parent, args, { res }: Context) => {
-            const parseErrors: NewError[] = [];
+            const parseErrors: Error[] = [];
 
             try {
                 console.log('Received request for register:', args);
@@ -278,26 +278,7 @@ const resolvers: Resolvers = {
             // 1. Add each relation twice (interchange user1 and user2) and have a separate table for the relation data
             // b. Possible performance benefit: Can keep each user1 row stored on a server shard close to user1
             // 2. Add each relation once and require all queries involving relations to be raw SQL + extra TS to parse together
-            const rawRelations = (await prisma.$queryRaw`
-                SELECT areFriends, compatibility, haveMatched, matchDate, user.*
-                FROM user_relations rel
-                JOIN users user ON (rel.user1Id <> ${userId} AND rel.user1Id = user.id) OR (rel.user2Id <> ${userId} AND rel.user2Id = user.id)
-                WHERE rel.user1Id = ${userId} OR rel.user2Id = ${userId}
-            `) as (UserRelations & User)[];
-
-            const relations = rawRelations.map((rawRelation) => {
-                const {
-                    areFriends, compatibility, haveMatched, matchDate, ...userData 
-                } = rawRelation;
-                return {
-                    areFriends,
-                    compatibility,
-                    haveMatched,
-                    matchDate,
-                    user: pickUserData(userData)!,
-                };
-            });
-
+            const relations = await getUserRelations(userId);
             return relations;
         },
         posts: async ({ id: userId }, { limit }) => {

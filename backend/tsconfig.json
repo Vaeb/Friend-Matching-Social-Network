@@ -1,10 +1,8 @@
 {
     "compilerOptions": {
-        "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
-        "emitDecoratorMetadata": true,
-        "esModuleInterop": true,
-        "experimentalDecorators": true,
+        "outDir": "./dist",
+        "target": "es2020",
         "lib": [
             "dom",
             "es2021",
@@ -13,20 +11,22 @@
         ],
         "module": "esnext",
         "moduleResolution": "node",
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitAny": true,
+        "allowSyntheticDefaultImports": true,
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "strictFunctionTypes": false,
+        "strictNullChecks": false,
+        "noImplicitAny": false,
         "noImplicitReturns": true,
         "noImplicitThis": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "outDir": "./dist",
+        "noFallthroughCasesInSwitch": true,
+        "noErrorTruncation": true,
         "removeComments": true,
         "resolveJsonModule": true,
-        "sourceMap": true,
-        "strictFunctionTypes": true,
-        "strictNullChecks": true,
-        "noErrorTruncation": true,
-        "target": "es2020"
+        "sourceMap": true
     },
     "exclude": [
         "node_modules"

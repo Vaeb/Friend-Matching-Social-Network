@@ -1,10 +1,9 @@
 import nodeUtils from 'util';
-import pick from 'lodash-es/pick';
-import { User, UserRelations } from '@prisma/client';
+import { User, UserRelation } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { prisma } from './server';
 
-type Modify<O, R> = Omit<O, keyof R> & R;
+// type Modify<O, R> = Omit<O, keyof R> & R;
 
 export const formatErrors = (...errors: any[]) => {
     return errors.map((e) => {
@@ -76,26 +75,26 @@ export function badStatus<T extends boolean>(field: string, message: string, sou
 //     return newUser;
 // };
 
-export function pickUserData<T extends User>(userExtended: T): User;
-export function pickUserData<T extends User>(userExtended: T | null): User | null;
-export function pickUserData<T extends User>(userExtended: T | null) {
-    if (!userExtended) return null;
+// export function pickPrismaObj<R>(tableName, dataExtended: Exclude<any, null>): R;
+// export function pickPrismaObj<R>(tableName, dataExtended: null): R | null;
+export const pickPrismaObj = <R>(tableName: string, dataExtended: any): R => {
+    if (!dataExtended) return null;
 
     // @ts-ignore
-    const userFieldData: any[] = prisma._dmmf.modelMap.User.fields;
-    const user: any = {};
+    const fieldData: any[] = prisma._dmmf.modelMap[tableName].fields;
+    const result = {};
 
-    for (const data of userFieldData) {
-        const { name, type }: any = data;
-        let value = (userExtended as any)[name];
+    for (const data of fieldData) {
+        const { name, type } = data;
+        let value = (dataExtended as any)[name];
         if (type === 'DateTime' && value != null) {
             value = new Date(value);
         }
-        user[name] = value;
+        result[name] = value;
     }
 
-    return user as User;
-}
+    return result as R;
+};
 
 export const consoleError = (name: string, err: any) => {
     console.log('++++++++++++++++++++++++++++++++');
@@ -143,22 +142,20 @@ export const cloneObj = <T>(obj: T, fixBuffer?: boolean): T => {
     return obj;
 };
 
+type PartialUserRelation = Pick<UserRelation, 'areFriends' | 'compatibility' | 'updatedCompatibility' | 'haveMatched' | 'matchDate'>;
+
 export const getUserRelations = async (userId: number, bonusWhere?: string) => {
-    const rawRelations = (await prisma.$queryRaw`
+    const rawRelations = (await prisma.$queryRawUnsafe(`
         SELECT "areFriends", "compatibility", "updatedCompatibility", "haveMatched", "matchDate", u.*
         FROM user_relations rel
-        JOIN users u ON (rel."user1Id" <> ${userId} AND rel."user1Id" = u.id) OR (rel."user2Id" <> ${userId} AND rel."user2Id" = u.id)
-        WHERE rel."user1Id" = ${userId} OR rel."user2Id" = ${userId}
-    `) as (UserRelations & User)[];
+        JOIN users u ON (rel."user1Id" <> $1 AND rel."user1Id" = u.id) OR (rel."user2Id" <> $1 AND rel."user2Id" = u.id)
+        WHERE (rel."user1Id" = $1 OR rel."user2Id" = $1)${bonusWhere ? ` AND ${bonusWhere}` : ''};
+    `, userId)) as (UserRelation & User)[];
 
     const relations = rawRelations.map((rawRelation) => {
-        const user = pickUserData(rawRelation);
-        const result: Record<string, any> = { user };
-        for (const [key, value] of Object.entries(rawRelation)) {
-            if (!(key in user)) {
-                result[key] = value;
-            }
-        }
+        const user = pickPrismaObj<User>('User', rawRelation);
+        const userRelation = pickPrismaObj<PartialUserRelation>('UserRelation', rawRelation);
+        const result = { ...userRelation, user };
         return result;
     });
 

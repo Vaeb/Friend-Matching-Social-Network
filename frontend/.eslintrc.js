@@ -91,11 +91,11 @@ module.exports = {
         // * 'no-restricted-globals': 'off',
         'no-restricted-syntax': 'off',
         'no-underscore-dangle': 'off',
-        // '@typescript-eslint/no-unused-vars': [
-        //     'warn',
-        //     { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
-        // ],
-        '@typescript-eslint/no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
+        ],
+        // '@typescript-eslint/no-unused-vars': 'off',
         'object-curly-newline': [
             'warn',
             { minProperties: 6, multiline: true, consistent: true },

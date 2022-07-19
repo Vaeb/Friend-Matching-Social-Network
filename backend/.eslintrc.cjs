@@ -64,11 +64,11 @@ module.exports = {
         'no-restricted-syntax': 'off',
         'no-underscore-dangle': 'off',
         'no-useless-escape': 'off',
-        // '@typescript-eslint/no-unused-vars': [
-        //     'warn',
-        //     { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
-        // ],
-        '@typescript-eslint/no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
+        ],
+        // '@typescript-eslint/no-unused-vars': 'off',
         'object-curly-newline': ['warn', { minProperties: 5, multiline: true, consistent: true }],
         'prefer-destructuring': ['error', { array: false, object: true }],
         // 'quote-props': 'off',
