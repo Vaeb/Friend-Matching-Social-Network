@@ -4,7 +4,7 @@ import {
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { BsPersonCircle as IconPerson } from 'react-icons/bs';
-import shallow from 'zustand/shallow';
+// import shallow from 'zustand/shallow';
 
 import { GetMatchesQuery, useGetMessagesQuery, useMeQuery, User, useSendMessageMutation } from '../../generated/graphql';
 import { useAppStore, useConvoStore } from '../../state';
@@ -39,17 +39,17 @@ const MatchMid: FC = () => {
         [match.id]: match,
     };
 
-    console.log(messages);
-    console.log(users);
-    console.log(me);
-    console.log(match);
+    // console.log(messages);
+    // console.log(users);
+    // console.log(me);
+    // console.log(match);
 
-    // useEffect(() => {
-    //     if (inputRef.current) {
-    //         inputRef.current.focus();
-    //         console.log('set focus');
-    //     }
-    // }, [match.id]);
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+            console.log('set focus');
+        }
+    }, [match.id]);
 
     const onKeyDown = (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
         const { key } = props;
@@ -67,7 +67,7 @@ const MatchMid: FC = () => {
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
         <Stack className='h-full'>
-            <Title className='text-base font-bold' color='dimmed'>Welcome to the @{match.username} @{me.username} chat.</Title>
+            <Title className='text-base font-bold' color='dimmed'>Welcome to the @{me.username} @{match.username} chat.</Title>
             <ScrollArea className='grow px-0 pb-0'>
                 <Stack className='' spacing={23}>
                     {messages.map(message => (

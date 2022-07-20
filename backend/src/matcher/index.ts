@@ -4,6 +4,8 @@ import { cloneObj } from '../utils';
 import findMinCover from './koenig';
 
 const interval = 1000 * 60 * 10;
+const defaultMatch = Number.MAX_SAFE_INTEGER;
+// const defaultMatch = 1e4;
 
 const matchAlgorithm = (compats, allUsers) => {
     const originalCompats = cloneObj(compats);
@@ -53,12 +55,12 @@ const matchAlgorithm = (compats, allUsers) => {
         let smallestInRow = Infinity;
         // Find smallest in row
         for (const colKey of colKeys) {
-            const score = row[colKey];
+            const score = row[colKey] ?? defaultMatch;
             if (score < smallestInRow) smallestInRow = score;
         }
         // For each in row, minus smallest :AND: update smallest in each column seen
         for (const colKey of colKeys) {
-            const score = row[colKey] - smallestInRow;
+            const score = (row[colKey] ?? defaultMatch) - smallestInRow;
             row[colKey] = score;
             if (score < smallestInCols[colKey]) smallestInCols[colKey] = score;
         }
@@ -80,7 +82,8 @@ const matchAlgorithm = (compats, allUsers) => {
     let fullCover = false;
     let scoreCover;
     while (!fullCover) {
-        console.log(`Attempt @ Cover #${++coverAttempt}`);
+        if (++coverAttempt > 300000) return console.log('Something went wrong');
+        // console.log(`Attempt @ Cover #${coverAttempt}`);
 
         // Solve 0-edges as minimal vertex cover
         const zeroEdges = [];
@@ -151,8 +154,6 @@ const matchAlgorithm = (compats, allUsers) => {
     console.log('Found minimal vertex cover:', scoreCover);
     console.log('Final modified weights:', compats);
 
-    // return;
-
     // Pick out the solution based on which lines only have 1 zero
     let picked = 0;
     const results = [];
@@ -160,7 +161,8 @@ const matchAlgorithm = (compats, allUsers) => {
     let pickAttempt = 0;
     const pickGoal = size / 2;
     while (picked < pickGoal) {
-        console.log(`Attempt @ Picking optimal assignment #${++pickAttempt}`);
+        if (++pickAttempt > 4000000) return console.log('Something went wrong @ optimal assignment');
+        // console.log(`Attempt @ Picking optimal assignment #${++pickAttempt}`);
         for (const rowKey of rowKeys) {
             if (pickedLines[rowKey]) continue;
             const row = compats[rowKey];
@@ -200,28 +202,40 @@ const doMatch = async () => {
             compatibility: true,
         },
         where: {
-            haveMatched: false,
+            // NOT: { OR: [{ user1: { username: 'sean1' } }, { user2: { username: 'sean1' } }] },
+            // haveMatched: false,
             areFriends: false,
             compatibility: { not: null },
         },
+        take: 2,
     });
 
     const compatibilities = compatibilitiesBase as (typeof compatibilitiesBase[0] & { compatibility: number })[];
 
+    const kMatch = 2;
     const allUsersMap = {};
     const compats = {};
-    for (const c of compatibilities) {
-        const user1 = c.user1.username;
-        const user2 = c.user2.username;
-        if (!compats[user1]) compats[user1] = { [user1]: Infinity };
-        if (!compats[user2]) compats[user2] = { [user2]: Infinity };
-        const compats1 = compats[user1];
-        const compats2 = compats[user2];
-        compats1[user2] = 1e4 - c.compatibility;
-        compats2[user1] = 1e4 - c.compatibility;
-        console.log(user1, user2, c.compatibility);
-        allUsersMap[user1] = c.user1.id;
-        allUsersMap[user2] = c.user2.id;
+    const fixCompats = (user, userTag) => {
+        if (!compats[userTag]) {
+            const baseCompats = {};
+            for (let i = 1; i <= kMatch; i++) baseCompats[`${user.username}-${i}`] = Infinity;
+            compats[userTag] = baseCompats;
+        }
+    };
+    for (let i = 1; i <= kMatch; i++) {
+        for (const c of compatibilities) {
+            const user1 = `${c.user1.username}-${i}`;
+            const user2 = `${c.user2.username}-${i}`;
+            fixCompats(c.user1, user1);
+            fixCompats(c.user2, user2);
+            const compats1 = compats[user1];
+            const compats2 = compats[user2];
+            compats1[user2] = defaultMatch - c.compatibility;
+            compats2[user1] = defaultMatch - c.compatibility;
+            console.log(user1, user2, c.compatibility);
+            allUsersMap[user1] = c.user1.id;
+            allUsersMap[user2] = c.user2.id;
+        }
     }
 
     const allUsers = Object.keys(allUsersMap);
@@ -229,8 +243,8 @@ const doMatch = async () => {
         const newUser = '__NO_MATCH__';
         compats[newUser] = { [newUser]: Infinity };
         for (const user of allUsers) {
-            compats[user][newUser] = 1e4;
-            compats[newUser][user] = 1e4;
+            compats[user][newUser] = defaultMatch;
+            compats[newUser][user] = defaultMatch;
         }
         allUsers.push(newUser);
     }
@@ -245,26 +259,25 @@ const doMatch = async () => {
 
     const result = matchAlgorithm(compats, allUsers);
 
-    const updateRows = [];
-    for (const pair of result) {
-        const id1 = allUsersMap[pair[0]];
-        const id2 = allUsersMap[pair[1]];
-        if (!id1 || !id2) continue;
-        updateRows.push({ user1Id: id1, user2Id: id2 }, { user1Id: id2, user2Id: id1 });
-    }
+    // const updateRows = [];
+    // for (const pair of result) {
+    //     const id1 = allUsersMap[pair[0]];
+    //     const id2 = allUsersMap[pair[1]];
+    //     if (!id1 || !id2) continue;
+    //     updateRows.push({ user1Id: id1, user2Id: id2 }, { user1Id: id2, user2Id: id1 });
+    // }
 
-    console.log(updateRows);
-    // return;
+    // console.log(updateRows);
 
-    const nowDate = new Date();
-    const numUpdated = await prisma.userRelation.updateMany({
-        where: {
-            OR: updateRows,
-        },
-        data: { haveMatched: true, matchDate: nowDate },
-    });
+    // const nowDate = new Date();
+    // const numUpdated = await prisma.userRelation.updateMany({
+    //     where: {
+    //         OR: updateRows,
+    //     },
+    //     data: { haveMatched: true, matchDate: nowDate },
+    // });
 
-    console.log('Added new matches!', numUpdated);
+    // console.log('Added new matches!', numUpdated);
 };
 
 // setInterval(doMatch, interval);

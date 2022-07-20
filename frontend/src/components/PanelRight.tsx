@@ -12,13 +12,13 @@ interface PanelRProps {}
 
 const PanelR: FC<PanelRProps> = () => {
     const theme = useMantineTheme();
-    const { view, setView } = useAppStore(state => ({ view: state.right.view, setView: state.setView }), shallow);
+    const { view, midView, setView } = useAppStore(state => ({ view: state.right.view, midView: state.mid.view, setView: state.setView }), shallow);
 
     return (
         <Box sx={{ boxShadow: theme.shadows.md }}>
-            <Stack className={`h-full ${view === 'settings' ? 'md:w-[26vw] w-[initial]' : ''}`} align='flex-start'>
+            <Stack className={`h-full ${midView === 'settings' ? 'md:w-[26vw] w-[initial]' : ''}`} align='flex-start'>
                 <Stack
-                    className={`h-full w-[80px] ${view === 'settings' ? 'min-w-fit' : ''}`}
+                    className={`h-full w-[80px] ${midView === 'settings' ? 'min-w-fit' : ''}`}
                     justify='space-between'
                     align='center'
                     py={20}
@@ -28,7 +28,7 @@ const PanelR: FC<PanelRProps> = () => {
                     }[view] ?? <BaseRight />}
 
                     <Box>
-                        <PanelAction onClick={() => setView('settings', 'all')} color='blue'>
+                        <PanelAction onClick={() => setView('settings')} color='blue'>
                             <IconSettings style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
                         </PanelAction>
                     </Box>
