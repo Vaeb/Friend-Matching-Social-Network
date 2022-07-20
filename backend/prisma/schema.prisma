@@ -24,6 +24,8 @@ model User {
     relations2       UserRelation[] @relation(name: "UserRel2")
     interests        UserInterest[]
     channels         Channel[]
+    sentMessages     Message[]      @relation(name: "MessageFrom")
+    receivedMessages Message[]      @relation(name: "MessageTo")
     createdChannels  Channel[]      @relation(name: "CreatedChannels")
     posts            Post[]         @relation(name: "CreatedPosts")
     comments         Comment[]      @relation(name: "CreatedComments")
@@ -89,6 +91,19 @@ model Channel {
     updatedAt   DateTime @updatedAt
 
     @@map("channels")
+}
+
+model Message {
+    id        Int      @id @default(autoincrement())
+    from      User     @relation(name: "MessageFrom", fields: [fromId], references: [id])
+    fromId    Int
+    to        User     @relation(name: "MessageTo", fields: [toId], references: [id])
+    toId      Int
+    text      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("messages")
 }
 
 model Post {

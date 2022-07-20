@@ -39,10 +39,17 @@ export const useAppStore = create<AppState>(set => ({
                 if (!panels) panels = ['left', 'mid'];
                 else if (panels === 'all') panels = ['left', 'mid', 'right'];
                 else if (typeof panels === 'string') panels = [panels];
+
                 if (viewValue1 === undefined) viewValue1 = null; 
                 if (viewValue2 === undefined) viewValue2 = viewValue1;
                 if (viewValue3 === undefined) viewValue3 = viewValue2;
                 const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
+
+                if (state.right.view === 'settings' && panels.includes('right')) {
+                    if (!panels.includes('left')) state.left.view = 'base';
+                    if (!panels.includes('mid')) state.mid.view = 'base';
+                }
+
                 panels.forEach((panel, i) => {
                     state[panel].view = view;
                     state[panel].viewValue = viewValues[i];
@@ -66,24 +73,40 @@ export const useSettingsStore = create<SettingsState>(set => ({
         ),
 }));
 
-interface UserDataState {
-    me: MeQuery['me'];
-    matches: Match[];
+// interface UserDataState {
+//     me: MeQuery['me'];
+//     matches: Match[];
+// }
+
+// export const useUserStore = create<UserDataState>(set => ({
+//     me: null,
+//     matches: [],
+//     setMe: me =>
+//         set(
+//             produce((state) => {
+//                 state.me = me;
+//             })
+//         ),
+//     setMatches: matches =>
+//         set(
+//             produce((state) => {
+//                 state.matches = matches;
+//             })
+//         ),
+// }));
+
+interface ConvoState {
+    messages: Record<string, any[]>;
+    addMessage: (userId: string, message: any) => void;
 }
 
-export const useUserStore = create<UserDataState>(set => ({
-    me: null,
-    matches: [],
-    setMe: me =>
+export const useConvoStore = create<ConvoState>(set => ({
+    messages: {},
+    addMessage: (userId, message) =>
         set(
             produce((state) => {
-                state.me = me;
-            })
-        ),
-    setMatches: matches =>
-        set(
-            produce((state) => {
-                state.matches = matches;
+                if (!state.messages[userId]) state.messages[userId] = [];
+                state.messages[userId].push(message);
             })
         ),
 }));

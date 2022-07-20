@@ -26,7 +26,7 @@ const MatchesRight: FC<any> = () => {
                         <PanelAction onClick={() => setView('match', null, match.user)} color='green'>
                             <IconPerson style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
                         </PanelAction>
-                        <Text className='text-sm text-_gray-800 text-center w-full max-w-full'>
+                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full' px={6}>
                             @{match.user.username}
                         </Text>
                     </Stack>

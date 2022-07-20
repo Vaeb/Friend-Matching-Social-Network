@@ -61,6 +61,22 @@ export type Match = {
   user: User;
 };
 
+export type Message = {
+  __typename?: 'Message';
+  createdAt: Scalars['Date'];
+  from: User;
+  id: Scalars['Int'];
+  text: Scalars['String'];
+  to: User;
+};
+
+export type MessageResponse = {
+  __typename?: 'MessageResponse';
+  errors?: Maybe<Array<Error>>;
+  message?: Maybe<Message>;
+  ok: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
@@ -70,6 +86,7 @@ export type Mutation = {
   login: AuthResponse;
   logout: AuthResponseCore;
   register: AuthResponse;
+  sendMessage: MessageResponse;
 };
 
 
@@ -108,6 +125,12 @@ export type MutationRegisterArgs = {
   username: Scalars['String'];
 };
 
+
+export type MutationSendMessageArgs = {
+  text: Scalars['String'];
+  to: Scalars['Int'];
+};
+
 export type Post = {
   __typename?: 'Post';
   creator: User;
@@ -125,6 +148,7 @@ export type Query = {
   __typename?: 'Query';
   getInterests: Array<Interest>;
   getMatches: Array<Match>;
+  getMessages: Array<Message>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
@@ -137,6 +161,12 @@ export type Query = {
 
 export type QueryGetInterestsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryGetMessagesArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+  target: Scalars['Int'];
 };
 
 
@@ -306,6 +336,8 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Interest: ResolverTypeWrapper<Interest>;
   Match: ResolverTypeWrapper<Match>;
+  Message: ResolverTypeWrapper<Message>;
+  MessageResponse: ResolverTypeWrapper<MessageResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   Query: ResolverTypeWrapper<{}>;
@@ -330,6 +362,8 @@ export type ResolversParentTypes = {
   Int: Scalars['Int'];
   Interest: Interest;
   Match: Match;
+  Message: Message;
+  MessageResponse: MessageResponse;
   Mutation: {};
   Post: Post;
   Query: {};
@@ -392,6 +426,22 @@ export type MatchResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MessageResolvers<ContextType = any, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MessageResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MessageResponse'] = ResolversParentTypes['MessageResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['Message']>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPost?: Resolver<ResolversTypes['AddPostResponse'], ParentType, ContextType, RequireFields<MutationAddPostArgs, 'creatorId' | 'text'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
@@ -400,6 +450,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   login?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
   logout?: Resolver<ResolversTypes['AuthResponseCore'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'username'>>;
+  sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
 };
 
 export type PostResolvers<ContextType = any, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
@@ -413,6 +464,7 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getInterests?: Resolver<Array<ResolversTypes['Interest']>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
   getMatches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
+  getMessages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'target'>>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Array<Maybe<ResolversTypes['Post']>>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromUser?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
@@ -478,6 +530,8 @@ export type Resolvers<ContextType = any> = {
   GenResponse?: GenResponseResolvers<ContextType>;
   Interest?: InterestResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
+  Message?: MessageResolvers<ContextType>;
+  MessageResponse?: MessageResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

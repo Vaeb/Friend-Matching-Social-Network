@@ -1,0 +1,20 @@
+mutation SendMessage($to: Int!, $text: String!) {
+    sendMessage(to: $to, text: $text) {
+        ok
+        errors {
+            field
+            message
+        }
+        message {
+            id
+            text
+            from {
+                id
+            }
+            to {
+                id
+            }
+            createdAt
+        }
+    }
+}

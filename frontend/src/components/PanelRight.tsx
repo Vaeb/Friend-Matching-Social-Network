@@ -18,7 +18,7 @@ const PanelR: FC<PanelRProps> = () => {
         <Box sx={{ boxShadow: theme.shadows.md }}>
             <Stack className={`h-full ${view === 'settings' ? 'md:w-[26vw] w-[initial]' : ''}`} align='flex-start'>
                 <Stack
-                    className={`h-full min-w-[80px] ${view === 'settings' ? 'min-w-fit' : ''}`}
+                    className={`h-full w-[80px] ${view === 'settings' ? 'min-w-fit' : ''}`}
                     justify='space-between'
                     align='center'
                     py={20}

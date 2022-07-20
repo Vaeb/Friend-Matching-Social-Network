@@ -1,0 +1,21 @@
+type Message {
+    id: Int!
+    text: String!
+    from: User!
+    to: User!
+    createdAt: Date!
+}
+
+type MessageResponse {
+    ok: Boolean!
+    errors: [Error!]
+    message: Message
+}
+
+type Query {
+    getMessages(target: Int!, limit: Int): [Message!]!
+}
+
+type Mutation {
+    sendMessage(to: Int!, text: String!): MessageResponse!
+}

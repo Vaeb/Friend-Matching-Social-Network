@@ -1,0 +1,13 @@
+query GetMessages($target: Int!) {
+    getMessages(target: $target) {
+        id
+        text
+        from {
+            id
+        }
+        to {
+            id
+        }
+        createdAt
+    }
+}

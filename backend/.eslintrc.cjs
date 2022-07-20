@@ -66,7 +66,7 @@ module.exports = {
         'no-useless-escape': 'off',
         '@typescript-eslint/no-unused-vars': [
             'warn',
-            { vars: 'all', args: 'after-used', ignoreRestSiblings: true },
+            { vars: 'all', args: 'after-used', ignoreRestSiblings: true, argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
         ],
         // '@typescript-eslint/no-unused-vars': 'off',
         'object-curly-newline': ['warn', { minProperties: 5, multiline: true, consistent: true }],

@@ -63,6 +63,22 @@ export type Match = {
   user: User;
 };
 
+export type Message = {
+  __typename?: 'Message';
+  createdAt: Scalars['Date'];
+  from: User;
+  id: Scalars['Int'];
+  text: Scalars['String'];
+  to: User;
+};
+
+export type MessageResponse = {
+  __typename?: 'MessageResponse';
+  errors?: Maybe<Array<Error>>;
+  message?: Maybe<Message>;
+  ok: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: AddPostResponse;
@@ -72,6 +88,7 @@ export type Mutation = {
   login: AuthResponse;
   logout: AuthResponseCore;
   register: AuthResponse;
+  sendMessage: MessageResponse;
 };
 
 
@@ -110,6 +127,12 @@ export type MutationRegisterArgs = {
   username: Scalars['String'];
 };
 
+
+export type MutationSendMessageArgs = {
+  text: Scalars['String'];
+  to: Scalars['Int'];
+};
+
 export type Post = {
   __typename?: 'Post';
   creator: User;
@@ -127,6 +150,7 @@ export type Query = {
   __typename?: 'Query';
   getInterests: Array<Interest>;
   getMatches: Array<Match>;
+  getMessages: Array<Message>;
   getPost?: Maybe<Post>;
   getPosts: Array<Maybe<Post>>;
   getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
@@ -139,6 +163,12 @@ export type Query = {
 
 export type QueryGetInterestsArgs = {
   limit?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryGetMessagesArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+  target: Scalars['Int'];
 };
 
 
@@ -260,6 +290,14 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string } | null } };
 
+export type SendMessageMutationVariables = Exact<{
+  to: Scalars['Int'];
+  text: Scalars['String'];
+}>;
+
+
+export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'MessageResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, message?: { __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } } | null } };
+
 export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -270,6 +308,13 @@ export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string } }> };
 
+export type GetMessagesQueryVariables = Exact<{
+  target: Scalars['Int'];
+}>;
+
+
+export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> };
+
 export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -278,7 +323,7 @@ export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Ar
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, name: string } | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -548,6 +593,112 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "Message",
+        "fields": [
+          {
+            "name": "createdAt",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "from",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "text",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "to",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "MessageResponse",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "message",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Message",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "Mutation",
         "fields": [
           {
@@ -762,6 +913,39 @@ export default {
                 }
               }
             ]
+          },
+          {
+            "name": "sendMessage",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "MessageResponse",
+                "ofType": null
+              }
+            },
+            "args": [
+              {
+                "name": "text",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "to",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
           }
         ],
         "interfaces": []
@@ -874,6 +1058,42 @@ export default {
               }
             },
             "args": []
+          },
+          {
+            "name": "getMessages",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Message",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "limit",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "target",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
           },
           {
             "name": "getPost",
@@ -1453,6 +1673,32 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const SendMessageDocument = gql`
+    mutation SendMessage($to: Int!, $text: String!) {
+  sendMessage(to: $to, text: $text) {
+    ok
+    errors {
+      field
+      message
+    }
+    message {
+      id
+      text
+      from {
+        id
+      }
+      to {
+        id
+      }
+      createdAt
+    }
+  }
+}
+    `;
+
+export function useSendMessageMutation() {
+  return Urql.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument);
+};
 export const GetInterestsDocument = gql`
     query GetInterests {
   getInterests {
@@ -1481,6 +1727,25 @@ export const GetMatchesDocument = gql`
 export function useGetMatchesQuery(options?: Omit<Urql.UseQueryArgs<GetMatchesQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMatchesQuery>({ query: GetMatchesDocument, ...options });
 };
+export const GetMessagesDocument = gql`
+    query GetMessages($target: Int!) {
+  getMessages(target: $target) {
+    id
+    text
+    from {
+      id
+    }
+    to {
+      id
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetMessagesQuery>({ query: GetMessagesDocument, ...options });
+};
 export const GetUserInterestsDocument = gql`
     query GetUserInterests {
   getUserInterests {
@@ -1501,6 +1766,7 @@ export const MeDocument = gql`
   me {
     id
     username
+    name
   }
 }
     `;

@@ -2,8 +2,9 @@
 import { useMantineTheme, Stack, Box } from '@mantine/core';
 import React, { FC } from 'react';
 
-import SettingsLeft from './panels/SettingsLeft';
 import { useAppStore } from '../state';
+import SettingsLeft from './panels/SettingsLeft';
+import MatchLeft from './panels/MatchLeft';
 
 // import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
@@ -31,6 +32,7 @@ const PanelL: FC<PanelLProps> = () => {
                     {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
                     {{
                         settings: <SettingsLeft />,
+                        match: <MatchLeft />,
                     }[view]}
                 </Stack>
             </Stack>

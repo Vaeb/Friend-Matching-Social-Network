@@ -1,7 +1,7 @@
 import { createClient, ssrExchange, dedupExchange, fetchExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
 
-import { GetUserInterestsDocument, MeDocument } from './generated/graphql';
+import { GetMessagesDocument, GetUserInterestsDocument, MeDocument } from './generated/graphql';
 
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
@@ -79,6 +79,24 @@ const client = createClient({
                                         const nextLowestIndex = data.getUserInterests.findIndex(({ score }: any) => score < userInterest.score);
                                         data.getUserInterests.splice(nextLowestIndex > -1 ? nextLowestIndex : data.getUserInterests.length, 0, userInterest);
                                     }
+                                    return data;
+                                }
+                            );
+                        }
+                    },
+                    sendMessage: (_result, _args, cache, _info) => {
+                        const result = _result as any;
+                        const args = _args as any;
+                        if (result?.sendMessage?.ok) {
+                            cache.updateQuery(
+                                {
+                                    query: GetMessagesDocument,
+                                    variables: { target: args.to },
+                                },
+                                (_data) => {
+                                    const data = _data as any;
+                                    const { message } = result.sendMessage;
+                                    data.getMessages.push(message);
                                     return data;
                                 }
                             );
