@@ -14,7 +14,7 @@ const myTheme: MantineThemeOverride = {
         _blackT: [undefined, undefined, undefined, undefined, undefined, 'rgba(79, 84, 92, 0.4)', 'rgba(79, 84, 92, 0.6)', undefined, undefined, undefined],
         // 4: Body
         // 6: Icon Text, Setting Text
-        // 8: Setting Text Hover
+        // 8: Setting Text Hover, Regular Text (Messages)
         _gray: [undefined, undefined, undefined, undefined, '#96989d', undefined, '#b9bbbe', undefined, '#dcddde', undefined],
         _dividerT: ['rgba(79, 84, 92, 0.48)'],
     },

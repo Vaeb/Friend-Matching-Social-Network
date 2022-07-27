@@ -28,7 +28,6 @@ const Login: React.FC<LoginProps> = ({}) => {
 
     const onSubmit = async (values: any) => {
         setIsLoading(true);
-        console.log('qq', values);
         const response = await login({
             handle: values.handle,
             password: values.password,

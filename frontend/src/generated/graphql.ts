@@ -17,13 +17,6 @@ export type Scalars = {
   Date: any;
 };
 
-export type AddPostResponse = {
-  __typename?: 'AddPostResponse';
-  errors?: Maybe<Array<Error>>;
-  ok: Scalars['Boolean'];
-  post?: Maybe<Post>;
-};
-
 export type AuthResponse = {
   __typename?: 'AuthResponse';
   errors?: Maybe<Array<Error>>;
@@ -81,7 +74,7 @@ export type MessageResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addPost: AddPostResponse;
+  addFriend: AuthResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
   deleteUser: AuthResponse;
@@ -89,12 +82,13 @@ export type Mutation = {
   logout: AuthResponseCore;
   register: AuthResponse;
   sendMessage: MessageResponse;
+  sendPost: SendPostResponse;
 };
 
 
-export type MutationAddPostArgs = {
-  creatorId: Scalars['Int'];
-  text: Scalars['String'];
+export type MutationAddFriendArgs = {
+  remove?: InputMaybe<Scalars['Boolean']>;
+  userId: Scalars['Int'];
 };
 
 
@@ -106,11 +100,6 @@ export type MutationAddUserInterestArgs = {
 
 export type MutationAddUserInterestsArgs = {
   userInterests: Array<UserInterestInput>;
-};
-
-
-export type MutationDeleteUserArgs = {
-  id: Scalars['Int'];
 };
 
 
@@ -133,28 +122,31 @@ export type MutationSendMessageArgs = {
   to: Scalars['Int'];
 };
 
-export type Post = {
-  __typename?: 'Post';
-  creator: User;
-  id: Scalars['Int'];
-  savedBy?: Maybe<Array<Maybe<User>>>;
+
+export type MutationSendPostArgs = {
   text: Scalars['String'];
 };
 
-
-export type PostSavedByArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
+export type Post = {
+  __typename?: 'Post';
+  createdAt: Scalars['Date'];
+  creator: User;
+  id: Scalars['Int'];
+  text: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  getChats: Array<User>;
   getInterests: Array<Interest>;
   getMatches: Array<Match>;
   getMessages: Array<Message>;
   getPost?: Maybe<Post>;
-  getPosts: Array<Maybe<Post>>;
-  getPostsFromUser?: Maybe<Array<Maybe<Post>>>;
+  getPosts: Array<Post>;
+  getPostsFromFriends: Array<Post>;
+  getPostsFromUser: Array<Post>;
   getUser?: Maybe<User>;
+  getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
   getUsers: Array<User>;
   me?: Maybe<User>;
@@ -182,6 +174,11 @@ export type QueryGetPostsArgs = {
 };
 
 
+export type QueryGetPostsFromFriendsArgs = {
+  limit?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type QueryGetPostsFromUserArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   userId: Scalars['Int'];
@@ -189,7 +186,12 @@ export type QueryGetPostsFromUserArgs = {
 
 
 export type QueryGetUserArgs = {
-  id: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+export type QueryGetUserByHandleArgs = {
+  handle: Scalars['String'];
 };
 
 
@@ -197,17 +199,30 @@ export type QueryGetUsersArgs = {
   limit?: InputMaybe<Scalars['Int']>;
 };
 
+export type SendPostResponse = {
+  __typename?: 'SendPostResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  post?: Maybe<Post>;
+};
+
 export type User = {
   __typename?: 'User';
+  areFriends?: Maybe<Scalars['Boolean']>;
+  compatibility?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['Date']>;
   email: Scalars['String'];
+  friendDate?: Maybe<Scalars['Date']>;
+  haveMatched?: Maybe<Scalars['Boolean']>;
   id: Scalars['Int'];
+  matchDate?: Maybe<Scalars['Date']>;
   matchPrecision: Scalars['Int'];
   name: Scalars['String'];
   posts?: Maybe<Array<Maybe<Post>>>;
   relations?: Maybe<Array<Maybe<UserRelation>>>;
   savedPosts?: Maybe<Array<Maybe<Post>>>;
   updatedAt?: Maybe<Scalars['Date']>;
+  updatedCompatibility?: Maybe<Scalars['Date']>;
   updatedInterests?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
   visEmail: Scalars['Int'];
@@ -259,6 +274,14 @@ export type UserRelation = {
   user: User;
 };
 
+export type AddFriendMutationVariables = Exact<{
+  userId: Scalars['Int'];
+  remove?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+
+export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'AuthResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, name: string, visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null } | null } };
+
 export type AddUserInterestMutationVariables = Exact<{
   userInterest: UserInterestInput;
   override?: InputMaybe<Scalars['Boolean']>;
@@ -298,6 +321,18 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __typename?: 'MessageResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, message?: { __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } } | null } };
 
+export type SendPostMutationVariables = Exact<{
+  text: Scalars['String'];
+}>;
+
+
+export type SendPostMutation = { __typename?: 'Mutation', sendPost: { __typename?: 'SendPostResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, post?: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } } | null } };
+
+export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetChatsQuery = { __typename?: 'Query', getChats: Array<{ __typename?: 'User', id: number, username: string, name: string }> };
+
 export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -314,6 +349,35 @@ export type GetMessagesQueryVariables = Exact<{
 
 
 export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> };
+
+export type GetPostsFromFriendsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetPostsFromFriendsQuery = { __typename?: 'Query', getPostsFromFriends: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
+
+export type GetPostsFromUserQueryVariables = Exact<{
+  userId: Scalars['Int'];
+  limit?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
+
+export type GetUserQueryVariables = Exact<{
+  userId: Scalars['Int'];
+}>;
+
+
+export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', id: number, username: string, name: string, visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null } | null };
+
+export type GetUserByHandleQueryVariables = Exact<{
+  handle: Scalars['String'];
+}>;
+
+
+export type GetUserByHandleQuery = { __typename?: 'Query', getUserByHandle?: { __typename?: 'User', id: number, username: string, name: string, visInterests: number, createdAt?: any | null } | null };
 
 export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -336,48 +400,6 @@ export default {
     },
     "subscriptionType": null,
     "types": [
-      {
-        "kind": "OBJECT",
-        "name": "AddPostResponse",
-        "fields": [
-          {
-            "name": "errors",
-            "type": {
-              "kind": "LIST",
-              "ofType": {
-                "kind": "NON_NULL",
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Error",
-                  "ofType": null
-                }
-              }
-            },
-            "args": []
-          },
-          {
-            "name": "ok",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
-            },
-            "args": []
-          },
-          {
-            "name": "post",
-            "type": {
-              "kind": "OBJECT",
-              "name": "Post",
-              "ofType": null
-            },
-            "args": []
-          }
-        ],
-        "interfaces": []
-      },
       {
         "kind": "OBJECT",
         "name": "AuthResponse",
@@ -702,28 +724,25 @@ export default {
         "name": "Mutation",
         "fields": [
           {
-            "name": "addPost",
+            "name": "addFriend",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "AddPostResponse",
+                "name": "AuthResponse",
                 "ofType": null
               }
             },
             "args": [
               {
-                "name": "creatorId",
+                "name": "remove",
                 "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Any"
-                  }
+                  "kind": "SCALAR",
+                  "name": "Any"
                 }
               },
               {
-                "name": "text",
+                "name": "userId",
                 "type": {
                   "kind": "NON_NULL",
                   "ofType": {
@@ -803,18 +822,7 @@ export default {
                 "ofType": null
               }
             },
-            "args": [
-              {
-                "name": "id",
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Any"
-                  }
-                }
-              }
-            ]
+            "args": []
           },
           {
             "name": "login",
@@ -946,6 +954,29 @@ export default {
                 }
               }
             ]
+          },
+          {
+            "name": "sendPost",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "SendPostResponse",
+                "ofType": null
+              }
+            },
+            "args": [
+              {
+                "name": "text",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
           }
         ],
         "interfaces": []
@@ -954,6 +985,17 @@ export default {
         "kind": "OBJECT",
         "name": "Post",
         "fields": [
+          {
+            "name": "createdAt",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
           {
             "name": "creator",
             "type": {
@@ -978,26 +1020,6 @@ export default {
             "args": []
           },
           {
-            "name": "savedBy",
-            "type": {
-              "kind": "LIST",
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "User",
-                "ofType": null
-              }
-            },
-            "args": [
-              {
-                "name": "limit",
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Any"
-                }
-              }
-            ]
-          },
-          {
             "name": "text",
             "type": {
               "kind": "NON_NULL",
@@ -1015,6 +1037,24 @@ export default {
         "kind": "OBJECT",
         "name": "Query",
         "fields": [
+          {
+            "name": "getChats",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          },
           {
             "name": "getInterests",
             "type": {
@@ -1122,9 +1162,38 @@ export default {
               "ofType": {
                 "kind": "LIST",
                 "ofType": {
-                  "kind": "OBJECT",
-                  "name": "Post",
-                  "ofType": null
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "limit",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
+            ]
+          },
+          {
+            "name": "getPostsFromFriends",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
                 }
               }
             },
@@ -1141,11 +1210,17 @@ export default {
           {
             "name": "getPostsFromUser",
             "type": {
-              "kind": "LIST",
+              "kind": "NON_NULL",
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Post",
-                "ofType": null
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
+                }
               }
             },
             "args": [
@@ -1177,7 +1252,27 @@ export default {
             },
             "args": [
               {
-                "name": "id",
+                "name": "userId",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "getUserByHandle",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": [
+              {
+                "name": "handle",
                 "type": {
                   "kind": "NON_NULL",
                   "ofType": {
@@ -1246,8 +1341,66 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "SendPostResponse",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "post",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Post",
+              "ofType": null
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "User",
         "fields": [
+          {
+            "name": "areFriends",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "compatibility",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
           {
             "name": "createdAt",
             "type": {
@@ -1268,6 +1421,22 @@ export default {
             "args": []
           },
           {
+            "name": "friendDate",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "haveMatched",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
             "name": "id",
             "type": {
               "kind": "NON_NULL",
@@ -1275,6 +1444,14 @@ export default {
                 "kind": "SCALAR",
                 "name": "Any"
               }
+            },
+            "args": []
+          },
+          {
+            "name": "matchDate",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           },
@@ -1354,6 +1531,14 @@ export default {
           },
           {
             "name": "updatedAt",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "updatedCompatibility",
             "type": {
               "kind": "SCALAR",
               "name": "Any"
@@ -1594,6 +1779,32 @@ export default {
   }
 } as unknown as IntrospectionQuery;
 
+export const AddFriendDocument = gql`
+    mutation AddFriend($userId: Int!, $remove: Boolean) {
+  addFriend(userId: $userId, remove: $remove) {
+    ok
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+      name
+      visInterests
+      createdAt
+      areFriends
+      friendDate
+      haveMatched
+      matchDate
+    }
+  }
+}
+    `;
+
+export function useAddFriendMutation() {
+  return Urql.useMutation<AddFriendMutation, AddFriendMutationVariables>(AddFriendDocument);
+};
 export const AddUserInterestDocument = gql`
     mutation AddUserInterest($userInterest: UserInterestInput!, $override: Boolean) {
   addUserInterest(userInterest: $userInterest, override: $override) {
@@ -1699,6 +1910,44 @@ export const SendMessageDocument = gql`
 export function useSendMessageMutation() {
   return Urql.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument);
 };
+export const SendPostDocument = gql`
+    mutation SendPost($text: String!) {
+  sendPost(text: $text) {
+    ok
+    errors {
+      field
+      message
+    }
+    post {
+      id
+      text
+      creator {
+        id
+        username
+        name
+      }
+      createdAt
+    }
+  }
+}
+    `;
+
+export function useSendPostMutation() {
+  return Urql.useMutation<SendPostMutation, SendPostMutationVariables>(SendPostDocument);
+};
+export const GetChatsDocument = gql`
+    query GetChats {
+  getChats {
+    id
+    username
+    name
+  }
+}
+    `;
+
+export function useGetChatsQuery(options?: Omit<Urql.UseQueryArgs<GetChatsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetChatsQuery>({ query: GetChatsDocument, ...options });
+};
 export const GetInterestsDocument = gql`
     query GetInterests {
   getInterests {
@@ -1745,6 +1994,76 @@ export const GetMessagesDocument = gql`
 
 export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMessagesQuery>({ query: GetMessagesDocument, ...options });
+};
+export const GetPostsFromFriendsDocument = gql`
+    query GetPostsFromFriends($limit: Int) {
+  getPostsFromFriends(limit: $limit) {
+    id
+    text
+    creator {
+      id
+      username
+      name
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useGetPostsFromFriendsQuery(options?: Omit<Urql.UseQueryArgs<GetPostsFromFriendsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPostsFromFriendsQuery>({ query: GetPostsFromFriendsDocument, ...options });
+};
+export const GetPostsFromUserDocument = gql`
+    query GetPostsFromUser($userId: Int!, $limit: Int) {
+  getPostsFromUser(userId: $userId, limit: $limit) {
+    id
+    text
+    creator {
+      id
+      username
+      name
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useGetPostsFromUserQuery(options: Omit<Urql.UseQueryArgs<GetPostsFromUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPostsFromUserQuery>({ query: GetPostsFromUserDocument, ...options });
+};
+export const GetUserDocument = gql`
+    query GetUser($userId: Int!) {
+  getUser(userId: $userId) {
+    id
+    username
+    name
+    visInterests
+    createdAt
+    areFriends
+    friendDate
+    haveMatched
+    matchDate
+  }
+}
+    `;
+
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
+};
+export const GetUserByHandleDocument = gql`
+    query GetUserByHandle($handle: String!) {
+  getUserByHandle(handle: $handle) {
+    id
+    username
+    name
+    visInterests
+    createdAt
+  }
+}
+    `;
+
+export function useGetUserByHandleQuery(options: Omit<Urql.UseQueryArgs<GetUserByHandleQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserByHandleQuery>({ query: GetUserByHandleDocument, ...options });
 };
 export const GetUserInterestsDocument = gql`
     query GetUserInterests {

@@ -2,19 +2,23 @@ import bcrypt from 'bcrypt';
 
 import { login, logout } from '../authentication';
 import { prisma } from '../server';
-import { consoleError, formatErrors, getUserRelations } from '../utils';
+import { consoleError, formatErrors, getBigUser, getUserRelations } from '../utils';
 import { Context } from '../types';
 import type { Error, Resolvers } from '../schema/generated';
 
 const resolvers: Resolvers = {
     Query: {
-        getUser: async (_parent, { id }) => {
-            console.log('Received request for getUser:', id);
-            const user = await prisma.user.findUnique({
-                where: { id },
+        getUser: async (_parent, { userId }, { userCore }: Context) => {
+            console.log('Received request for getUser:', userId);
+            const bigUser = await getBigUser(userCore.id, userId);
+            return bigUser;
+        },
+        getUserByHandle: async (_parent, { handle }) => {
+            console.log('Received request for getUserByHandle:', handle);
+            if (handle.startsWith('@')) handle = handle.substring(1);
+            return prisma.user.findFirst({
+                where: { OR: [{ username: handle }, { email: handle }] },
             });
-
-            return user;
         },
         getUsers: (_parent, { limit }) => {
             console.log('Received request for getUsers:', limit);
@@ -28,8 +32,8 @@ const resolvers: Resolvers = {
             return prisma.user.findUnique({ where: { id: userCore.id } });
         },
         getUserInterests: (_parent, _, { userCore }: Context) => {
+            console.log('Received request for getUserInterests');
             const userId = userCore.id;
-            console.log('Received request for getUserInterests:', userId);
             return prisma.userInterest.findMany({
                 where: { userId },
                 include: { interest: true },
@@ -37,12 +41,30 @@ const resolvers: Resolvers = {
             });
         },
         getMatches: async (_parent, _, { userCore }: Context) => {
+            console.log('Received request for getMatches');
             const userId = userCore.id;
 
-            const matches = await getUserRelations(userId, '"haveMatched" = true');
-            console.log(matches);
+            const matches = await getUserRelations(userId, '"haveMatched" = true AND "areFriends" = false');
 
             return matches as any;
+        },
+        getChats: async (_parent, _, { userCore }: Context) => {
+            console.log('Received request for getChats');
+            const meId = userCore.id;
+            const messages = await prisma.message.groupBy({
+                by: ['fromId', 'toId'],
+                where: { OR: [{ fromId: meId }, { toId: meId }] },
+                _max: { createdAt: true },
+                orderBy: { _max: { createdAt: 'desc' } },
+            });
+            const chatters = [...new Set(messages.map(({ fromId, toId, _max: { createdAt } }) => ({ userId: fromId !== meId ? fromId : toId, createdAt })))];
+            const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
+            console.log(chattersMap);
+            const friends = await getUserRelations(meId, '"areFriends" = true');
+            const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
+            console.log(friendsUpdatedMap);
+            const users = friends.map(relation => relation.user).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
+            return users;
         },
     },
     Mutation: {
@@ -101,9 +123,10 @@ const resolvers: Resolvers = {
             console.log('Received request for logout');
             return logout(userCore, res);
         },
-        deleteUser: async (_parent, args) => {
+        deleteUser: async (_parent, _, { userCore }: Context) => {
             try {
-                const user = await prisma.user.delete({ where: { id: args.id } });
+                console.log('Received request for deleteUser');
+                const user = await prisma.user.delete({ where: { id: userCore.id } });
 
                 return {
                     ok: true,
@@ -111,6 +134,29 @@ const resolvers: Resolvers = {
                 };
             } catch (err) {
                 consoleError('DELETE_USER', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        addFriend: async (_parent, { userId, remove }, { userCore }: Context) => {
+            try {
+                console.log('Received request for addFriend', userId, remove);
+                const meId = userCore.id;
+
+                await prisma.userRelation.updateMany({
+                    where: { AND: [{ OR: [{ user1Id: meId }, { user1Id: userId }] }, { OR: [{ user2Id: meId }, { user2Id: userId }] }] },
+                    data: { areFriends: !remove, friendDate: !remove ? new Date() : null, ...(remove ? { haveMatched: false, matchDate: null } : {}) },
+                });
+                const bigUser = await getBigUser(meId, userId);
+
+                return {
+                    ok: true,
+                    user: bigUser,
+                };
+            } catch (err) {
+                consoleError('ADD_FRIEND', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

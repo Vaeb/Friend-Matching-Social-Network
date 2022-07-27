@@ -1,0 +1,13 @@
+query GetUser($userId: Int!) {
+    getUser(userId: $userId) {
+        id
+        username
+        name
+        visInterests
+        createdAt
+        areFriends
+        friendDate
+        haveMatched
+        matchDate
+    }
+}

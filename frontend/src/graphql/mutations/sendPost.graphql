@@ -1,0 +1,19 @@
+mutation SendPost($text: String!) {
+    sendPost(text: $text) {
+        ok
+        errors {
+            field
+            message
+        }
+        post {
+            id
+            text
+            creator {
+                id
+                username
+                name
+            }
+            createdAt
+        }
+    }
+}

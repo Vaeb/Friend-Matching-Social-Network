@@ -1,0 +1,12 @@
+query GetPostsFromFriends($limit: Int) {
+    getPostsFromFriends(limit: $limit) {
+        id
+        text
+        creator {
+            id
+            username
+            name
+        }
+        createdAt
+    }
+}

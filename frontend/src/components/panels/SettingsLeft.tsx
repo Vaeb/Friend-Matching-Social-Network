@@ -2,11 +2,11 @@ import { Box, Button, Stack, Text, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
-import { useSettingsStore } from '../../state';
+import { useAppStore } from '../../state';
 
 const SettingsLeft = () => {
     const theme = useMantineTheme();
-    const { section, setSection } = useSettingsStore(state => ({ section: state.section, setSection: state.setSection }), shallow);
+    const { section, setView } = useAppStore(state => ({ section: state.left.viewValue, setView: state.setView }), shallow);
 
     const SettingGroupButton: FC<any> = ({ children, name }) => {
         const selected = name === section;
@@ -29,7 +29,7 @@ const SettingsLeft = () => {
                 },
             }}
             pl={20}
-            onClick={() => setSection(name)}
+            onClick={() => setView(undefined, 'left', name)}
         >
             {children}
         </Button>);

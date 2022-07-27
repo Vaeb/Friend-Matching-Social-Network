@@ -4,7 +4,9 @@ import React, { FC } from 'react';
 
 import { useAppStore } from '../state';
 import SettingsLeft from './panels/SettingsLeft';
-import MatchLeft from './panels/MatchLeft';
+import ChatLeft from './panels/ChatLeft';
+import TimelineLeft from './panels/TimelineLeft';
+import UserLeft from './panels/UserLeft';
 
 // import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
@@ -32,7 +34,10 @@ const PanelL: FC<PanelLProps> = () => {
                     {/* {data?.me ? <Button variant="ghost" fontSize="large" fontWeight="semibold" onClick={doLogout}>@{data.me.username}</Button> : null} */}
                     {{
                         settings: <SettingsLeft />,
-                        match: <MatchLeft />,
+                        chat: <ChatLeft />,
+                        match: <ChatLeft />,
+                        timeline: <TimelineLeft />,
+                        user: <UserLeft />,
                     }[view]}
                 </Stack>
             </Stack>

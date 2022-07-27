@@ -1,7 +1,8 @@
 import { createClient, ssrExchange, dedupExchange, fetchExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
 
-import { GetMessagesDocument, GetUserInterestsDocument, MeDocument } from './generated/graphql';
+import { GetChatsDocument, GetMatchesDocument, GetMessagesDocument, GetPostsFromFriendsDocument, GetUserDocument, GetUserInterestsDocument, MeDocument } from './generated/graphql';
+import { getPostsFromFriendsLimits } from './utils/limits';
 
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
@@ -97,6 +98,74 @@ const client = createClient({
                                     const data = _data as any;
                                     const { message } = result.sendMessage;
                                     data.getMessages.push(message);
+                                    return data;
+                                }
+                            );
+                        }
+                    },
+                    sendPost: (_result, _args, cache, _info) => {
+                        const result = _result as any;
+                        // const args = _args as any;
+                        if (result?.sendPost?.ok) {
+                            for (const limit of Object.values(getPostsFromFriendsLimits)) {
+                                cache.updateQuery(
+                                    {
+                                        query: GetPostsFromFriendsDocument,
+                                        variables: { limit },
+                                    },
+                                    (_data) => {
+                                        const data = _data as any;
+                                        const { post } = result.sendPost;
+                                        (data.getPostsFromFriends as any[]).splice(0, 0, post);
+                                        return data;
+                                    }
+                                );
+                            }
+                        }
+                    },
+                    addFriend: (_result, _args, cache, _info) => {
+                        const result = _result as any;
+                        const args = _args as any;
+                        if (result?.addFriend?.ok) {
+                            cache.updateQuery(
+                                {
+                                    query: GetUserDocument,
+                                    variables: { userId: args.userId },
+                                },
+                                (_data) => {
+                                    const data = _data as any;
+                                    const { user } = result.addFriend;
+                                    data.getUser = user;
+                                    return data;
+                                }
+                            );
+                            if (!args.remove) {
+                                cache.updateQuery(
+                                    {
+                                        query: GetMatchesDocument,
+                                    },
+                                    (_data) => {
+                                        const data = _data as any;
+                                        const { user } = result.addFriend;
+                                        const oldIndex = data.getMatches.findIndex(({ user: { id } }: any) => id == user.id);
+                                        data.getMatches.splice(oldIndex, 1);
+                                        return data;
+                                    }
+                                );
+                            }
+                            cache.updateQuery(
+                                {
+                                    query: GetChatsDocument,
+                                },
+                                (_data) => {
+                                    const data = _data as any;
+                                    const { user } = result.addFriend;
+                                    if (args.remove) {
+                                        const oldIndex = data.getChats.findIndex(({ id }: any) => id == user.id);
+                                        data.getChats.splice(oldIndex, 1);
+                                    } else {
+                                        data.getChats.unshift(user);
+                                    }
                                     return data;
                                 }
                             );

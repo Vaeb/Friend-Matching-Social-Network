@@ -14,64 +14,84 @@ interface AppState {
     left: ViewState;
     mid: ViewState;
     right: ViewState;
-    setView: (view: string, panels?: Panel | Panel[] | 'all', viewValue1?: any, viewValue2?: any, viewValue3?: any) => void;
+    setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
+    setSetSearchOpened: (setSearchOpened: React.Dispatch<React.SetStateAction<boolean>>) => void;
+    setView: (view: string, panels?: Panel | Panel[] | 'all', viewValue1?: any, viewValue2?: any, viewValue3?: any, softViewValues?: boolean) => void;
 }
+
+const translateViews = {
+    left : {
+        base: 'timeline',
+    },
+    mid: {
+        base: 'timeline',
+    },
+    right: {
+        base: 'base',
+    },
+};
 
 export const useAppStore = create<AppState>(set => ({
     left: {
-        view: 'base',
+        view: translateViews.left.base,
         viewValue: null,
     },
     mid: {
-        view: 'base',
+        view: translateViews.mid.base,
         viewValue: null,
     },
     right: {
-        view: 'base',
+        view: translateViews.right.base,
         viewValue: null,
     },
-    settings: {
-        section: 'account',
-    },
-    setView: (view, panels, viewValue1, viewValue2, viewValue3) =>
+    setSearchOpened: null,
+    setSetSearchOpened: setSearchOpened =>
+        set(
+            produce((state) => {
+                state.setSearchOpened = setSearchOpened;
+            })
+        ),
+    setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
         set(
             produce((state) => {
                 if (!panels) panels = ['left', 'mid'];
                 else if (panels === 'all') panels = ['left', 'mid', 'right'];
                 else if (typeof panels === 'string') panels = [panels];
 
-                if (viewValue1 === undefined) viewValue1 = null; 
-                if (viewValue2 === undefined) viewValue2 = viewValue1;
-                if (viewValue3 === undefined) viewValue3 = viewValue2;
-                const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
-
-                if (state.right.view === 'settings' && panels.includes('right')) {
+                if (view !== undefined && state.right.view === 'settings' && panels.includes('right')) {
                     if (!panels.includes('left')) state.left.view = 'base';
                     if (!panels.includes('mid')) state.mid.view = 'base';
                 }
 
+                if (softViewValues === false) {
+                    if (viewValue1 === undefined) viewValue1 = null; 
+                    if (viewValue2 === undefined) viewValue2 = viewValue1;
+                    if (viewValue3 === undefined) viewValue3 = viewValue2;
+                }
+                const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
+
                 panels.forEach((panel, i) => {
-                    state[panel].view = view;
-                    state[panel].viewValue = viewValues[i];
+                    if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
+                    if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
                 });
             })
         ),
 }));
 
-interface SettingsState {
-    section: string;
-    setSection: (section: string) => void;
-}
+// interface SettingsState {
+//     section: string;
+//     setSection: (section: string) => void;
+// }
 
-export const useSettingsStore = create<SettingsState>(set => ({
-    section: 'account',
-    setSection: section =>
-        set(
-            produce((state) => {
-                state.section = section;
-            })
-        ),
-}));
+// export const useSettingsStore = create<SettingsState>(set => ({
+//     section: 'account',
+//     setSection: section =>
+//         set(
+//             produce((state) => {
+//                 state.section = section;
+//             })
+//         ),
+// }));
 
 // interface UserDataState {
 //     me: MeQuery['me'];
@@ -107,6 +127,21 @@ export const useConvoStore = create<ConvoState>(set => ({
             produce((state) => {
                 if (!state.messages[userId]) state.messages[userId] = [];
                 state.messages[userId].push(message);
+            })
+        ),
+}));
+
+interface TimelineState {
+    scrollToTop: (() => void) | null;
+    setScrollToTop: (scrollToTop: () => void) => void;
+}
+
+export const useTimelineStore = create<TimelineState>(set => ({
+    scrollToTop: null,
+    setScrollToTop: scrollToTop =>
+        set(
+            produce((state) => {
+                state.scrollToTop = scrollToTop;
             })
         ),
 }));

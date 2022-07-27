@@ -1,0 +1,12 @@
+query GetPostsFromUser($userId: Int!, $limit: Int) {
+    getPostsFromUser(userId: $userId, limit: $limit) {
+        id
+        text
+        creator {
+            id
+            username
+            name
+        }
+        createdAt
+    }
+}

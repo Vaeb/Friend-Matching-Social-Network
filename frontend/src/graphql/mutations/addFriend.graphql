@@ -1,0 +1,20 @@
+mutation AddFriend($userId: Int!, $remove: Boolean) {
+    addFriend(userId: $userId, remove: $remove) {
+        ok
+        errors {
+            field
+            message
+        }
+        user {
+            id
+            username
+            name
+            visInterests
+            createdAt
+            areFriends
+            friendDate
+            haveMatched
+            matchDate
+        }
+    }
+}

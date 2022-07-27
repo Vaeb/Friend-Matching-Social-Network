@@ -40,7 +40,7 @@ module.exports = {
         '@typescript-eslint/indent': ['error', 4],
         // 'jsx-a11y/href-no-hash': 'off',
         // 'linebreak-style': 'off',
-        'max-len': ['error', { code: 186, tabWidth: 4, ignoreComments: true }],
+        'max-len': ['error', { code: 200, tabWidth: 4, ignoreComments: true }],
         'no-async-promise-executor': 'off',
         'no-await-in-loop': 'off',
         // 'no-bitwise': 'off',

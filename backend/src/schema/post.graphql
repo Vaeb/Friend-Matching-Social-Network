@@ -1,11 +1,12 @@
 type Post {
     id: Int!
     text: String!
-    creator: User! # Optional once creator and savedBy tested in usage
-    savedBy(limit: Int): [User]
+    creator: User!
+    # savedBy(limit: Int): [User!]!
+    createdAt: Date!
 }
 
-type AddPostResponse {
+type SendPostResponse {
     ok: Boolean!
     errors: [Error!]
     post: Post
@@ -13,10 +14,11 @@ type AddPostResponse {
 
 type Query {
     getPost(id: Int!): Post
-    getPosts(limit: Int): [Post]!
-    getPostsFromUser(userId: Int!, limit: Int): [Post]
+    getPosts(limit: Int): [Post!]!
+    getPostsFromUser(userId: Int!, limit: Int): [Post!]!
+    getPostsFromFriends(limit: Int): [Post!]!
 }
 
 type Mutation {
-    addPost(creatorId: Int!, text: String!): AddPostResponse!
+    sendPost(text: String!): SendPostResponse!
 }

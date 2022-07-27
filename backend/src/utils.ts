@@ -86,7 +86,8 @@ export const pickPrismaObj = <R>(tableName: string, dataExtended: any): R => {
 
     for (const data of fieldData) {
         const { name, type } = data;
-        let value = (dataExtended as any)[name];
+        if (!(name in dataExtended)) continue;
+        let value = dataExtended[name];
         if (type === 'DateTime' && value != null) {
             value = new Date(value);
         }
@@ -142,15 +143,20 @@ export const cloneObj = <T>(obj: T, fixBuffer?: boolean): T => {
     return obj;
 };
 
-type PartialUserRelation = Pick<UserRelation, 'areFriends' | 'compatibility' | 'updatedCompatibility' | 'haveMatched' | 'matchDate'>;
+type PartialUserRelation = Pick<UserRelation, 'areFriends' | 'friendDate' | 'compatibility' | 'updatedCompatibility' | 'haveMatched' | 'matchDate'>;
 
-export const getUserRelations = async (userId: number, bonusWhere?: string) => {
+export const getUserRelations = async (userId: number, bonusWhere?: string, otherUserId?: number) => {
+    if (userId === otherUserId) return [];
+
+    const queryParams = [userId];
+    if (otherUserId != null) queryParams.push(otherUserId);
+
     const rawRelations = (await prisma.$queryRawUnsafe(`
-        SELECT "areFriends", "compatibility", "updatedCompatibility", "haveMatched", "matchDate", u.*
+        SELECT "areFriends", "friendDate", "compatibility", "updatedCompatibility", "haveMatched", "matchDate", u.*
         FROM user_relations rel
         JOIN users u ON (rel."user1Id" <> $1 AND rel."user1Id" = u.id) OR (rel."user2Id" <> $1 AND rel."user2Id" = u.id)
-        WHERE (rel."user1Id" = $1 OR rel."user2Id" = $1)${bonusWhere ? ` AND ${bonusWhere}` : ''};
-    `, userId)) as (UserRelation & User)[];
+        WHERE (rel."user1Id" = $1 OR rel."user2Id" = $1)${otherUserId != null ? ' AND (rel."user1Id" = $2 OR rel."user2Id" = $2)' : ''}${bonusWhere ? ` AND (${bonusWhere})` : ''};
+    `, ...queryParams)) as (UserRelation & User)[];
 
     const relations = rawRelations.map((rawRelation) => {
         const user = pickPrismaObj<User>('User', rawRelation);
@@ -160,4 +166,20 @@ export const getUserRelations = async (userId: number, bonusWhere?: string) => {
     });
 
     return relations;
+};
+
+export const getBigUser = async (meId, userId) => {
+    const [userRelation] = await getUserRelations(meId, undefined, userId);
+
+    if (userRelation) {
+        const { user: baseUser, ...bigUser } = { ...userRelation, ...userRelation.user };
+
+        return bigUser;
+    } else {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        return user;
+    }
 };

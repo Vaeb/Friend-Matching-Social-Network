@@ -8,7 +8,9 @@ import {
     NumberInput,
     Slider,
     Stack,
+    Switch,
     Table,
+    Text,
     useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
@@ -102,7 +104,11 @@ const Matching = ({ userId }: { userId: number }) => {
     const rows = userInterests.map(({ interest: { name }, score }) => (
         <tr
             className={`${
-                score > 50 ? 'bg-green-800/[.4] hover:bg-green-800/[.6] text-zinc-300' : score < 50 ? 'bg-red-800/[.4] hover:bg-red-800/[.6] text-zinc-300' : ''
+                score > 50
+                    ? 'bg-green-800/[.4] hover:bg-green-800/[.6] text-zinc-300'
+                    : score < 50
+                        ? 'bg-red-800/[.4] hover:bg-red-800/[.6] text-zinc-300'
+                        : ''
             } cursor-pointer`}
             key={name}
             onClick={() => setChangeInterest(name)}
@@ -121,7 +127,13 @@ const Matching = ({ userId }: { userId: number }) => {
                 label='Add new interest'
                 value={searchValue}
                 onChange={setSearchValue}
-                onDropdownOpen={() => { if (!dropdownOpen) { setSearchValue(''); } console.log('opening'); dropdownOpenHandlers.open(); }}
+                onDropdownOpen={() => {
+                    if (!dropdownOpen) {
+                        setSearchValue('');
+                    }
+                    console.log('opening');
+                    dropdownOpenHandlers.open();
+                }}
                 onDropdownClose={dropdownOpenHandlers.close}
                 onItemSubmit={focusInterest}
                 data={filteredInterests}
@@ -153,12 +165,18 @@ const Matching = ({ userId }: { userId: number }) => {
                             onChange={setSliderValue}
                         />
                         <Group className='mt-10'>
-                            <Button className='w-24 shadow-md' variant='outline' onClick={() => addInterest(addingType === 'new' ? false : true) }>
+                            <Button
+                                className='w-24 shadow-md'
+                                variant='outline'
+                                onClick={() => addInterest(addingType === 'new' ? false : true)}
+                            >
                                 Save
                             </Button>
-                            {addingType === 'existing' ? <Button className='w-24 shadow-md' variant='outline' color='red' onClick={deleteInterest}>
-                                Delete
-                            </Button> : null}
+                            {addingType === 'existing' ? (
+                                <Button className='w-24 shadow-md' variant='outline' color='red' onClick={deleteInterest}>
+                                    Delete
+                                </Button>
+                            ) : null}
                             <Button className='w-24 shadow-md' variant='outline' color='red' onClick={cancelInterest}>
                                 Cancel
                             </Button>
@@ -182,6 +200,15 @@ const Matching = ({ userId }: { userId: number }) => {
                 placeholder='Match filter'
                 label='Match filter'
                 description='From 0 to 10, reduce match frequency by ignoring lower quality matches'
+            />
+            <Text>
+                Allow timeline posts to be ordered based on your interest compatibility with the author. Allows others to use your posts for
+                the same purpose.
+            </Text>
+            <Switch
+                className='shadow-sm'
+                label={'Allow your interest compatibility with other users to be utilised when ordering timeline posts.'
+                    + 'Allows other users to order your posts using the same approach.'}
             />
         </Stack>
     );

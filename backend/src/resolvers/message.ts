@@ -5,10 +5,11 @@ import type { Error, Resolvers } from '../schema/generated';
 
 const resolvers: Resolvers = {
     Query: {
-        getMessages: (_parent, { target, limit }) => {
-            console.log('Received request for getUsers:', limit);
+        getMessages: (_parent, { target, limit }, { userCore }: Context) => {
+            console.log('Received request for getMessages:', target, limit);
+            const meId = userCore.id;
             return prisma.message.findMany({
-                where: { OR: [{ fromId: target }, { toId: target }] },
+                where: { AND: [{ OR: [{ fromId: target }, { toId: target }] }, { OR: [{ fromId: meId }, { toId: meId }] }] },
                 include: { from: true, to: true },
                 orderBy: { createdAt: 'asc' },
                 take: limit ?? undefined,

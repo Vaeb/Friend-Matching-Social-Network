@@ -161,17 +161,21 @@ const matchAlgorithm = (compats, allUsers) => {
     let pickAttempt = 0;
     const pickGoal = size / 2;
     while (picked < pickGoal) {
-        if (++pickAttempt > 4000000) return console.log('Something went wrong @ optimal assignment');
+        // if (++pickAttempt > 4000000) return console.log('Something went wrong @ optimal assignment', picked);
+        if (++pickAttempt > 1) return console.log('Something went wrong @ optimal assignment', pickAttempt, picked, pickGoal);
+        // console.log(111, pickAttempt);
         // console.log(`Attempt @ Picking optimal assignment #${++pickAttempt}`);
         for (const rowKey of rowKeys) {
             if (pickedLines[rowKey]) continue;
             const row = compats[rowKey];
+            // console.log(rowKey, JSON.stringify(row));
             let zeroKey = null;
             let multiZeros = false;
             for (const colKey of colKeys) {
                 if (pickedLines[colKey]) continue;
                 const score = row[colKey];
                 if (score === 0) {
+                    console.log('got 0', colKey);
                     if (zeroKey !== null) {
                         multiZeros = true;
                         break;

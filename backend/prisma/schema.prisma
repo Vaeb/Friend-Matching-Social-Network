@@ -44,6 +44,7 @@ model UserRelation {
     user2                User      @relation(name: "UserRel2", fields: [user2Id], references: [id])
     user2Id              Int
     areFriends           Boolean   @default(false)
+    friendDate           DateTime?
     compatibility        Float?
     haveMatched          Boolean   @default(false)
     matchDate            DateTime?

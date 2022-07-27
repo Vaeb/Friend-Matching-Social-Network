@@ -1,7 +1,8 @@
 import { prisma } from '../server';
-import { consoleError, formatErrors } from '../utils';
+import { consoleError, formatErrors, getUserRelations } from '../utils';
 // import { Context } from '../types';
 import type { Resolvers } from '../schema/generated';
+import { Context } from '../types';
 
 const resolvers: Resolvers = {
     Query: {
@@ -14,6 +15,7 @@ const resolvers: Resolvers = {
         getPosts: async (_parent, { limit }) => {
             return prisma.post.findMany({
                 include: { creator: true },
+                orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
             });
         },
@@ -21,6 +23,20 @@ const resolvers: Resolvers = {
             const posts = await prisma.post.findMany({
                 where: { creatorId: userId },
                 include: { creator: true },
+                orderBy: { createdAt: 'desc' },
+                take: limit ?? undefined,
+            });
+
+            return posts;
+        },
+        getPostsFromFriends: async (_parent, { limit }, { userCore }: Context) => {
+            const { id: meId } = userCore;
+
+            const userIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
+            const posts = await prisma.post.findMany({
+                where: { creatorId: { in: userIds } },
+                include: { creator: true },
+                orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
             });
 
@@ -28,10 +44,12 @@ const resolvers: Resolvers = {
         },
     },
     Mutation: {
-        addPost: async (_parent, { creatorId, text }) => {
+        sendPost: async (_parent, { text }, { userCore }: Context) => {
             try {
+                const { id: userId } = userCore;
+
                 const post = await prisma.post.create({
-                    data: { creatorId, text },
+                    data: { creatorId: userId, text },
                     include: { creator: true },
                 });
 
@@ -59,16 +77,16 @@ const resolvers: Resolvers = {
 
         //     return thisPost!.creator;
         // },
-        savedBy: async ({ id: postId }, { limit }) => {
-            const thisPost = await prisma.post.findUnique({
-                where: { id: postId },
-                select: {
-                    savedBy: { take: limit ?? undefined },
-                },
-            });
+        // savedBy: async ({ id: postId }, { limit }) => {
+        //     const thisPost = await prisma.post.findUnique({
+        //         where: { id: postId },
+        //         select: {
+        //             savedBy: { take: limit ?? undefined },
+        //         },
+        //     });
 
-            return thisPost?.savedBy ?? null;
-        },
+        //     return thisPost?.savedBy ?? null;
+        // },
     },
 };
 

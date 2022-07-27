@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+// Don't import ./utils.ts (b/c prisma cycle)
 import typeDefs from './schema';
 import resolvers from './resolvers';
 import { Context } from './types';

@@ -4,7 +4,7 @@ import Account from '../settings/Account';
 import Matching from '../settings/Matching';
 
 import { MeQuery } from '../../generated/graphql';
-import { useSettingsStore } from '../../state';
+import { useAppStore } from '../../state';
 
 const descriptions: Record<string, string> = {
     matching: 'What are your interests?',
@@ -16,7 +16,7 @@ interface SettingsMidProps {
 
 const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
     const theme = useMantineTheme();
-    const section = useSettingsStore(state => state.section);
+    const section = useAppStore(state => state.left.viewValue);
     const desc = descriptions[section];
 
     return data?.me ? (
