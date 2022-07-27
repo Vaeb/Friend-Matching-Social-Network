@@ -63,6 +63,8 @@ export const useAppStore = create<AppState>(set => ({
                     if (!panels.includes('mid')) state.mid.view = 'base';
                 }
 
+                if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
+
                 if (softViewValues === false) {
                     if (viewValue1 === undefined) viewValue1 = null; 
                     if (viewValue2 === undefined) viewValue2 = viewValue1;

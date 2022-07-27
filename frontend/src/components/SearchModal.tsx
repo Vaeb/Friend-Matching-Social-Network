@@ -45,10 +45,23 @@ const SearchModal = () => {
         }
     }
 
+    const valueToView = {
+        t: ['timeline', undefined],
+        s: ['settings', undefined],
+        m: ['matches', 'right'],
+        b: ['base', 'right'],
+    };
+
     const onKeyDown = (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
         const { key } = props;
         if (key === 'Enter') {
-            setHandle(value);
+            if (valueToView[value]) {
+                setHandle('');
+                setView(valueToView[value][0], valueToView[value][1]);
+                setOpened(false);
+            } else {
+                setHandle(value);
+            }
         }
     };
 
