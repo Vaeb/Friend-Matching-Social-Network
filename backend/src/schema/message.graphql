@@ -12,10 +12,21 @@ type MessageResponse {
     message: Message
 }
 
+type MessageSubResponse {
+    message: Message!
+    meId: Boolean!
+    otherId: Boolean!
+    fromMe: Boolean!
+}
+
 type Query {
     getMessages(target: Int!, limit: Int): [Message!]!
 }
 
 type Mutation {
     sendMessage(to: Int!, text: String!): MessageResponse!
+}
+
+type Subscription {
+    newMessage: Message!
 }

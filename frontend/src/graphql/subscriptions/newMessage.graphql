@@ -1,0 +1,13 @@
+subscription NewMessage {
+    newMessage {
+        id
+        text
+        from {
+            id
+        }
+        to {
+            id
+        }
+        createdAt
+    }
+}

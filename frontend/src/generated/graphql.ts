@@ -206,6 +206,11 @@ export type SendPostResponse = {
   post?: Maybe<Post>;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  newMessage: Message;
+};
+
 export type User = {
   __typename?: 'User';
   areFriends?: Maybe<Scalars['Boolean']>;
@@ -389,6 +394,11 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, name: string } | null };
 
+export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: { __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } } };
+
 import { IntrospectionQuery } from 'graphql';
 export default {
   "__schema": {
@@ -398,7 +408,9 @@ export default {
     "mutationType": {
       "name": "Mutation"
     },
-    "subscriptionType": null,
+    "subscriptionType": {
+      "name": "Subscription"
+    },
     "types": [
       {
         "kind": "OBJECT",
@@ -1383,6 +1395,25 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "Subscription",
+        "fields": [
+          {
+            "name": "newMessage",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Message",
+                "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "User",
         "fields": [
           {
@@ -2092,4 +2123,23 @@ export const MeDocument = gql`
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const NewMessageDocument = gql`
+    subscription NewMessage {
+  newMessage {
+    id
+    text
+    from {
+      id
+    }
+    to {
+      id
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useNewMessageSubscription<TData = NewMessageSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewMessageSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewMessageSubscription, TData>) {
+  return Urql.useSubscription<NewMessageSubscription, TData, NewMessageSubscriptionVariables>({ query: NewMessageDocument, ...options }, handler);
 };

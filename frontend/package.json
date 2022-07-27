@@ -24,6 +24,7 @@
         "embla-carousel-react": "^7.0.0-rc04",
         "framer-motion": "^6.3.0",
         "graphql": "^16.5.0",
+        "graphql-ws": "^5.9.1",
         "immer": "^9.0.15",
         "next": "latest",
         "next-urql": "^3.3.3",
@@ -32,6 +33,7 @@
         "react-icons": "^4.4.0",
         "react-is": "^18.2.0",
         "urql": "^2.2.2",
+        "ws": "^8.8.1",
         "zustand": "^4.0.0-rc.1"
     },
     "devDependencies": {

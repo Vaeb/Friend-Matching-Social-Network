@@ -70,6 +70,14 @@ export type MessageResponse = {
   ok: Scalars['Boolean'];
 };
 
+export type MessageSubResponse = {
+  __typename?: 'MessageSubResponse';
+  fromMe: Scalars['Boolean'];
+  meId: Scalars['Boolean'];
+  message: Message;
+  otherId: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addFriend: AuthResponse;
@@ -202,6 +210,11 @@ export type SendPostResponse = {
   errors?: Maybe<Array<Error>>;
   ok: Scalars['Boolean'];
   post?: Maybe<Post>;
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  newMessage: Message;
 };
 
 export type User = {
@@ -352,11 +365,13 @@ export type ResolversTypes = {
   Match: ResolverTypeWrapper<Match>;
   Message: ResolverTypeWrapper<Message>;
   MessageResponse: ResolverTypeWrapper<MessageResponse>;
+  MessageSubResponse: ResolverTypeWrapper<MessageSubResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   Query: ResolverTypeWrapper<{}>;
   SendPostResponse: ResolverTypeWrapper<SendPostResponse>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Subscription: ResolverTypeWrapper<{}>;
   User: ResolverTypeWrapper<User>;
   UserCore: ResolverTypeWrapper<UserCore>;
   UserInterest: ResolverTypeWrapper<UserInterest>;
@@ -378,11 +393,13 @@ export type ResolversParentTypes = {
   Match: Match;
   Message: Message;
   MessageResponse: MessageResponse;
+  MessageSubResponse: MessageSubResponse;
   Mutation: {};
   Post: Post;
   Query: {};
   SendPostResponse: SendPostResponse;
   String: Scalars['String'];
+  Subscription: {};
   User: User;
   UserCore: UserCore;
   UserInterest: UserInterest;
@@ -450,6 +467,14 @@ export type MessageResponseResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MessageSubResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MessageSubResponse'] = ResolversParentTypes['MessageSubResponse']> = {
+  fromMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  meId?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['Message'], ParentType, ContextType>;
+  otherId?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addFriend?: Resolver<ResolversTypes['AuthResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
@@ -491,6 +516,10 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -556,10 +585,12 @@ export type Resolvers<ContextType = any> = {
   Match?: MatchResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   MessageResponse?: MessageResponseResolvers<ContextType>;
+  MessageSubResponse?: MessageSubResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SendPostResponse?: SendPostResponseResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserCore?: UserCoreResolvers<ContextType>;
   UserInterest?: UserInterestResolvers<ContextType>;

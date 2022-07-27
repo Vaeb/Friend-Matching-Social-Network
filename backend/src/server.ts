@@ -1,10 +1,14 @@
 import 'dotenv/config';
 import PrismaWrapper from '@prisma/client';
 import { ApolloServer } from 'apollo-server-express';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 
 // Don't import ./utils.ts (b/c prisma cycle)
 import typeDefs from './schema';
@@ -39,9 +43,24 @@ export const listen = async (): Promise<void> => {
     app.use(cookieParser());
     app.use(authenticateTokens);
 
+    const httpServer = http.createServer(app);
+
+    const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+    const wsServer = new WebSocketServer({
+        server: httpServer,
+        path: '/graphql',
+    });
+
+    const serverCleanup = useServer(
+        {
+            schema,
+        },
+        wsServer
+    );
+
     const server = new ApolloServer({
-        typeDefs,
-        resolvers,
+        schema,
         context: ({ req, res }) =>
             ({
                 req,
@@ -54,7 +73,19 @@ export const listen = async (): Promise<void> => {
             console.error(err);
             return err;
         },
-        plugins: [ApolloServerPluginLandingPageLocalDefault({ footer: false, embed: true })],
+        plugins: [
+            ApolloServerPluginDrainHttpServer({ httpServer }),
+            {
+                async serverWillStart() {
+                    return {
+                        async drainServer() {
+                            await serverCleanup.dispose();
+                        },
+                    };
+                },
+            },
+            ApolloServerPluginLandingPageLocalDefault({ footer: false, embed: true }),
+        ],
     });
 
     await server.start();
@@ -67,9 +98,9 @@ export const listen = async (): Promise<void> => {
         res.end();
     });
 
-    app.listen({ port: 4000 }, () => {
-        console.log(`Server listening @ http://localhost:4000${server.graphqlPath}`);
-    });
+    await new Promise<void>(resolve => httpServer.listen({ port: 4000 }, resolve));
+
+    console.log(`Server listening @ http://localhost:4000${server.graphqlPath}`);
 
     console.log('Setup done!');
 };

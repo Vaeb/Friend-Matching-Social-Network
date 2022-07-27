@@ -13,7 +13,7 @@ export const useCheckAuth = (needsAuth = true) => {
             console.log('Not logged in');
             router.push('/login');
         } else if (!fetching) {
-            console.log('Is authorized', data?.me);
+            // console.log('Is authorized', data?.me);
         }
     }, [needsAuth, fetching, data, router]);
 
