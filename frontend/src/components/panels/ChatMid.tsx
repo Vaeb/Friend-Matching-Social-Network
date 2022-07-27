@@ -5,14 +5,9 @@ import React, { FC, useEffect, useRef } from 'react';
 import { BsPersonCircle as IconPerson } from 'react-icons/bs';
 // import shallow from 'zustand/shallow';
 
-import { GetUserQuery, useGetMessagesQuery, useMeQuery, useNewMessageSubscription, User, useSendMessageMutation } from '../../generated/graphql';
+import { GetUserQuery, useGetMessagesQuery, useMeQuery, User, useSendMessageMutation } from '../../generated/graphql';
 import { useAppStore } from '../../state';
 import { formatTime, getDateString } from '../../utils/formatTime';
-
-const handleSubscription = (prev: any, next: any) => {
-    console.log('handling', prev, next);
-    return next;
-};
 
 const ChatMid: FC = () => {
     // const theme = useMantineTheme();
@@ -25,8 +20,6 @@ const ChatMid: FC = () => {
     const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: user.id } });
     const [, doSendMessage] = useSendMessageMutation();
 
-    const [res] = useNewMessageSubscription();
-    console.log('res', res);
     // console.log('resData', res.data);
 
     const messages = !messagesFetching ? messagesData?.getMessages : [];
