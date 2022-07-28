@@ -17,6 +17,7 @@ type Query {
     getPosts(limit: Int): [Post!]!
     getPostsFromUser(userId: Int!, limit: Int): [Post!]!
     getPostsFromFriends(cursor: Int): [Post!]!
+    getPostsWeighted(cursor: Int): [Post!]!
 }
 
 type Mutation {

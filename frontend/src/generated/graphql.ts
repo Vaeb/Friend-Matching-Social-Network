@@ -153,6 +153,7 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
+  getPostsWeighted: Array<Post>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
@@ -190,6 +191,11 @@ export type QueryGetPostsFromFriendsArgs = {
 export type QueryGetPostsFromUserArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   userId: Scalars['Int'];
+};
+
+
+export type QueryGetPostsWeightedArgs = {
+  cursor?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -376,6 +382,11 @@ export type GetPostsFromUserQueryVariables = Exact<{
 
 
 export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
+
+export type GetPostsWeightedQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
 
 export type GetUserQueryVariables = Exact<{
   userId: Scalars['Int'];
@@ -1320,6 +1331,32 @@ export default {
             ]
           },
           {
+            "name": "getPostsWeighted",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": [
+              {
+                "name": "cursor",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
+            ]
+          },
+          {
             "name": "getUser",
             "type": {
               "kind": "OBJECT",
@@ -2137,6 +2174,24 @@ export const GetPostsFromUserDocument = gql`
 
 export function useGetPostsFromUserQuery(options: Omit<Urql.UseQueryArgs<GetPostsFromUserQueryVariables>, 'query'>) {
   return Urql.useQuery<GetPostsFromUserQuery>({ query: GetPostsFromUserDocument, ...options });
+};
+export const GetPostsWeightedDocument = gql`
+    query GetPostsWeighted {
+  getPostsWeighted {
+    id
+    text
+    creator {
+      id
+      username
+      name
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useGetPostsWeightedQuery(options?: Omit<Urql.UseQueryArgs<GetPostsWeightedQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPostsWeightedQuery>({ query: GetPostsWeightedDocument, ...options });
 };
 export const GetUserDocument = gql`
     query GetUser($userId: Int!) {

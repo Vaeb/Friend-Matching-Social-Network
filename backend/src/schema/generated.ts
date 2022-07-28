@@ -151,6 +151,7 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
+  getPostsWeighted: Array<Post>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
@@ -188,6 +189,11 @@ export type QueryGetPostsFromFriendsArgs = {
 export type QueryGetPostsFromUserArgs = {
   limit?: InputMaybe<Scalars['Int']>;
   userId: Scalars['Int'];
+};
+
+
+export type QueryGetPostsWeightedArgs = {
+  cursor?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -505,6 +511,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromFriends?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsFromFriendsArgs>>;
   getPostsFromUser?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
+  getPostsWeighted?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsWeightedArgs>>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'userId'>>;
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
   getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;

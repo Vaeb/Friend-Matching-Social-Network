@@ -7,12 +7,11 @@ import {
     GetChatsDocument,
     GetMatchesDocument,
     GetMessagesDocument,
-    GetPostsFromFriendsDocument,
+    GetPostsWeightedDocument,
     GetUserDocument,
     GetUserInterestsDocument,
     MeDocument,
 } from './generated/graphql';
-import { getPostsFromFriendsLimits } from './utils/limits';
 
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
@@ -130,20 +129,18 @@ const exchanges = [
                 //     const result = _result as any;
                 //     // const args = _args as any;
                 //     if (result?.sendPost?.ok) {
-                //         for (const limit of Object.values(getPostsFromFriendsLimits)) {
-                //             cache.updateQuery(
-                //                 {
-                //                     query: GetPostsFromFriendsDocument,
-                //                     variables: { limit },
-                //                 },
-                //                 (_data) => {
-                //                     const data = _data as any;
-                //                     const { post } = result.sendPost;
-                //                     (data.getPostsFromFriends as any[]).splice(0, 0, post);
-                //                     return data;
-                //                 }
-                //             );
-                //         }
+                //         cache.updateQuery(
+                //             {
+                //                 query: getPostsWeightedDocument,
+                //                 variables: { limit },
+                //             },
+                //             (_data) => {
+                //                 const data = _data as any;
+                //                 const { post } = result.sendPost;
+                //                 (data.getPostsWeighted as any[]).splice(0, 0, post);
+                //                 return data;
+                //             }
+                //         );
                 //     }
                 // },
                 addFriend: (_result, _args, cache, _info) => {
@@ -226,15 +223,15 @@ const exchanges = [
                         const post = result.newPost;
                         cache.updateQuery(
                             {
-                                query: GetPostsFromFriendsDocument,
+                                query: GetPostsWeightedDocument,
                                 // variables: { limit },
                             },
                             (_data) => {
                                 const data = _data as any;
-                                if (!data?.getPostsFromFriends) return data;
-                                console.log('OLD DATA:', { ...data.getPostsFromFriends });
-                                if (post.text !== 'ff') (data.getPostsFromFriends as any[]).unshift(post);
-                                console.log('NEW DATA:', { ...data.getPostsFromFriends });
+                                if (!data?.getPostsWeighted) return data;
+                                console.log('OLD DATA:', { ...data.getPostsWeighted });
+                                if (post.text !== 'ff') (data.getPostsWeighted as any[]).unshift(post);
+                                console.log('NEW DATA:', { ...data.getPostsWeighted });
                                 return data;
                             }
                         );

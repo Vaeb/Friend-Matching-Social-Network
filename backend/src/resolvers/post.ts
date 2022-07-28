@@ -49,6 +49,19 @@ const resolvers: Resolvers = {
 
             return posts;
         },
+        getPostsWeighted: async (_parent, { cursor }, { userCore }: Context) => {
+            const { id: meId } = userCore;
+
+            // const friendIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
+            const posts = await prisma.post.findMany({
+                // where: { creatorId: { in: userIds } },
+                include: { creator: true },
+                orderBy: { createdAt: 'desc' },
+                take: 50,
+            });
+
+            return posts;
+        },
     },
     Mutation: {
         sendPost: async (_parent, { text }, { userCore }: Context) => {

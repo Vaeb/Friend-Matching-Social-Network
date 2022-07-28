@@ -4,11 +4,10 @@ import {
 import React, { FC, useEffect, useRef } from 'react';
 import { BsPersonCircle as IconPerson } from 'react-icons/bs';
 
-import { useGetPostsFromFriendsQuery, useSendPostMutation } from '../../generated/graphql';
+import { useGetPostsWeightedQuery, useSendPostMutation } from '../../generated/graphql';
 import { useAppStore, useTimelineStore } from '../../state';
 // import { useAppStore, useConvoStore } from '../../state';
 import { formatTime, getDateString } from '../../utils/formatTime';
-import { getPostsFromFriendsLimits } from '../../utils/limits';
 
 const getPostTime = (postDateRaw: Date | number, nowDate = new Date()) => {
     const postDate = new Date(postDateRaw);
@@ -19,14 +18,14 @@ const TimelineMid: FC = () => {
     const theme = useMantineTheme();
     // const [{ data: meData, fetching: meFetching }] = useMeQuery();
 
-    const [{ data: postsData, fetching: postsFetching }] = useGetPostsFromFriendsQuery();
+    const [{ data: postsData, fetching: postsFetching }] = useGetPostsWeightedQuery();
     const [, doSendPost] = useSendPostMutation();
     const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
     const setView = useAppStore(state => state.setView);
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLInputElement>(null);
 
-    const posts = !postsFetching ? postsData?.getPostsFromFriends : [];
+    const posts = !postsFetching ? postsData?.getPostsWeighted : [];
     // console.log('posts', posts);
 
     // const me = meData?.me;

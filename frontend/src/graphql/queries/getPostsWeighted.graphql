@@ -1,0 +1,12 @@
+query GetPostsWeighted {
+    getPostsWeighted {
+        id
+        text
+        creator {
+            id
+            username
+            name
+        }
+        createdAt
+    }
+}
