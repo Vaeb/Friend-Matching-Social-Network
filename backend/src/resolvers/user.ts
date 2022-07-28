@@ -103,7 +103,7 @@ const resolvers: Resolvers = {
                         parseErrors.push({ field: 'username', message: 'Username already exists.' });
                     }
                     if (existingUser.email.toLowerCase() === args.email.toLowerCase()) {
-                        parseErrors.push({ field: 'username', message: 'Email already exists.' });
+                        parseErrors.push({ field: 'email', message: 'Email already exists.' });
                     }
                 }
 
