@@ -145,10 +145,21 @@ const resolvers: Resolvers = {
                 console.log('Received request for addFriend', userId, remove);
                 const meId = userCore.id;
 
-                await prisma.userRelation.updateMany({
-                    where: { AND: [{ OR: [{ user1Id: meId }, { user1Id: userId }] }, { OR: [{ user2Id: meId }, { user2Id: userId }] }] },
-                    data: { areFriends: !remove, friendDate: !remove ? new Date() : null, ...(remove ? { haveMatched: false, matchDate: null } : {}) },
-                });
+                // await prisma.userRelation.updateMany({
+                //     where: { AND: [{ OR: [{ user1Id: meId }, { user1Id: userId }] }, { OR: [{ user2Id: meId }, { user2Id: userId }] }] },
+                //     data: { areFriends: !remove, friendDate: !remove ? new Date() : null, ...(remove ? { haveMatched: false, matchDate: null } : {}) },
+                // });
+                const isFirst = meId < userId;
+
+                const upsertResult = await prisma.$executeRaw`
+                    INSERT INTO user_relations
+                        ("user1Id", "user2Id", "areFriends", "friendDate", "updatedAt")
+                    VALUES
+                        (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, current_timestamp, current_timestamp)
+                    ON CONFLICT ("user1Id", "user2Id") DO UPDATE
+                        SET "areFriends" = excluded."areFriends", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
+                `;
+                console.log('Upsert success:', upsertResult);
                 const bigUser = await getBigUser(meId, userId);
 
                 return {
@@ -191,46 +202,46 @@ const resolvers: Resolvers = {
         },
         addUserInterest: async (_parent, { userInterest, override }, { userCore }: Context) => {
             try {
-                const userId = userCore.id;
+                const meId = userCore.id;
                 const nowDate = new Date();
-                console.log('Received request for addUserInterest:', userId, userInterest);
+                console.log('Received request for addUserInterest:', meId, userInterest);
 
                 const userInterestToCreate = {
                     ...userInterest,
-                    userId,
+                    userId: meId,
                 };
 
                 let newUserInterest;
 
                 if (override && userInterest.score == -1) {
                     await prisma.userInterest.delete({
-                        where: { userId_interestId: { userId, interestId: userInterest.interestId } },
+                        where: { userId_interestId: { userId: meId, interestId: userInterest.interestId } },
                     });
                 } else if (override) {
                     newUserInterest = await prisma.userInterest.update({
                         data: userInterestToCreate,
                         include: { interest: true },
-                        where: { userId_interestId: { userId, interestId: userInterest.interestId } },
+                        where: { userId_interestId: { userId: meId, interestId: userInterest.interestId } },
                     });
                 } else {
                     newUserInterest = await prisma.userInterest.create({ data: userInterestToCreate, include: { interest: true } });
                 }
 
                 await prisma.user.update({
-                    where: { id: userId },
+                    where: { id: meId },
                     data: { updatedInterests: nowDate },
                 });
 
                 const meInterests = await prisma.userInterest.findMany({
-                    where: { userId },
+                    where: { userId: meId },
                     select: { interestId: true, score: true },
                 });
 
                 const eligibleUsers: any = (await prisma.$queryRaw`
                         SELECT u.id, COALESCE(rel."compatibility", 0) as "compatibility", (case when u.id <> rel."user2Id" then 1 else 0 end) as "isSecond"
                         FROM users u
-                        LEFT JOIN user_relations rel ON ((rel."user1Id" = ${userId} AND rel."user2Id" = u.id) OR (rel."user1Id" = u.id AND rel."user2Id" = ${userId}))
-                        WHERE (rel."user1Id" IS NULL OR (rel."areFriends" = false AND rel."haveMatched" = false)) AND u.id <> ${userId};
+                        LEFT JOIN user_relations rel ON ((rel."user1Id" = ${meId} AND rel."user2Id" = u.id) OR (rel."user1Id" = u.id AND rel."user2Id" = ${meId}))
+                        WHERE (rel."user1Id" IS NULL OR (rel."areFriends" = false AND rel."haveMatched" = false)) AND u.id <> ${meId};
                     `);
 
                 const eligbleUserIds: number[] = [];
@@ -278,8 +289,8 @@ const resolvers: Resolvers = {
 
                     const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
                     if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
-                        const isFirst = !isSecond;
-                        insertRecords.push(`(${isFirst ? userId : youId}, ${isFirst ? youId : userId}, ${compatibility}, current_timestamp, current_timestamp)`);
+                        const isFirst = meId < youId;
+                        insertRecords.push(`(${isFirst ? meId : youId}, ${isFirst ? youId : meId}, ${compatibility}, current_timestamp, current_timestamp)`);
                     }
                 }
 
