@@ -64,10 +64,10 @@ const resolvers: Resolvers = {
             });
             const chatters = [...new Set(messages.map(({ fromId, toId, _max: { createdAt } }) => ({ userId: fromId !== meId ? fromId : toId, createdAt })))];
             const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
-            console.log(chattersMap);
+            // console.log(chattersMap);
             const friends = await getUserRelations(meId, '"areFriends" = true');
             const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
-            console.log(friendsUpdatedMap);
+            // console.log(friendsUpdatedMap);
             const users = friends.map(relation => relation.user).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
             return users;
         },
