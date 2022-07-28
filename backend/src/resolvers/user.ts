@@ -17,7 +17,12 @@ const resolvers: Resolvers = {
             console.log('Received request for getUserByHandle:', handle);
             if (handle.startsWith('@')) handle = handle.substring(1);
             return prisma.user.findFirst({
-                where: { OR: [{ username: handle }, { email: handle }] },
+                where: {
+                    OR: [
+                        { username: { equals: handle, mode: 'insensitive' } },
+                        { email: { equals: handle, mode: 'insensitive' } },
+                    ], 
+                },
             });
         },
         getUsers: (_parent, { limit }) => {
