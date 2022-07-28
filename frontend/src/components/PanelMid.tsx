@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useMantineTheme, Box } from '@mantine/core';
 
-import { useMeQuery, useNewMessageSubscription } from '../generated/graphql';
+import { useMeQuery, useNewMessageSubscription, useNewPostSubscription } from '../generated/graphql';
 import { useAppStore } from '../state';
 import SettingsMid from './panels/SettingsMid';
 import ChatMid from './panels/ChatMid';
@@ -23,8 +23,9 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     const [{ data }] = useMeQuery();
     const view = useAppStore(state => state.left.view);
 
-    const [res] = useNewMessageSubscription();
-    console.log('res', res);
+    useNewMessageSubscription();
+    const [res] = useNewPostSubscription();
+    console.log('useNewPostSubscription', res);
 
     return (
         <Box className={`h-full grow bg-_black-300 ${view === 'settings' ? 'px-[50px] py-[30px]' : 'px-10 py-5'}`}>

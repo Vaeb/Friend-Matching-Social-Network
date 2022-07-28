@@ -6,7 +6,7 @@ const myTheme: MantineThemeOverride = {
     // Strength
     colors: {
         // 3: PanelM
-        // 6: Body, PanelR
+        // 6: Body, PanelR, PanelL
         // 8: PanelL, Borders (32, 34, 37)
         _black: [undefined, undefined, undefined, '#3c404b', undefined, undefined, '#2f3136', undefined, '#202225', undefined],
         // 5: Setting Hover Background

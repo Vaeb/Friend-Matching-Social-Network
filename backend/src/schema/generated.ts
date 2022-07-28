@@ -181,7 +181,7 @@ export type QueryGetPostsArgs = {
 
 
 export type QueryGetPostsFromFriendsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
+  cursor?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -215,6 +215,7 @@ export type SendPostResponse = {
 export type Subscription = {
   __typename?: 'Subscription';
   newMessage: Message;
+  newPost: Post;
 };
 
 export type User = {
@@ -520,6 +521,7 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
+  newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {

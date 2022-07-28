@@ -1,5 +1,6 @@
 import { createClient, ssrExchange, dedupExchange, fetchExchange, subscriptionExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
+import { devtoolsExchange } from '@urql/devtools';
 import { createClient as createWSClient } from 'graphql-ws';
 
 import {
@@ -21,6 +22,7 @@ const graphqlUrl = process.env.NEXT_PUBLIC_ENV === 'PROD' ? 'http://vaeb.io:4000
 console.log('IS SSR:', isServer, process.env.NEXT_PUBLIC_ENV);
 
 const exchanges = [
+    devtoolsExchange,
     dedupExchange,
     cacheExchange({
         updates: {
@@ -123,26 +125,26 @@ const exchanges = [
                         );
                     }
                 },
-                sendPost: (_result, _args, cache, _info) => {
-                    const result = _result as any;
-                    // const args = _args as any;
-                    if (result?.sendPost?.ok) {
-                        for (const limit of Object.values(getPostsFromFriendsLimits)) {
-                            cache.updateQuery(
-                                {
-                                    query: GetPostsFromFriendsDocument,
-                                    variables: { limit },
-                                },
-                                (_data) => {
-                                    const data = _data as any;
-                                    const { post } = result.sendPost;
-                                    (data.getPostsFromFriends as any[]).splice(0, 0, post);
-                                    return data;
-                                }
-                            );
-                        }
-                    }
-                },
+                // sendPost: (_result, _args, cache, _info) => {
+                //     const result = _result as any;
+                //     // const args = _args as any;
+                //     if (result?.sendPost?.ok) {
+                //         for (const limit of Object.values(getPostsFromFriendsLimits)) {
+                //             cache.updateQuery(
+                //                 {
+                //                     query: GetPostsFromFriendsDocument,
+                //                     variables: { limit },
+                //                 },
+                //                 (_data) => {
+                //                     const data = _data as any;
+                //                     const { post } = result.sendPost;
+                //                     (data.getPostsFromFriends as any[]).splice(0, 0, post);
+                //                     return data;
+                //                 }
+                //             );
+                //         }
+                //     }
+                // },
                 addFriend: (_result, _args, cache, _info) => {
                     const result = _result as any;
                     const args = _args as any;
@@ -211,6 +213,27 @@ const exchanges = [
                                 // console.log(4444, args.to, data, message);
                                 data.getMessages.push(message);
                                 // console.log('added', data);
+                                return data;
+                            }
+                        );
+                    }
+                },
+                newPost: (_result, _args, cache, _info) => {
+                    const result = _result as any;
+                    const args = _args as any;
+                    if (result?.newPost) {
+                        const post = result.newPost;
+                        cache.updateQuery(
+                            {
+                                query: GetPostsFromFriendsDocument,
+                                // variables: { limit },
+                            },
+                            (_data) => {
+                                const data = _data as any;
+                                if (!data?.getPostsFromFriends) return data;
+                                console.log('OLD DATA:', { ...data.getPostsFromFriends });
+                                if (post.text !== 'ff') (data.getPostsFromFriends as any[]).unshift(post);
+                                console.log('NEW DATA:', { ...data.getPostsFromFriends });
                                 return data;
                             }
                         );

@@ -12,3 +12,8 @@ console.log(123, 'loading pubsub', pubsub != null);
 
 export const HEARTBEAT = 'HEARTBEAT';
 export const NEW_MESSAGE = 'NEW_MESSAGE';
+export const NEW_POST = 'NEW_POST';
+
+setInterval(() => {
+    pubsub.publish(HEARTBEAT, String(+new Date()));
+}, 40000);

@@ -16,9 +16,13 @@ type Query {
     getPost(id: Int!): Post
     getPosts(limit: Int): [Post!]!
     getPostsFromUser(userId: Int!, limit: Int): [Post!]!
-    getPostsFromFriends(limit: Int): [Post!]!
+    getPostsFromFriends(cursor: Int): [Post!]!
 }
 
 type Mutation {
     sendPost(text: String!): SendPostResponse!
+}
+
+type Subscription {
+    newPost: Post!
 }

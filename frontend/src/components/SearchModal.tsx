@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useMantineTheme, Modal, TextInput, TextInputProps } from '@mantine/core';
 import { useHotkeys } from '@mantine/hooks';
 import { BiSearch as IconSearch } from 'react-icons/bi';
-import shallow from 'zustand/shallow';
 
 import { useGetUserByHandleQuery } from '../generated/graphql';
-import { useAppStore } from '../state';
+import { useAppStore, useMiscStore } from '../state';
 
 const SearchModal = () => {
     const theme = useMantineTheme();
@@ -14,7 +13,8 @@ const SearchModal = () => {
     const [value, setValue] = useState('');
     const [handle, setHandle] = useState('');
     const [{ data: userData, fetching: userFetching }] = useGetUserByHandleQuery({ variables: { handle } });
-    const { setView, setSetOpened } = useAppStore(state => ({ view: state.left.view, setView: state.setView, setSetOpened: state.setSetSearchOpened }), shallow);
+    const setView = useAppStore(state => state.setView);
+    const setSetOpened = useMiscStore(state => state.setSetSearchOpened);
 
     const user = !userFetching ? userData?.getUserByHandle : undefined;
 

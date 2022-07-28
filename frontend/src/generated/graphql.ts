@@ -72,6 +72,14 @@ export type MessageResponse = {
   ok: Scalars['Boolean'];
 };
 
+export type MessageSubResponse = {
+  __typename?: 'MessageSubResponse';
+  fromMe: Scalars['Boolean'];
+  meId: Scalars['Boolean'];
+  message: Message;
+  otherId: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addFriend: AuthResponse;
@@ -175,7 +183,7 @@ export type QueryGetPostsArgs = {
 
 
 export type QueryGetPostsFromFriendsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
+  cursor?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -209,6 +217,7 @@ export type SendPostResponse = {
 export type Subscription = {
   __typename?: 'Subscription';
   newMessage: Message;
+  newPost: Post;
 };
 
 export type User = {
@@ -355,9 +364,7 @@ export type GetMessagesQueryVariables = Exact<{
 
 export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> };
 
-export type GetPostsFromFriendsQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']>;
-}>;
+export type GetPostsFromFriendsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetPostsFromFriendsQuery = { __typename?: 'Query', getPostsFromFriends: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
@@ -398,6 +405,11 @@ export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
 export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: { __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } } };
+
+export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } } };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -719,6 +731,58 @@ export default {
           },
           {
             "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "MessageSubResponse",
+        "fields": [
+          {
+            "name": "fromMe",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "meId",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "message",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Message",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "otherId",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -1211,7 +1275,7 @@ export default {
             },
             "args": [
               {
-                "name": "limit",
+                "name": "cursor",
                 "type": {
                   "kind": "SCALAR",
                   "name": "Any"
@@ -1404,6 +1468,18 @@ export default {
               "ofType": {
                 "kind": "OBJECT",
                 "name": "Message",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "newPost",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Post",
                 "ofType": null
               }
             },
@@ -2027,8 +2103,8 @@ export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQ
   return Urql.useQuery<GetMessagesQuery>({ query: GetMessagesDocument, ...options });
 };
 export const GetPostsFromFriendsDocument = gql`
-    query GetPostsFromFriends($limit: Int) {
-  getPostsFromFriends(limit: $limit) {
+    query GetPostsFromFriends {
+  getPostsFromFriends {
     id
     text
     creator {
@@ -2142,4 +2218,22 @@ export const NewMessageDocument = gql`
 
 export function useNewMessageSubscription<TData = NewMessageSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewMessageSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewMessageSubscription, TData>) {
   return Urql.useSubscription<NewMessageSubscription, TData, NewMessageSubscriptionVariables>({ query: NewMessageDocument, ...options }, handler);
+};
+export const NewPostDocument = gql`
+    subscription NewPost {
+  newPost {
+    id
+    text
+    creator {
+      id
+      username
+      name
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useNewPostSubscription<TData = NewPostSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewPostSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewPostSubscription, TData>) {
+  return Urql.useSubscription<NewPostSubscription, TData, NewPostSubscriptionVariables>({ query: NewPostDocument, ...options }, handler);
 };

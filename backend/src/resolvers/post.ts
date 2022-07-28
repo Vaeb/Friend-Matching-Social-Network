@@ -3,8 +3,15 @@ import { consoleError, formatErrors, getUserRelations } from '../utils';
 // import { Context } from '../types';
 import type { Resolvers } from '../schema/generated';
 import { Context } from '../types';
+import { NEW_POST, pubsub } from '../pubsub';
 
 const resolvers: Resolvers = {
+    Subscription: {
+        newPost: {
+            resolve: payload => payload.post,
+            subscribe: () => pubsub.asyncIterator(NEW_POST) as any,
+        },
+    },
     Query: {
         getPost: async (_parent, { id }) => {
             return prisma.post.findUnique({
@@ -29,7 +36,7 @@ const resolvers: Resolvers = {
 
             return posts;
         },
-        getPostsFromFriends: async (_parent, { limit }, { userCore }: Context) => {
+        getPostsFromFriends: async (_parent, { cursor }, { userCore }: Context) => {
             const { id: meId } = userCore;
 
             const userIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
@@ -37,7 +44,7 @@ const resolvers: Resolvers = {
                 where: { creatorId: { in: userIds } },
                 include: { creator: true },
                 orderBy: { createdAt: 'desc' },
-                take: limit ?? undefined,
+                take: 50,
             });
 
             return posts;
@@ -51,6 +58,10 @@ const resolvers: Resolvers = {
                 const post = await prisma.post.create({
                     data: { creatorId: userId, text },
                     include: { creator: true },
+                });
+
+                pubsub.publish(NEW_POST, {
+                    post: { ...post, createdAt: +post.createdAt }, // May need updatedAt?
                 });
 
                 return {

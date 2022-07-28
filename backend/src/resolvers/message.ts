@@ -38,7 +38,7 @@ const resolvers: Resolvers = {
                 });
 
                 pubsub.publish(NEW_MESSAGE, {
-                    message: { ...message, createdAt: +message.createdAt },
+                    message: { ...message, createdAt: +message.createdAt }, // May need updatedAt?
                 });
 
                 return {

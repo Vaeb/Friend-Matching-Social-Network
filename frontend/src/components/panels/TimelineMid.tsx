@@ -19,9 +19,7 @@ const TimelineMid: FC = () => {
     const theme = useMantineTheme();
     // const [{ data: meData, fetching: meFetching }] = useMeQuery();
 
-    const [{ data: postsData, fetching: postsFetching }] = useGetPostsFromFriendsQuery({
-        variables: { limit: getPostsFromFriendsLimits.timeline },
-    });
+    const [{ data: postsData, fetching: postsFetching }] = useGetPostsFromFriendsQuery();
     const [, doSendPost] = useSendPostMutation();
     const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
     const setView = useAppStore(state => state.setView);
@@ -29,13 +27,13 @@ const TimelineMid: FC = () => {
     const scrollRef = useRef<HTMLInputElement>(null);
 
     const posts = !postsFetching ? postsData?.getPostsFromFriends : [];
-    console.log('posts', posts);
+    // console.log('posts', posts);
 
     // const me = meData?.me;
     // const isMe = user => user.id == me.id;
 
     useEffect(() => {
-        console.log('new effect', scrollRef.current);
+        // console.log('new effect', scrollRef.current);
         setScrollToTop(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }));
     }, [setScrollToTop]);
 

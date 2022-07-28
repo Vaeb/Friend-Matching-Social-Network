@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
-import { ActionIcon, Box, Stack, useMantineTheme } from '@mantine/core';
+import { Box, Stack, useMantineTheme } from '@mantine/core';
 import { MdSettings as IconSettings } from 'react-icons/md';
 import { BiSearch as IconSearch } from 'react-icons/bi';
 import shallow from 'zustand/shallow';
 
-import { useAppStore } from '../state';
+import { useAppStore, useMiscStore } from '../state';
 import BaseRight from './panels/BaseRight';
 import MatchesRight from './panels/MatchesRight';
 import PanelAction from './PanelAction';
@@ -13,10 +13,11 @@ interface PanelRProps {}
 
 const PanelR: FC<PanelRProps> = () => {
     const theme = useMantineTheme();
-    const { view, midView, setView, setSearchOpened } = useAppStore(
-        state => ({ view: state.right.view, midView: state.mid.view, setView: state.setView, setSearchOpened: state.setSearchOpened }),
+    const { view, midView, setView } = useAppStore(
+        state => ({ view: state.right.view, midView: state.mid.view, setView: state.setView }),
         shallow
     );
+    const setSearchOpened = useMiscStore(state => state.setSearchOpened);
 
     return (
         <Box sx={{ boxShadow: theme.shadows.md }}>

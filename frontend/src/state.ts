@@ -1,4 +1,5 @@
 import create from 'zustand';
+import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
 import { GetMatchesDocument, Match, MeDocument, MeQuery } from './generated/graphql';
@@ -14,8 +15,6 @@ interface AppState {
     left: ViewState;
     mid: ViewState;
     right: ViewState;
-    setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
-    setSetSearchOpened: (setSearchOpened: React.Dispatch<React.SetStateAction<boolean>>) => void;
     setView: (view: string, panels?: Panel | Panel[] | 'all', viewValue1?: any, viewValue2?: any, viewValue3?: any, softViewValues?: boolean) => void;
 }
 
@@ -31,7 +30,7 @@ const translateViews = {
     },
 };
 
-export const useAppStore = create<AppState>(set => ({
+export const useAppStore = create<AppState>()(persist((set, get) => ({
     left: {
         view: translateViews.left.base,
         viewValue: null,
@@ -44,13 +43,6 @@ export const useAppStore = create<AppState>(set => ({
         view: translateViews.right.base,
         viewValue: null,
     },
-    setSearchOpened: null,
-    setSetSearchOpened: setSearchOpened =>
-        set(
-            produce((state) => {
-                state.setSearchOpened = setSearchOpened;
-            })
-        ),
     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
         set(
             produce((state) => {
@@ -76,6 +68,66 @@ export const useAppStore = create<AppState>(set => ({
                     if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
                     if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
                 });
+            })
+        ),
+}), {
+    name: 'fmsn-app-storage',
+}));
+
+// export const useAppStore = create<AppState>(set => ({
+//     left: {
+//         view: translateViews.left.base,
+//         viewValue: null,
+//     },
+//     mid: {
+//         view: translateViews.mid.base,
+//         viewValue: null,
+//     },
+//     right: {
+//         view: translateViews.right.base,
+//         viewValue: null,
+//     },
+//     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
+//         set(
+//             produce((state) => {
+//                 if (!panels) panels = ['left', 'mid'];
+//                 else if (panels === 'all') panels = ['left', 'mid', 'right'];
+//                 else if (typeof panels === 'string') panels = [panels];
+
+//                 if (view !== undefined && state.right.view === 'settings' && panels.includes('right')) {
+//                     if (!panels.includes('left')) state.left.view = 'base';
+//                     if (!panels.includes('mid')) state.mid.view = 'base';
+//                 }
+
+//                 if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
+
+//                 if (softViewValues === false) {
+//                     if (viewValue1 === undefined) viewValue1 = null; 
+//                     if (viewValue2 === undefined) viewValue2 = viewValue1;
+//                     if (viewValue3 === undefined) viewValue3 = viewValue2;
+//                 }
+//                 const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
+
+//                 panels.forEach((panel, i) => {
+//                     if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
+//                     if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
+//                 });
+//             })
+//         ),
+// }));
+
+
+interface MiscState {
+    setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
+    setSetSearchOpened: (setSearchOpened: React.Dispatch<React.SetStateAction<boolean>>) => void;
+}
+
+export const useMiscStore = create<MiscState>(set => ({
+    setSearchOpened: null,
+    setSetSearchOpened: setSearchOpened =>
+        set(
+            produce((state) => {
+                state.setSearchOpened = setSearchOpened;
             })
         ),
 }));
