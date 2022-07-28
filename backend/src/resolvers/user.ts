@@ -89,6 +89,24 @@ const resolvers: Resolvers = {
                     //     throw new Error('Bad data');
                 }
 
+                const existingUser = await prisma.user.findFirst({
+                    where: {
+                        OR: [
+                            { username: { equals: args.username, mode: 'insensitive' } },
+                            { email: { equals: args.email, mode: 'insensitive' } },
+                        ], 
+                    },
+                });
+
+                if (existingUser) {
+                    if (existingUser.username.toLowerCase() === args.username.toLowerCase()) {
+                        parseErrors.push({ field: 'username', message: 'Username already exists.' });
+                    }
+                    if (existingUser.email.toLowerCase() === args.email.toLowerCase()) {
+                        parseErrors.push({ field: 'username', message: 'Email already exists.' });
+                    }
+                }
+
                 args.password = await bcrypt.hash(rawPass, 5);
                 const user = await prisma.user.create({ data: args });
                 console.log('Success! Logging in...');
@@ -102,17 +120,6 @@ const resolvers: Resolvers = {
                 consoleError('REGISTER', err);
 
                 const rawErrors = [err];
-                try {
-                    const foundUsername = await prisma.user.findUnique({ where: { username: args.username }, select: { id: true } });
-                    const foundEmail = await prisma.user.findUnique({ where: { email: args.email }, select: { id: true } });
-
-                    if (foundUsername) parseErrors.push({ field: 'username', message: 'Username already exists.' });
-                    if (foundEmail) parseErrors.push({ field: 'email', message: 'Email already exists.' });
-                } catch (err2) {
-                    console.log('********************************');
-                    console.log('> ERROR 2:', err2);
-                    rawErrors.push(err2);
-                }
 
                 return {
                     ok: false,
