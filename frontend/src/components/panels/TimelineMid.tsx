@@ -3,6 +3,7 @@ import {
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { BsPersonCircle as IconPerson } from 'react-icons/bs';
+import shallow from 'zustand/shallow';
 
 import { useGetPostsWeightedQuery, useSendPostMutation } from '../../generated/graphql';
 import { useAppStore, useTimelineStore } from '../../state';
@@ -18,14 +19,16 @@ const TimelineMid: FC = () => {
     const theme = useMantineTheme();
     // const [{ data: meData, fetching: meFetching }] = useMeQuery();
 
-    const [{ data: postsData, fetching: postsFetching }] = useGetPostsWeightedQuery();
+    const { posts, refreshedPosts } = useTimelineStore(state => ({ posts: state.posts, refreshedPosts: state.refreshedPosts }), shallow);
     const [, doSendPost] = useSendPostMutation();
     const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
     const setView = useAppStore(state => state.setView);
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLInputElement>(null);
 
-    const posts = !postsFetching ? postsData?.getPostsWeighted : [];
+    // console.log('stale', stale);
+    // console.log(posts);
+    // const posts = !postsFetching ? postsData?.getPostsWeighted?.posts : [];
     // console.log('posts', posts);
 
     // const me = meData?.me;
@@ -92,7 +95,7 @@ const TimelineMid: FC = () => {
                                     <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.creator.username})</Text>
                                     <Text className='text-xs'>·</Text>
                                     <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>
-                                        <Text className='text-xs text-_gray-400'>{getPostTime(post.createdAt)}</Text>
+                                        <Text className='text-xs text-_gray-400'>{getPostTime(post.createdAt, refreshedPosts)}</Text>
                                     </Tooltip>
                                 </div>
                                 <Text className='text-base text-gray-_800'>{post.text}</Text>

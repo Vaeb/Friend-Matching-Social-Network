@@ -151,12 +151,13 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
-  getPostsWeighted: Array<Post>;
+  getPostsWeighted: WeightedPosts;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
   getUsers: Array<User>;
   me?: Maybe<User>;
+  pingTest?: Maybe<Scalars['String']>;
 };
 
 
@@ -222,6 +223,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   newMessage: Message;
   newPost: Post;
+  newPosts?: Maybe<Array<Post>>;
 };
 
 export type User = {
@@ -290,6 +292,12 @@ export type UserRelation = {
   compatibility?: Maybe<Scalars['Int']>;
   haveMatched: Scalars['Boolean'];
   user: User;
+};
+
+export type WeightedPosts = {
+  __typename?: 'WeightedPosts';
+  id: Scalars['Int'];
+  posts: Array<Post>;
 };
 
 
@@ -385,6 +393,7 @@ export type ResolversTypes = {
   UserInterestInput: UserInterestInput;
   UserInterestResponse: ResolverTypeWrapper<UserInterestResponse>;
   UserRelation: ResolverTypeWrapper<UserRelation>;
+  WeightedPosts: ResolverTypeWrapper<WeightedPosts>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -413,6 +422,7 @@ export type ResolversParentTypes = {
   UserInterestInput: UserInterestInput;
   UserInterestResponse: UserInterestResponse;
   UserRelation: UserRelation;
+  WeightedPosts: WeightedPosts;
 };
 
 export type AuthResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuthResponse'] = ResolversParentTypes['AuthResponse']> = {
@@ -511,12 +521,13 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromFriends?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsFromFriendsArgs>>;
   getPostsFromUser?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
-  getPostsWeighted?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsWeightedArgs>>;
+  getPostsWeighted?: Resolver<ResolversTypes['WeightedPosts'], ParentType, ContextType, Partial<QueryGetPostsWeightedArgs>>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'userId'>>;
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
   getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;
   getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  pingTest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type SendPostResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendPostResponse'] = ResolversParentTypes['SendPostResponse']> = {
@@ -529,6 +540,7 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
   newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
+  newPosts?: SubscriptionResolver<Maybe<Array<ResolversTypes['Post']>>, "newPosts", ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -584,6 +596,12 @@ export type UserRelationResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeightedPostsResolvers<ContextType = any, ParentType extends ResolversParentTypes['WeightedPosts'] = ResolversParentTypes['WeightedPosts']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   AuthResponse?: AuthResponseResolvers<ContextType>;
   AuthResponseCore?: AuthResponseCoreResolvers<ContextType>;
@@ -605,5 +623,6 @@ export type Resolvers<ContextType = any> = {
   UserInterest?: UserInterestResolvers<ContextType>;
   UserInterestResponse?: UserInterestResponseResolvers<ContextType>;
   UserRelation?: UserRelationResolvers<ContextType>;
+  WeightedPosts?: WeightedPostsResolvers<ContextType>;
 };
 

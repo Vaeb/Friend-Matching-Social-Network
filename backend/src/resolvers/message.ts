@@ -3,6 +3,7 @@ import { consoleError, formatErrors } from '../utils';
 import { Context } from '../types';
 import type { Error, Resolvers } from '../schema/generated';
 import { NEW_MESSAGE, pubsub } from '../pubsub';
+import { permUser } from '../permissions';
 
 const resolvers: Resolvers = {
     Subscription: {
@@ -12,6 +13,10 @@ const resolvers: Resolvers = {
         },
     },
     Query: {
+        pingTest: permUser.chainResolver((_parent, { target, limit }, { userCore }: Context) => {
+            console.log('Pong!', new Date());
+            return 'Pong';
+        }),
         getMessages: (_parent, { target, limit }, { userCore }: Context) => {
             console.log('Received request for getMessages:', target, limit);
             const meId = userCore.id;

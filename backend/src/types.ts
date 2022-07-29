@@ -17,4 +17,8 @@ export interface Context {
     userCore: UserCore;
 }
 
+export interface Context2 {
+    userCore: UserCore;
+}
+
 export type NextFunction = express.NextFunction;

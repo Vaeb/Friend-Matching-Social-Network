@@ -20,6 +20,7 @@ type MessageSubResponse {
 }
 
 type Query {
+    pingTest: String
     getMessages(target: Int!, limit: Int): [Message!]!
 }
 

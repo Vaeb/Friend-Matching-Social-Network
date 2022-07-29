@@ -53,6 +53,11 @@ const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): P
     return { tokenAccess, tokenRefresh, user, userCore };
 };
 
+export const getUserCoreFromTokens = (tokens: any) => {
+    const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
+    return userCore;
+};
+
 export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['res'], next: any) => {
     const req = reqOrig as Context['req'];
     const { tokenAccess, tokenRefresh } = req.cookies;
@@ -63,7 +68,7 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
 
     console.log('Checking access token...');
     try {
-        const userCore = jwt.verify(tokenAccess, auth.SECRET1) as UserCore;
+        const userCore = getUserCoreFromTokens(req.cookies);
         req.userCore = userCore;
     } catch (err) {
         console.log('Access expired, refreshing tokens...');

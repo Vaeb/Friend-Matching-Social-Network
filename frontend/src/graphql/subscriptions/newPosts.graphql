@@ -1,5 +1,5 @@
-query GetPostsFromFriends {
-    getPostsFromFriends {
+subscription NewPosts {
+    newPosts {
         id
         text
         creator {

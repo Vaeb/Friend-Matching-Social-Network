@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useMantineTheme, Box } from '@mantine/core';
 
-import { useMeQuery, useNewMessageSubscription, useNewPostSubscription } from '../generated/graphql';
-import { useAppStore } from '../state';
+import { useGetPostsWeightedQuery, useMeQuery, useNewMessageSubscription, useNewPostsSubscription } from '../generated/graphql';
+import { useAppStore, useTimelineStore } from '../state';
 import SettingsMid from './panels/SettingsMid';
 import ChatMid from './panels/ChatMid';
 import TimelineMid from './panels/TimelineMid';
@@ -22,10 +22,28 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     const theme = useMantineTheme();
     const [{ data }] = useMeQuery();
     const view = useAppStore(state => state.left.view);
+    const setPosts = useTimelineStore(state => state.setPosts);
 
+    const [{ data: postsData, fetching: postsFetching, stale }] = useGetPostsWeightedQuery();
     useNewMessageSubscription();
-    const [res] = useNewPostSubscription();
-    console.log('useNewPostSubscription', res);
+    const [res] = useNewPostsSubscription();
+
+    const gotPosts = postsData?.getPostsWeighted?.posts;
+
+    console.log('postsFetching', postsFetching);
+
+    useEffect(() => {
+        console.log('Set initial posts');
+        const posts = !postsFetching ? gotPosts : [];
+        setPosts(posts);
+    }, [gotPosts, postsFetching, setPosts]);
+
+    useEffect(() => {
+        if (res?.data?.newPosts && !res.fetching && !res.stale && !res.error) {
+            setPosts(res.data.newPosts);
+        }
+        console.log('useNewPostsSubscription', res);
+    }, [res, setPosts]);
 
     return (
         <Box className={`h-full grow bg-_black-300 ${view === 'settings' ? 'px-[50px] py-[30px]' : 'px-10 py-5'}`}>

@@ -13,8 +13,8 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 // Don't import ./utils.ts (b/c prisma cycle)
 import typeDefs from './schema';
 import resolvers from './resolvers';
-import { Context } from './types';
-import { authenticateTokens } from './authentication';
+import { Context, Context2 } from './types';
+import { authenticateTokens, getUserCoreFromTokens } from './authentication';
 
 const { PrismaClient } = PrismaWrapper;
 
@@ -33,6 +33,22 @@ const corsConfig = {
 
 export const prisma = new PrismaClient();
 console.log('Created prisma client!');
+
+const readCookies = (cookieStr: string) =>
+    cookieStr.split(/; */).reduce((obj, str) => {
+        if (str === '') return obj;
+        const eq = str.indexOf('=');
+        const key = eq > 0 ? str.slice(0, eq) : str;
+        let val = eq > 0 ? str.slice(eq + 1) : null;
+        if (val != null)
+            try {
+                val = decodeURIComponent(val);
+            } catch (ex) {
+                /* pass */
+            }
+        obj[key] = val;
+        return obj;
+    }, {});
 
 export const listen = async (): Promise<void> => {
     console.log('Starting server...');
@@ -55,6 +71,13 @@ export const listen = async (): Promise<void> => {
     const serverCleanup = useServer(
         {
             schema,
+            context: (ctx) => {
+                const cookies = readCookies(ctx.extra.request.headers.cookie);
+                const userCore = getUserCoreFromTokens(cookies);
+                return {
+                    userCore,
+                } as Context2;
+            },
         },
         wsServer
     );

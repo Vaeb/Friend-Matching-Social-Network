@@ -153,12 +153,13 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
-  getPostsWeighted: Array<Post>;
+  getPostsWeighted: WeightedPosts;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
   getUsers: Array<User>;
   me?: Maybe<User>;
+  pingTest?: Maybe<Scalars['String']>;
 };
 
 
@@ -224,6 +225,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   newMessage: Message;
   newPost: Post;
+  newPosts?: Maybe<Array<Post>>;
 };
 
 export type User = {
@@ -292,6 +294,12 @@ export type UserRelation = {
   compatibility?: Maybe<Scalars['Int']>;
   haveMatched: Scalars['Boolean'];
   user: User;
+};
+
+export type WeightedPosts = {
+  __typename?: 'WeightedPosts';
+  id: Scalars['Int'];
+  posts: Array<Post>;
 };
 
 export type AddFriendMutationVariables = Exact<{
@@ -370,11 +378,6 @@ export type GetMessagesQueryVariables = Exact<{
 
 export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> };
 
-export type GetPostsFromFriendsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPostsFromFriendsQuery = { __typename?: 'Query', getPostsFromFriends: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
-
 export type GetPostsFromUserQueryVariables = Exact<{
   userId: Scalars['Int'];
   limit?: InputMaybe<Scalars['Int']>;
@@ -386,7 +389,7 @@ export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Ar
 export type GetPostsWeightedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> };
+export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> } };
 
 export type GetUserQueryVariables = Exact<{
   userId: Scalars['Int'];
@@ -421,6 +424,11 @@ export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
 export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } } };
+
+export type NewPostsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string } }> | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -1335,15 +1343,9 @@ export default {
             "type": {
               "kind": "NON_NULL",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Post",
-                    "ofType": null
-                  }
-                }
+                "kind": "OBJECT",
+                "name": "WeightedPosts",
+                "ofType": null
               }
             },
             "args": [
@@ -1448,6 +1450,14 @@ export default {
               "ofType": null
             },
             "args": []
+          },
+          {
+            "name": "pingTest",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
           }
         ],
         "interfaces": []
@@ -1518,6 +1528,21 @@ export default {
                 "kind": "OBJECT",
                 "name": "Post",
                 "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "newPosts",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Post",
+                  "ofType": null
+                }
               }
             },
             "args": []
@@ -1915,6 +1940,42 @@ export default {
         "interfaces": []
       },
       {
+        "kind": "OBJECT",
+        "name": "WeightedPosts",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "posts",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
         "kind": "SCALAR",
         "name": "Any"
       }
@@ -2139,24 +2200,6 @@ export const GetMessagesDocument = gql`
 export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQueryVariables>, 'query'>) {
   return Urql.useQuery<GetMessagesQuery>({ query: GetMessagesDocument, ...options });
 };
-export const GetPostsFromFriendsDocument = gql`
-    query GetPostsFromFriends {
-  getPostsFromFriends {
-    id
-    text
-    creator {
-      id
-      username
-      name
-    }
-    createdAt
-  }
-}
-    `;
-
-export function useGetPostsFromFriendsQuery(options?: Omit<Urql.UseQueryArgs<GetPostsFromFriendsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPostsFromFriendsQuery>({ query: GetPostsFromFriendsDocument, ...options });
-};
 export const GetPostsFromUserDocument = gql`
     query GetPostsFromUser($userId: Int!, $limit: Int) {
   getPostsFromUser(userId: $userId, limit: $limit) {
@@ -2179,13 +2222,16 @@ export const GetPostsWeightedDocument = gql`
     query GetPostsWeighted {
   getPostsWeighted {
     id
-    text
-    creator {
+    posts {
       id
-      username
-      name
+      text
+      creator {
+        id
+        username
+        name
+      }
+      createdAt
     }
-    createdAt
   }
 }
     `;
@@ -2291,4 +2337,22 @@ export const NewPostDocument = gql`
 
 export function useNewPostSubscription<TData = NewPostSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewPostSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewPostSubscription, TData>) {
   return Urql.useSubscription<NewPostSubscription, TData, NewPostSubscriptionVariables>({ query: NewPostDocument, ...options }, handler);
+};
+export const NewPostsDocument = gql`
+    subscription NewPosts {
+  newPosts {
+    id
+    text
+    creator {
+      id
+      username
+      name
+    }
+    createdAt
+  }
+}
+    `;
+
+export function useNewPostsSubscription<TData = NewPostsSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewPostsSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewPostsSubscription, TData>) {
+  return Urql.useSubscription<NewPostsSubscription, TData, NewPostsSubscriptionVariables>({ query: NewPostsDocument, ...options }, handler);
 };

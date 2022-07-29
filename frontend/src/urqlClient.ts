@@ -131,13 +131,12 @@ const exchanges = [
                 //     if (result?.sendPost?.ok) {
                 //         cache.updateQuery(
                 //             {
-                //                 query: getPostsWeightedDocument,
-                //                 variables: { limit },
+                //                 query: GetPostsWeightedDocument,
                 //             },
                 //             (_data) => {
                 //                 const data = _data as any;
                 //                 const { post } = result.sendPost;
-                //                 (data.getPostsWeighted as any[]).splice(0, 0, post);
+                //                 (data.getPostsWeighted as any[]).unshift(post);
                 //                 return data;
                 //             }
                 //         );
@@ -216,27 +215,26 @@ const exchanges = [
                         );
                     }
                 },
-                newPost: (_result, _args, cache, _info) => {
-                    const result = _result as any;
-                    const args = _args as any;
-                    if (result?.newPost) {
-                        const post = result.newPost;
-                        cache.updateQuery(
-                            {
-                                query: GetPostsWeightedDocument,
-                                // variables: { limit },
-                            },
-                            (_data) => {
-                                const data = _data as any;
-                                if (!data?.getPostsWeighted) return data;
-                                console.log('OLD DATA:', { ...data.getPostsWeighted });
-                                if (post.text !== 'ff') (data.getPostsWeighted as any[]).unshift(post);
-                                console.log('NEW DATA:', { ...data.getPostsWeighted });
-                                return data;
-                            }
-                        );
-                    }
-                },
+                // newPost: (_result, _args, cache, _info) => {
+                //     const result = _result as any;
+                //     const args = _args as any;
+                //     if (result?.newPost) {
+                //         const post = result.newPost;
+                //         cache.updateQuery(
+                //             {
+                //                 query: GetPostsWeightedDocument,
+                //             },
+                //             (_data) => {
+                //                 const data = _data as any;
+                //                 if (!data?.getPostsWeighted) return data;
+                //                 console.log('OLD DATA:', { ...data.getPostsWeighted });
+                //                 if (post.text !== 'ff') (data.getPostsWeighted.posts as any[]).unshift(post);
+                //                 console.log('NEW DATA:', { ...data.getPostsWeighted });
+                //                 return data;
+                //             }
+                //         );
+                //     }
+                // },
             },
         },
     }),

@@ -12,12 +12,17 @@ type SendPostResponse {
     post: Post
 }
 
+type WeightedPosts {
+    id: Int!
+    posts: [Post!]!
+}
+
 type Query {
     getPost(id: Int!): Post
     getPosts(limit: Int): [Post!]!
     getPostsFromUser(userId: Int!, limit: Int): [Post!]!
     getPostsFromFriends(cursor: Int): [Post!]!
-    getPostsWeighted(cursor: Int): [Post!]!
+    getPostsWeighted(cursor: Int): WeightedPosts!
 }
 
 type Mutation {
@@ -25,5 +30,6 @@ type Mutation {
 }
 
 type Subscription {
+    newPosts: [Post!]
     newPost: Post!
 }

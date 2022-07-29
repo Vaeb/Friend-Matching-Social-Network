@@ -2,7 +2,7 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
-import { GetMatchesDocument, Match, MeDocument, MeQuery } from './generated/graphql';
+import { GetMatchesDocument, Match, MeDocument, MeQuery, Post, User } from './generated/graphql';
 
 type Panel = 'left' | 'mid' | 'right';
 
@@ -44,78 +44,73 @@ export const useAppStore = create<AppState>()(persist((set, get) => ({
         viewValue: null,
     },
     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
-        set(
-            produce((state) => {
-                if (!panels) panels = ['left', 'mid'];
-                else if (panels === 'all') panels = ['left', 'mid', 'right'];
-                else if (typeof panels === 'string') panels = [panels];
+        set(produce((state) => {
+            if (!panels) panels = ['left', 'mid'];
+            else if (panels === 'all') panels = ['left', 'mid', 'right'];
+            else if (typeof panels === 'string') panels = [panels];
 
-                if (view !== undefined && state.right.view === 'settings' && panels.includes('right')) {
-                    if (!panels.includes('left')) state.left.view = 'base';
-                    if (!panels.includes('mid')) state.mid.view = 'base';
-                }
+            if (view !== undefined && state.right.view === 'settings' && panels.includes('right')) {
+                if (!panels.includes('left')) state.left.view = 'base';
+                if (!panels.includes('mid')) state.mid.view = 'base';
+            }
 
-                if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
+            if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
 
-                if (softViewValues === false) {
-                    if (viewValue1 === undefined) viewValue1 = null; 
-                    if (viewValue2 === undefined) viewValue2 = viewValue1;
-                    if (viewValue3 === undefined) viewValue3 = viewValue2;
-                }
-                const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
+            if (softViewValues === false) {
+                if (viewValue1 === undefined) viewValue1 = null; 
+                if (viewValue2 === undefined) viewValue2 = viewValue1;
+                if (viewValue3 === undefined) viewValue3 = viewValue2;
+            }
+            const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
 
-                panels.forEach((panel, i) => {
-                    if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
-                    if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
-                });
-            })
-        ),
+            panels.forEach((panel, i) => {
+                if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
+                if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
+            });
+        })),
 }), {
     name: 'fmsn-app-storage',
 }));
 
-// export const useAppStore = create<AppState>(set => ({
-//     left: {
-//         view: translateViews.left.base,
-//         viewValue: null,
-//     },
-//     mid: {
-//         view: translateViews.mid.base,
-//         viewValue: null,
-//     },
-//     right: {
-//         view: translateViews.right.base,
-//         viewValue: null,
-//     },
-//     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
-//         set(
-//             produce((state) => {
-//                 if (!panels) panels = ['left', 'mid'];
-//                 else if (panels === 'all') panels = ['left', 'mid', 'right'];
-//                 else if (typeof panels === 'string') panels = [panels];
+interface ConvoState {
+    messages: Record<string, any[]>;
+    addMessage: (userId: string, message: any) => void;
+}
 
-//                 if (view !== undefined && state.right.view === 'settings' && panels.includes('right')) {
-//                     if (!panels.includes('left')) state.left.view = 'base';
-//                     if (!panels.includes('mid')) state.mid.view = 'base';
-//                 }
+export const useConvoStore = create<ConvoState>(set => ({
+    messages: {},
+    addMessage: (userId, message) =>
+        set(produce((state) => {
+            if (!state.messages[userId]) state.messages[userId] = [];
+            state.messages[userId].push(message);
+        })),
+}));
 
-//                 if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
+type PostUser = Omit<Post, 'creator'> & { creator: Partial<User> };
 
-//                 if (softViewValues === false) {
-//                     if (viewValue1 === undefined) viewValue1 = null; 
-//                     if (viewValue2 === undefined) viewValue2 = viewValue1;
-//                     if (viewValue3 === undefined) viewValue3 = viewValue2;
-//                 }
-//                 const viewValues = [viewValue1, viewValue2, viewValue3]; // Could be right, left
+interface TimelineState {
+    scrollToTop: (() => void) | null;
+    posts: PostUser[];
+    refreshedPosts: Date;
+    setScrollToTop: (scrollToTop: () => void) => void;
+    setPosts: (posts: PostUser[]) => void;
+}
 
-//                 panels.forEach((panel, i) => {
-//                     if (view !== undefined) state[panel].view = translateViews[panel][view] ?? view;
-//                     if (softViewValues === false || viewValues[i] !== undefined) state[panel].viewValue = viewValues[i];
-//                 });
-//             })
-//         ),
-// }));
+export const useTimelineStore = create<TimelineState>(set => ({
+    scrollToTop: null,
+    posts: [],
+    refreshedPosts: new Date(),
+    setScrollToTop: scrollToTop =>
+        set(produce((state) => {
+            state.scrollToTop = scrollToTop;
+        })),
+    setPosts: posts =>
+        set(produce((state) => {
+            state.posts = posts;
+            state.refreshedPosts = new Date();
+        })),
 
+}));
 
 interface MiscState {
     setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
@@ -125,11 +120,9 @@ interface MiscState {
 export const useMiscStore = create<MiscState>(set => ({
     setSearchOpened: null,
     setSetSearchOpened: setSearchOpened =>
-        set(
-            produce((state) => {
-                state.setSearchOpened = setSearchOpened;
-            })
-        ),
+        set(produce((state) => {
+            state.setSearchOpened = setSearchOpened;
+        })),
 }));
 
 // interface SettingsState {
@@ -168,34 +161,3 @@ export const useMiscStore = create<MiscState>(set => ({
 //             })
 //         ),
 // }));
-
-interface ConvoState {
-    messages: Record<string, any[]>;
-    addMessage: (userId: string, message: any) => void;
-}
-
-export const useConvoStore = create<ConvoState>(set => ({
-    messages: {},
-    addMessage: (userId, message) =>
-        set(
-            produce((state) => {
-                if (!state.messages[userId]) state.messages[userId] = [];
-                state.messages[userId].push(message);
-            })
-        ),
-}));
-
-interface TimelineState {
-    scrollToTop: (() => void) | null;
-    setScrollToTop: (scrollToTop: () => void) => void;
-}
-
-export const useTimelineStore = create<TimelineState>(set => ({
-    scrollToTop: null,
-    setScrollToTop: scrollToTop =>
-        set(
-            produce((state) => {
-                state.scrollToTop = scrollToTop;
-            })
-        ),
-}));
