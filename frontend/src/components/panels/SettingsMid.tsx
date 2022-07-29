@@ -1,4 +1,4 @@
-import { Box, Text, useMantineTheme } from '@mantine/core';
+import { Box, Text, Title, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import Account from '../settings/Account';
 import Matching from '../settings/Matching';
@@ -21,9 +21,9 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
 
     return data?.me ? (
         <Box>
-            <Text className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
+            <Title className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
                 {section}
-            </Text>
+            </Title>
             {desc ? <Text size='md' weight='bold' color={theme.colors._gray[4]} mb={34}>
                 {desc}
             </Text> : null}

@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
     content: ['./src/pages/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
     theme: {
@@ -30,6 +33,11 @@ module.exports = {
                     0 15.1px 24.1px rgba(0, 0, 0, 0.051),
                     0 30px 40px rgba(0, 0, 0, 0.5)
                 `,
+            },
+            fontFamily: {
+                sans: ["'Inter'", ...defaultTheme.fontFamily.sans],
+                inter: ["'Inter'", ...defaultTheme.fontFamily.sans],
+                poppins: ["'Poppins'", ...defaultTheme.fontFamily.sans],
             },
         },
     },

@@ -2,6 +2,10 @@ import { MantineThemeOverride } from '@mantine/core';
 
 const myTheme: MantineThemeOverride = {
     colorScheme: 'dark',
+    fontFamily: "'Inter', sans-serif",
+    headings: {
+        fontFamily: "'Poppins', sans-serif",
+    },
     // fontFamily: "'Inter', sans-serif",
     // Strength
     colors: {

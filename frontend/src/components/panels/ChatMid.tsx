@@ -65,7 +65,7 @@ const ChatMid: FC = () => {
     return (
         <Stack className='h-full'>
             <Title className='text-base font-bold' color='dimmed'>
-                Welcome to the @{me.username} @{user.username} chat.
+                Welcome to the @{me.username} @{user.username} channel.
             </Title>
             <ScrollArea className='grow px-0 pb-0 mb-0' viewportRef={scrollRef} offsetScrollbars>
                 <Stack className='' spacing={23}>
