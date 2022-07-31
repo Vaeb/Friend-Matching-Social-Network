@@ -1,13 +1,14 @@
 import { Box, Text, Title, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
-import Account from '../settings/Account';
-import Matching from '../settings/Matching';
+import Account, { desc as accountDesc } from '../settings/Account';
+import Matching, { desc as matchingDesc } from '../settings/Matching';
 
 import { MeQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
 
 const descriptions: Record<string, string> = {
-    matching: 'What are your interests?',
+    account: accountDesc,
+    matching: matchingDesc,
 };
 
 interface SettingsMidProps {

@@ -7,17 +7,14 @@ import {
     GetChatsDocument,
     GetMatchesDocument,
     GetMessagesDocument,
-    GetPostsWeightedDocument,
     GetUserDocument,
     GetUserInterestsDocument,
     MeDocument,
 } from './generated/graphql';
+import { graphqlUrl, wsUrl } from './defaults';
 
 const isServer = typeof window === 'undefined';
 const ssrCache = ssrExchange({ isClient: !isServer });
-
-const graphqlUrl = process.env.NEXT_PUBLIC_ENV === 'PROD' ? 'http://vaeb.io:4000/graphql' : 'http://localhost:4000/graphql';
-const graphqlWsUrl = process.env.NEXT_PUBLIC_ENV === 'PROD' ? 'ws://vaeb.io:4000/graphql' : 'ws://localhost:4000/graphql';
 
 console.log('IS SSR:', isServer, process.env.NEXT_PUBLIC_ENV);
 
@@ -244,7 +241,7 @@ const exchanges = [
 
 if (!isServer) {
     const wsClient = createWSClient({
-        url: graphqlWsUrl,
+        url: wsUrl,
     });
 
     const subExchange = subscriptionExchange({

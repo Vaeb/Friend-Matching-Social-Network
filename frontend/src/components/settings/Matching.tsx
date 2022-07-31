@@ -214,4 +214,6 @@ const Matching = ({ userId }: { userId: number }) => {
     );
 };
 
+export const desc = 'What are your interests?';
+
 export default Matching;

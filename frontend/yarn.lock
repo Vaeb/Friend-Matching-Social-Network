@@ -1101,6 +1101,13 @@
     "@radix-ui/react-scroll-area" "0.1.4"
     react-textarea-autosize "8.3.4"
 
+"@mantine/dates@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-5.0.2.tgz#c5b2a08b18d717891200103e46d254925d0b4c05"
+  integrity sha512-t3O1TfYoINrX9y9zArbzA90I+SOc+5HR8za/rOaDl9UMCO+uxl9cgiek+B0GSsL0FQRZzE7pDpbltexzUvKvfg==
+  dependencies:
+    "@mantine/utils" "5.0.2"
+
 "@mantine/dropzone@^5.0.0-alpha.19":
   version "5.0.0-alpha.19"
   resolved "https://registry.yarnpkg.com/@mantine/dropzone/-/dropzone-5.0.0-alpha.19.tgz#91f21cb3f8c4c15fa24714ee48da53929b368483"
@@ -1176,6 +1183,11 @@
   version "5.0.0-alpha.19"
   resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.0.0-alpha.19.tgz#46c207df00d095568c11c88b62c1d0f8f3ec7831"
   integrity sha512-VT0DPJnT2mQUQbv8efqlx182lBA/fh7gYTa7BICePEvqQFv0q/zXoUphwbnGEGfveMxKyH0HU7+DxyJZOYGLRw==
+
+"@mantine/utils@5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.0.2.tgz#311746843158a9fefd6945ad3e8c43f0df736ea0"
+  integrity sha512-WCuUL+mJ0+8n3anMYb5no93ohyuMilIG49ZJ7XNZUN3g/ZxoKnKF3dEUpXqIUxKgUIwzAsiS9AFFpZSStgAPvw==
 
 "@n1ru4l/graphql-live-query@^0.9.0":
   version "0.9.0"
@@ -2350,6 +2362,11 @@ date-fns@^1.27.2:
   version "1.30.1"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-1.30.1.tgz#2e71bf0b119153dbb4cc4e88d9ea5acfb50dc05c"
   integrity sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==
+
+dayjs@^1.11.4:
+  version "1.11.4"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.4.tgz#3b3c10ca378140d8917e06ebc13a4922af4f433e"
+  integrity sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==
 
 debounce@^1.2.0:
   version "1.2.1"

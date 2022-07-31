@@ -2,6 +2,7 @@ import 'dotenv/config';
 import PrismaWrapper from '@prisma/client';
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import path from 'path';
 import http from 'http';
 import express from 'express';
 import cors from 'cors';
@@ -114,6 +115,12 @@ export const listen = async (): Promise<void> => {
     await server.start();
 
     server.applyMiddleware({ app, cors: false });
+
+    app.get('/img/:imageName', function (req, res) {
+        const imgPath = path.resolve(`./images/${req.params.imageName}`); // yarn ran from backend/
+        console.log('Request for image:', imgPath);
+        res.sendFile(imgPath);
+    });
 
     app.use((_req, res) => {
         res.status(200);
