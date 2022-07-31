@@ -1,4 +1,4 @@
-import { Box, Text, Title, useMantineTheme } from '@mantine/core';
+import { Box, ScrollArea, Text, Title, useMantineTheme } from '@mantine/core';
 import React, { FC } from 'react';
 import Account, { desc as accountDesc } from '../settings/Account';
 import Matching, { desc as matchingDesc } from '../settings/Matching';
@@ -21,7 +21,7 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
     const desc = descriptions[section];
 
     return data?.me ? (
-        <Box>
+        <ScrollArea className='h-full'>
             <Title className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
                 {section}
             </Title>
@@ -32,7 +32,7 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
                 account: <Account username={data.me.username} />,
                 matching: <Matching userId={data.me.id} />,
             }[section]}
-        </Box>
+        </ScrollArea>
     ) : null;
 };
 

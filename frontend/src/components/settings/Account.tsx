@@ -42,9 +42,9 @@ const Account: FC<any> = () => {
             <Stack spacing={5}>
                 <Text size='md' weight='bold' color={theme.colors._gray[4]}>Password</Text>
                 <div className='flex gap-1'>
-                    <PasswordInput classNames={{ root: 'grow' }} placeholder='Existing password' autoComplete='new-password' variant='filled' />
+                    <PasswordInput classNames={{ root: 'grow' }} placeholder='Current password' autoComplete='new-password' variant='filled' />
                     <PasswordInput classNames={{ root: 'grow' }} placeholder='New password' autoComplete='new-password' variant='filled' />
-                    <PasswordInput classNames={{ root: 'grow' }} placeholder='Confirm new password' autoComplete='new-password' variant='filled' />
+                    <PasswordInput classNames={{ root: 'grow' }} placeholder='Confirm password' autoComplete='new-password' variant='filled' />
                     <Button size='sm' variant='filled' color='grape'>Save</Button>
                 </div>
             </Stack>

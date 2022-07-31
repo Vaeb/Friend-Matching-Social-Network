@@ -46,7 +46,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     }, [res, setPosts]);
 
     return (
-        <Box className={`h-full grow bg-_black-300 ${view === 'settings' ? 'px-[50px] py-[30px]' : 'px-10 py-5'}`}>
+        <Box className={`h-full overflow-hidden grow bg-_black-300 ${view === 'settings' ? 'px-[50px] py-[30px]' : 'px-10 py-5'}`}>
             <SearchModal />
             {{
                 settings: <SettingsMid data={data} />,
