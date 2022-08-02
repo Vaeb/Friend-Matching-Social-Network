@@ -134,7 +134,7 @@ const TimelineMid: FC = () => {
                             </Box>
                             <Stack ml={16} spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
-                                    <Text className='font-bold cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
+                                    <Text className='font-[600] cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
                                     <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.creator.username})</Text>
                                     <Text className='text-xs'>·</Text>
                                     <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>

@@ -336,12 +336,20 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        updateMe: async (_parent, args, { userCore }: Context) => {
+        updateMe: async (_parent, rawArgs, { userCore }: Context) => {
             try {
                 const meId = userCore.id;
-                console.log('Received request for updateMe:', meId, args);
+                console.log('Received request for updateMe:', meId, rawArgs);
+                const { oldPassword, ...args } = rawArgs;
 
-                if (args.password) args.password = await hashPassword(args.password);
+                if (args.password) {
+                    const user = await prisma.user.findUnique({ where: { id: meId } });
+                    if (!user) throw new Error('User not found.');
+                    console.log(oldPassword, user.password);
+                    const isValid = await bcrypt.compare(oldPassword, user.password);
+                    if (!isValid) throw new Error('Incorrect current password.');
+                    args.password = await hashPassword(args.password);
+                }
 
                 const user = await prisma.user.update({
                     where: { id: meId },

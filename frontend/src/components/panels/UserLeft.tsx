@@ -23,7 +23,7 @@ const UserLeft = () => {
     };
 
     return (
-        <Stack mt={25} className='h-full items-center'>
+        <Stack mt={25} className='w-full items-center'>
             {user && user.areFriends ?
                 <Button variant='outline' className='w-[80%]' onClick={() => addFriend(true)}>Remove Friend</Button>
                 : !atMe ? <Button variant='outline' className='w-[80%]' onClick={() => addFriend()}>Add Friend</Button>

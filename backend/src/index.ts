@@ -1,4 +1,7 @@
 import { listen } from './server';
+import sourceMapSupport from 'source-map-support';
+
+sourceMapSupport.install();
 
 process.on('uncaughtException', (err) => {
     console.log('\n>>> Process Errored (Uncaught Exception):');

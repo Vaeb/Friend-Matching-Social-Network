@@ -12,7 +12,7 @@ const TimelineLeft: FC = () => {
     const scrollToTop = useTimelineStore(state => state.scrollToTop);
 
     return (
-        <Stack mt={25} className='h-full items-center'>
+        <Stack mt={25} className='w-full items-center'>
             <Button variant='outline' className='w-[80%]' onClick={scrollToTop}>Scroll to top</Button>
         </Stack>
     );

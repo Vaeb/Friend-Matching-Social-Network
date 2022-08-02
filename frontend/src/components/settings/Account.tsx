@@ -8,12 +8,25 @@ import { DatePicker } from '@mantine/dates';
 import { Dropzone, DropzoneProps, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { TbRefresh as IconRefresh } from 'react-icons/tb';
 import { IoImageOutline as IconImage, IoCloudUploadOutline as IconUpload, IoRemoveCircleOutline as IconRemove } from 'react-icons/io5';
+import Router from 'next/router';
 
 import { UpdateMeMutationVariables, useMeQuery, useSingleUploadMutation, useUpdateMeMutation } from '../../generated/graphql';
 import { defaultAvatarUrl } from '../../defaults';
 import { avatarUrl } from '../../utils/avatarUrl';
 
 export const desc = 'Personalise your account';
+
+const hslToHex = (h: number, s: number, l: number) => {
+    console.log(h, s, l);
+    l /= 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = (n) => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+};
 
 const Account: FC<any> = () => {
     const theme = useMantineTheme();
@@ -31,7 +44,24 @@ const Account: FC<any> = () => {
     const [colorValue, setColorValue] = useState(me.color || theme.colors._gray[8]);
     const [{ file, fileUrl }, setFile] = useState({ file: null, fileUrl: null });
 
-    const randomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    // const randomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    const randomColor1 = () => `hsl(${~~(360 * Math.random())}, 70%, 80%)`;
+    const randomColor2 = () => `hsl(${~~(360 * Math.random())}, ${~~(25 + 70 * Math.random())}%, ${~~(85 + 10 * Math.random())}%)`;
+    const randomColor2b = () => `hsl(${~~(360 * Math.random())}, ${~~(70 + 20 * Math.random())}%, ${~~(55 + (75 - 55) * Math.random())}%)`;
+    const randomColor3 = () => {
+        const hue = ~~(341 * Math.random());
+        let saturation = 100;
+        let lightness = 50;
+        if (hue > 215 && hue < 265) {
+            const gain = 20;
+            const blueness = 1 - Math.abs(hue - 240) / 25;
+            const change  = Math.floor(gain * blueness);
+            saturation -= change;
+            lightness += change;
+        }
+        return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    };
+    const randomColor = () => hslToHex(...randomColor2b().match(/\d+/g).map(n => Number(n)) as [number, number, number]);
 
     const onDropFiles = (files: File[]) => {
         console.log('accepted files', files);
@@ -41,17 +71,29 @@ const Account: FC<any> = () => {
     };
 
     const saveUpdate = async (varName: keyof UpdateMeMutationVariables, inputRefs: any) => {
-        try {
-            const isRef = Array.isArray(inputRefs);
-            const varValue = isRef ? inputRefs[0].current.value : inputRefs;
-            console.log('Updating user...', isRef, varValue);
-            await doUpdateMe({ [varName]: varValue });
+        const isRef = Array.isArray(inputRefs);
+        const varValue = isRef ? inputRefs[0].current.value : inputRefs;
+        console.log('Updating user...', isRef, varValue);
+        let result;
+        if (varName === 'password') {
+            const oldPassword = inputRefs[0].current.value;
+            const newPassword1 = inputRefs[1].current.value;
+            const newPassword2 = inputRefs[2].current.value;
+            if (newPassword1 !== newPassword2) {
+                console.log('Passwords do not match');
+                return;
+            }
+            result = await doUpdateMe({ oldPassword, password: newPassword1 });
+        } else {
+            result = await doUpdateMe({ [varName]: varValue });
+        }
+        if (result.data?.updateMe.ok) {
             if (isRef) {
                 for (const ref of inputRefs) ref.current.value = '';
             }
             console.log('Update success');
-        } catch (err) {
-            console.log('Update failed:', err);
+        } else {
+            console.log('Update failed:', result.data?.updateMe.errors);
         }
     };
 
@@ -59,6 +101,7 @@ const Account: FC<any> = () => {
         try {
             console.log('Uploading...');
             const result = await doSingleUpload({ file });
+            Router.reload();
             console.log('Upload successfully:', result);
         } catch (err) {
             console.log('Upload failed:', err);
@@ -87,7 +130,7 @@ const Account: FC<any> = () => {
                     <PasswordInput ref={passwordRef1} classNames={{ root: 'grow' }} placeholder='Current password' autoComplete='new-password' variant='filled' />
                     <PasswordInput ref={passwordRef2} classNames={{ root: 'grow' }} placeholder='New password' autoComplete='new-password' variant='filled' />
                     <PasswordInput ref={passwordRef3} classNames={{ root: 'grow' }} placeholder='Confirm password' autoComplete='new-password' variant='filled' />
-                    <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('password', [passwordRef2, passwordRef3, passwordRef1])}>Save</Button>
+                    <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('password', [passwordRef1, passwordRef2, passwordRef3])}>Save</Button>
                 </div>
             </Stack>
             <Stack spacing={5}>

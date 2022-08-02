@@ -140,6 +140,7 @@ export type MutationUpdateMeArgs = {
   color?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
   universityId?: InputMaybe<Scalars['Int']>;
   username?: InputMaybe<Scalars['String']>;

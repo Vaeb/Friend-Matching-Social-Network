@@ -89,7 +89,7 @@ type Mutation {
     login(handle: String!, password: String!): UserResponse!
     logout: UserResponse!
     deleteUser: UserResponse!
-    updateMe(username: String, email: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): UserResponse!
+    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): UserResponse!
     addFriend(userId: Int!, remove: Boolean): UserResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!

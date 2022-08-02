@@ -45,6 +45,7 @@
         "pg": "^8.7.3",
         "pg-hstore": "^2.3.4",
         "reflect-metadata": "^0.1.13",
+        "source-map-support": "^0.5.21",
         "tree-kill": "^1.2.2",
         "typedarray-pool": "^1.2.0",
         "ws": "^8.8.1"

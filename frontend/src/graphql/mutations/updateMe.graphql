@@ -1,6 +1,7 @@
 mutation UpdateMe(
     $username: String
     $email: String
+    $oldPassword: String
     $password: String
     $name: String
     $color: String
@@ -10,6 +11,7 @@ mutation UpdateMe(
     updateMe(
         username: $username
         email: $email
+        oldPassword: $oldPassword
         password: $password
         name: $name
         color: $color

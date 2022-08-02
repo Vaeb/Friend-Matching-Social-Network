@@ -143,6 +143,7 @@ export type MutationUpdateMeArgs = {
   color?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
   universityId?: InputMaybe<Scalars['Int']>;
   username?: InputMaybe<Scalars['String']>;
@@ -406,6 +407,7 @@ export type SingleUploadMutation = { __typename?: 'Mutation', singleUpload: { __
 export type UpdateMeMutationVariables = Exact<{
   username?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
+  oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   color?: InputMaybe<Scalars['String']>;
@@ -1151,6 +1153,13 @@ export default {
               },
               {
                 "name": "name",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "oldPassword",
                 "type": {
                   "kind": "SCALAR",
                   "name": "Any"
@@ -2409,10 +2418,11 @@ export function useSingleUploadMutation() {
   return Urql.useMutation<SingleUploadMutation, SingleUploadMutationVariables>(SingleUploadDocument);
 };
 export const UpdateMeDocument = gql`
-    mutation UpdateMe($username: String, $email: String, $password: String, $name: String, $color: String, $birthDate: Date, $universityId: Int) {
+    mutation UpdateMe($username: String, $email: String, $oldPassword: String, $password: String, $name: String, $color: String, $birthDate: Date, $universityId: Int) {
   updateMe(
     username: $username
     email: $email
+    oldPassword: $oldPassword
     password: $password
     name: $name
     color: $color

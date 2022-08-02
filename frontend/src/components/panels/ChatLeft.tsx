@@ -29,7 +29,7 @@ const ChatLeft: FC = () => {
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
-        <Stack mt={25} className='h-full items-center'>
+        <Stack className='w-full items-center' mt={25}>
             {user && user.areFriends ?
                 <Button variant='outline' className='w-[80%]' onClick={() => addFriend(true)}>Remove Friend</Button>
                 : <Button variant='outline' className='w-[80%]' onClick={() => addFriend()}>Add Friend</Button>
