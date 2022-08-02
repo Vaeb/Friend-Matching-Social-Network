@@ -56,6 +56,7 @@ const TimelineMid: FC = () => {
         const msg = textareaRef.current.value;
         doSendPost({
             text: msg,
+            studentsOnly: false,
         });
         textareaRef.current.value = '';
     };

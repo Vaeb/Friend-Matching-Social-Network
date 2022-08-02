@@ -1,7 +1,7 @@
 import {
     ActionIcon,
     Avatar,
-    Button, ColorInput, Group, Image, PasswordInput, Stack, Text, TextInput, useMantineTheme, 
+    Button, ColorInput, Group, Image, PasswordInput, Select, Stack, Text, TextInput, useMantineTheme, 
 } from '@mantine/core';
 import React, { FC, useRef, useState } from 'react';
 import { DatePicker } from '@mantine/dates';
@@ -10,7 +10,7 @@ import { TbRefresh as IconRefresh } from 'react-icons/tb';
 import { IoImageOutline as IconImage, IoCloudUploadOutline as IconUpload, IoRemoveCircleOutline as IconRemove } from 'react-icons/io5';
 import Router from 'next/router';
 
-import { UpdateMeMutationVariables, useMeQuery, useSingleUploadMutation, useUpdateMeMutation } from '../../generated/graphql';
+import { UpdateMeMutationVariables, useGetUniversitiesQuery, useMeQuery, useSingleUploadMutation, useUpdateMeMutation } from '../../generated/graphql';
 import { defaultAvatarUrl } from '../../defaults';
 import { avatarUrl } from '../../utils/avatarUrl';
 
@@ -30,9 +30,11 @@ const hslToHex = (h: number, s: number, l: number) => {
 
 const Account: FC<any> = () => {
     const theme = useMantineTheme();
+    const [universitiesQuery] = useGetUniversitiesQuery();
     const [, doSingleUpload] = useSingleUploadMutation();
     const [, doUpdateMe] = useUpdateMeMutation();
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
+    const universities = !universitiesQuery.fetching ? universitiesQuery?.data?.getUniversities : [];
     const me = !meFetching ? meData?.me : null;
     
     const nameRef = useRef<HTMLInputElement>(null);
@@ -40,9 +42,13 @@ const Account: FC<any> = () => {
     const passwordRef1 = useRef<HTMLInputElement>(null);
     const passwordRef2 = useRef<HTMLInputElement>(null);
     const passwordRef3 = useRef<HTMLInputElement>(null);
-    const [birthDate, setBirthDate] = useState(me.birthDate ? new Date(me.birthDate) : null);
-    const [colorValue, setColorValue] = useState(me.color || theme.colors._gray[8]);
+    const [universityId, setUniversityId] = useState(me?.universityId ? String(me.universityId) : '');
+
+    const [birthDate, setBirthDate] = useState(me?.birthDate ? new Date(me.birthDate) : null);
+    const [colorValue, setColorValue] = useState(me?.color || theme.colors._gray[8]);
     const [{ file, fileUrl }, setFile] = useState({ file: null, fileUrl: null });
+
+    const universityValues = universities.map(university => ({ value: String(university.id), label: university.name }));
 
     // const randomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     const randomColor1 = () => `hsl(${~~(360 * Math.random())}, 70%, 80%)`;
@@ -113,14 +119,14 @@ const Account: FC<any> = () => {
             <Stack spacing={5}>
                 <Text size='md' weight='bold' color={theme.colors._gray[4]}>Name</Text>
                 <div className='flex gap-1'>
-                    <TextInput ref={nameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me.name} />
+                    <TextInput ref={nameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me?.name} />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('name', [nameRef])}>Save</Button>
                 </div>
             </Stack>
             <Stack spacing={5}>
                 <Text size='md' weight='bold' color={theme.colors._gray[4]}>Username</Text>
                 <div className='flex gap-1'>
-                    <TextInput ref={usernameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me.username} />
+                    <TextInput ref={usernameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me?.username} />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('username', [usernameRef])}>Save</Button>
                 </div>
             </Stack>
@@ -131,6 +137,22 @@ const Account: FC<any> = () => {
                     <PasswordInput ref={passwordRef2} classNames={{ root: 'grow' }} placeholder='New password' autoComplete='new-password' variant='filled' />
                     <PasswordInput ref={passwordRef3} classNames={{ root: 'grow' }} placeholder='Confirm password' autoComplete='new-password' variant='filled' />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('password', [passwordRef1, passwordRef2, passwordRef3])}>Save</Button>
+                </div>
+            </Stack>
+            <Stack spacing={5}>
+                <Text size='md' weight='bold' color={theme.colors._gray[4]}>University</Text>
+                <div className='flex gap-1'>
+                    <Select
+                        variant='filled'
+                        classNames={{ root: 'grow' }}
+                        value={universityId}
+                        onChange={setUniversityId}
+                        placeholder='Choose a University'
+                        searchable
+                        nothingFound='No options'
+                        data={universityValues}
+                    />
+                    <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
                 </div>
             </Stack>
             <Stack spacing={5}>
@@ -165,7 +187,9 @@ const Account: FC<any> = () => {
                         onReject={files => console.log('rejected files', files)}
                         maxSize={3 * 1024 ** 2}
                         // radius='md'
-                        accept={IMAGE_MIME_TYPE}
+                        accept={{
+                            'image/*': [], // All images
+                        }}
                         classNames={{ root: 'grow bg-[#2C2E33] h-[180px]' }}
                     >
                         <Group position='center' spacing='xl' style={{ minHeight: 180 - 36, pointerEvents: 'none' }}>

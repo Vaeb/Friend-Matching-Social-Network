@@ -1,6 +1,8 @@
 type Post {
     id: Int!
     text: String!
+    universityId: Int!
+    studentsOnly: Boolean!
     creator: User!
     # savedBy(limit: Int): [User!]!
     createdAt: Date!
@@ -26,7 +28,7 @@ type Query {
 }
 
 type Mutation {
-    sendPost(text: String!): SendPostResponse!
+    sendPost(text: String!, studentsOnly: Boolean!): SendPostResponse!
 }
 
 type Subscription {

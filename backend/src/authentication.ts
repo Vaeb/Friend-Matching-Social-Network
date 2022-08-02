@@ -11,7 +11,7 @@ import { Context, ExpressRequest, UserCore, UserIdentifier } from './types';
 const cookieOptions: CookieOptions = { httpOnly: true };
 
 const generateTokens = (user: User, secretRefresh: string) => {
-    const userCore: UserCore = { id: user.id, username: user.username };
+    const userCore: UserCore = { id: user.id, username: user.username, universityId: user.universityId };
     const userIdentifier: UserIdentifier = { id: user.id };
 
     const tokenAccess = jwt.sign(userCore, auth.SECRET1, { expiresIn: '45m' });
@@ -27,6 +27,8 @@ type RefreshTokensPayload = {
     userCore: UserCore;
 } | Record<string, never>;
 
+const genSecretRefresh = password => `${password}${auth.SECRET2BASE}`;
+
 const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): Promise<RefreshTokensPayload> => {
     let userId: number | undefined;
     console.log('Refreshing tokens...');
@@ -41,7 +43,7 @@ const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): P
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return {};
 
-    const secretRefresh = `${user.password}${auth.SECRET2BASE}`;
+    const secretRefresh = genSecretRefresh(user.password);
     try {
         jwt.verify(tokenRefreshOld, secretRefresh);
     } catch (err) {
@@ -56,6 +58,26 @@ const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): P
 export const getUserCoreFromTokens = (tokens: any) => {
     const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
     return userCore;
+};
+
+export const updateTokens = async (req: Context['req'], res: Context['res'], userCoreOld: UserCore) => {
+    const user = await prisma.user.findUnique({ where: { id: userCoreOld.id } });
+    if (!user) throw new Error('User not found.');
+    const secretRefresh = genSecretRefresh(user.password);
+    const { tokenAccess, tokenRefresh, userCore } = generateTokens(user, secretRefresh);
+
+    if (!tokenRefresh) {
+        throw new Error('Failed to refresh.');
+    }
+
+    for (const [key, val] of Object.entries(userCore)) {
+        userCoreOld[key] = val;
+    }
+
+    res.cookie('tokenAccess', tokenAccess, cookieOptions);
+    res.cookie('tokenRefresh', tokenRefresh, cookieOptions);
+    res.cookie('username', userCore.username, cookieOptions);
+    console.log('Updated tokens cookies!', req.userCore, tokenAccess, tokenRefresh);
 };
 
 export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['res'], next: any) => {

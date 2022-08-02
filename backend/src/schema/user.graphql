@@ -4,6 +4,7 @@ type User {
     email: String!
     name: String!
     color: String
+    universityId: Int
     uni: String
     birthDate: Date
     matchPrecision: Int!

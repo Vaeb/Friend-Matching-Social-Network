@@ -24,10 +24,11 @@ import { permPostNotAuthor } from '../permissions';
 
 const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs>, { userCore }: Context | Context2) => {
     const cursor = args?.cursor;
-    const { id: meId } = userCore;
+    const { id: meId, universityId } = userCore;
 
     // const friendIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
     const posts = await prisma.post.findMany({
+        where: { universityId },
         // where: { creatorId: { in: userIds } },
         include: { creator: true },
         orderBy: { createdAt: 'desc' },
@@ -98,18 +99,21 @@ const resolvers: Resolvers = {
                 include: { creator: true },
             });
         },
-        getPosts: async (_parent, { limit }) => {
+        getPosts: async (_parent, { limit }, { userCore }: Context) => {
+            const { universityId } = userCore;
             return prisma.post.findMany({
+                where: { universityId },
                 include: { creator: true },
                 orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
             });
         },
-        getPostsFromUser: async (_parent, { userId, limit }) => {
+        getPostsFromUser: async (_parent, { userId, limit }, { userCore }: Context) => {
             console.log('Received request for getPostsFromUser:', userId, limit);
+            const { universityId } = userCore;
 
             const posts = await prisma.post.findMany({
-                where: { creatorId: userId },
+                where: { creatorId: userId, universityId },
                 include: { creator: true },
                 orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
@@ -118,11 +122,11 @@ const resolvers: Resolvers = {
             return posts;
         },
         getPostsFromFriends: async (_parent, { cursor }, { userCore }: Context) => {
-            const { id: meId } = userCore;
+            const { id: meId, universityId } = userCore;
 
             const userIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
             const posts = await prisma.post.findMany({
-                where: { creatorId: { in: userIds } },
+                where: { creatorId: { in: userIds }, universityId },
                 include: { creator: true },
                 orderBy: { createdAt: 'desc' },
                 take: 50,
@@ -138,7 +142,7 @@ const resolvers: Resolvers = {
     Mutation: {
         sendPost: async (_parent, { text }, { userCore }: Context) => {
             try {
-                const { id: userId } = userCore;
+                const { id: userId, universityId } = userCore;
                 console.log('Received request for sendPost:', text);
 
                 if (text.trim().length === 0) {
@@ -146,12 +150,12 @@ const resolvers: Resolvers = {
                 }
 
                 const post = await prisma.post.create({
-                    data: { creatorId: userId, text },
+                    data: { creatorId: userId, text, universityId },
                     include: { creator: true },
                 });
 
-                const subPost = { ...post, createdAt: +post.createdAt }; // May need updatedAt?
-                freshPosts.push(subPost);
+                const pubsubPost = { ...post, createdAt: +post.createdAt }; // May need updatedAt?
+                freshPosts.push(pubsubPost);
 
                 return {
                     ok: true,

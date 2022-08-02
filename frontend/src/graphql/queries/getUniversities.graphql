@@ -1,0 +1,8 @@
+query GetUniversities {
+    getUniversities {
+        id
+        name
+        shortName
+        publicRestricted
+    }
+}

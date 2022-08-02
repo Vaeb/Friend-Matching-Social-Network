@@ -111,15 +111,18 @@ model Message {
 }
 
 model Post {
-    id        Int        @id @default(autoincrement())
-    text      String
-    creator   User       @relation(name: "CreatedPosts", fields: [creatorId], references: [id])
-    creatorId Int
-    comments  Comment[]
-    reactions Reaction[]
-    savedBy   User[]     @relation(name: "SavedPosts")
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    id           Int        @id @default(autoincrement())
+    text         String
+    creator      User       @relation(name: "CreatedPosts", fields: [creatorId], references: [id])
+    creatorId    Int
+    university   University @relation(fields: [universityId], references: [id])
+    universityId Int
+    studentsOnly Boolean    @default(false)
+    comments     Comment[]
+    reactions    Reaction[]
+    savedBy      User[]     @relation(name: "SavedPosts")
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
 
     @@map("posts")
 }
@@ -157,12 +160,16 @@ model Reaction {
 }
 
 model University {
-    id             Int      @id @default(autoincrement())
-    name           String   @unique
-    activeUsers    User[]   @relation(name: "SelectedUni")
-    confirmedUsers User[]   @relation(name: "ConfirmedUnis")
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
+    id               Int      @id @default(autoincrement())
+    name             String   @unique
+    shortName        String?
+    emailRegex       String?
+    publicRestricted Int      @default(0) // 0=None, 1=Phone, 2=Confirmed
+    posts            Post[]
+    activeUsers      User[]   @relation(name: "SelectedUni")
+    confirmedUsers   User[]   @relation(name: "ConfirmedUnis")
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
 
     @@map("universities")
 }

@@ -1,5 +1,5 @@
-mutation SendPost($text: String!) {
-    sendPost(text: $text) {
+mutation SendPost($text: String!, $studentsOnly: Boolean!) {
+    sendPost(text: $text, studentsOnly: $studentsOnly) {
         ok
         errors {
             field

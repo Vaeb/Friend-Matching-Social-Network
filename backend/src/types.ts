@@ -3,7 +3,7 @@ import express from 'express';
 
 export type PrismaClient = PrismaWrapper.PrismaClient;
 
-export type UserCore = { id: number; username: string; };
+export type UserCore = { id: number; username: string; universityId: number; };
 export type UserIdentifier = { id: number; };
 
 export type ExpressRequest = express.Request;

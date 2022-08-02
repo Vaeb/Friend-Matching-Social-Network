@@ -126,6 +126,7 @@ export type MutationSendMessageArgs = {
 
 
 export type MutationSendPostArgs = {
+  studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
 };
 
@@ -151,7 +152,9 @@ export type Post = {
   createdAt: Scalars['Date'];
   creator: User;
   id: Scalars['Int'];
+  studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
+  universityId: Scalars['Int'];
 };
 
 export type Query = {
@@ -165,6 +168,7 @@ export type Query = {
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
   getPostsWeighted: WeightedPosts;
+  getUniversities: Array<University>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
@@ -241,6 +245,14 @@ export type Subscription = {
   newPosts?: Maybe<Array<Post>>;
 };
 
+export type University = {
+  __typename?: 'University';
+  id: Scalars['Int'];
+  name: Scalars['String'];
+  publicRestricted: Scalars['Int'];
+  shortName?: Maybe<Scalars['String']>;
+};
+
 export type User = {
   __typename?: 'User';
   areFriends?: Maybe<Scalars['Boolean']>;
@@ -259,6 +271,7 @@ export type User = {
   relations?: Maybe<Array<Maybe<UserRelation>>>;
   savedPosts?: Maybe<Array<Maybe<Post>>>;
   uni?: Maybe<Scalars['String']>;
+  universityId?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   updatedInterests?: Maybe<Scalars['Date']>;
@@ -418,6 +431,7 @@ export type ResolversTypes = {
   SendPostResponse: ResolverTypeWrapper<SendPostResponse>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
+  University: ResolverTypeWrapper<University>;
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<User>;
   UserCore: ResolverTypeWrapper<UserCore>;
@@ -449,6 +463,7 @@ export type ResolversParentTypes = {
   SendPostResponse: SendPostResponse;
   String: Scalars['String'];
   Subscription: {};
+  University: University;
   Upload: Scalars['Upload'];
   User: User;
   UserCore: UserCore;
@@ -530,7 +545,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   logout?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'username'>>;
   sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
-  sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'text'>>;
+  sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
   singleUpload?: Resolver<ResolversTypes['File'], ParentType, ContextType, RequireFields<MutationSingleUploadArgs, 'file'>>;
   updateMe?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
 };
@@ -539,7 +554,9 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   creator?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  studentsOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  universityId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -553,6 +570,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getPostsFromFriends?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsFromFriendsArgs>>;
   getPostsFromUser?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
   getPostsWeighted?: Resolver<ResolversTypes['WeightedPosts'], ParentType, ContextType, Partial<QueryGetPostsWeightedArgs>>;
+  getUniversities?: Resolver<Array<ResolversTypes['University']>, ParentType, ContextType>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'userId'>>;
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
   getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;
@@ -576,6 +594,14 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   newPosts?: SubscriptionResolver<Maybe<Array<ResolversTypes['Post']>>, "newPosts", ParentType, ContextType>;
 };
 
+export type UniversityResolvers<ContextType = any, ParentType extends ResolversParentTypes['University'] = ResolversParentTypes['University']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publicRestricted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shortName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
   name: 'Upload';
 }
@@ -597,6 +623,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   relations?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserRelation']>>>, ParentType, ContextType>;
   savedPosts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<UserSavedPostsArgs>>;
   uni?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  universityId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedCompatibility?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedInterests?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -671,6 +698,7 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   SendPostResponse?: SendPostResponseResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  University?: UniversityResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
   UserCore?: UserCoreResolvers<ContextType>;

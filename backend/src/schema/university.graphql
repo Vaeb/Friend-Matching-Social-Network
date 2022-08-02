@@ -1,0 +1,10 @@
+type University {
+    id: Int!
+    name: String!
+    shortName: String
+    publicRestricted: Int!
+}
+
+type Query {
+    getUniversities: [University!]!
+}

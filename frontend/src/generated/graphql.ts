@@ -129,6 +129,7 @@ export type MutationSendMessageArgs = {
 
 
 export type MutationSendPostArgs = {
+  studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
 };
 
@@ -154,7 +155,9 @@ export type Post = {
   createdAt: Scalars['Date'];
   creator: User;
   id: Scalars['Int'];
+  studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
+  universityId: Scalars['Int'];
 };
 
 export type Query = {
@@ -168,6 +171,7 @@ export type Query = {
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
   getPostsWeighted: WeightedPosts;
+  getUniversities: Array<University>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
@@ -244,6 +248,14 @@ export type Subscription = {
   newPosts?: Maybe<Array<Post>>;
 };
 
+export type University = {
+  __typename?: 'University';
+  id: Scalars['Int'];
+  name: Scalars['String'];
+  publicRestricted: Scalars['Int'];
+  shortName?: Maybe<Scalars['String']>;
+};
+
 export type User = {
   __typename?: 'User';
   areFriends?: Maybe<Scalars['Boolean']>;
@@ -262,6 +274,7 @@ export type User = {
   relations?: Maybe<Array<Maybe<UserRelation>>>;
   savedPosts?: Maybe<Array<Maybe<Post>>>;
   uni?: Maybe<Scalars['String']>;
+  universityId?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   updatedInterests?: Maybe<Scalars['Date']>;
@@ -335,11 +348,11 @@ export type WeightedPosts = {
   posts: Array<Post>;
 };
 
-export type UserLgFieldsFragment = { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null };
+export type UserLgFieldsFragment = { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null };
 
-export type UserMdFieldsFragment = { __typename?: 'User', id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null };
+export type UserMdFieldsFragment = { __typename?: 'User', uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null };
 
-export type UserSmFieldsFragment = { __typename?: 'User', id: number, username: string, name: string, color?: string | null };
+export type UserSmFieldsFragment = { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null };
 
 export type UserXsFieldsFragment = { __typename?: 'User', id: number, username: string };
 
@@ -349,7 +362,7 @@ export type AddFriendMutationVariables = Exact<{
 }>;
 
 
-export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'UserResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null } | null } };
+export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'UserResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null } | null } };
 
 export type AddUserInterestMutationVariables = Exact<{
   userInterest: UserInterestInput;
@@ -392,10 +405,11 @@ export type SendMessageMutation = { __typename?: 'Mutation', sendMessage: { __ty
 
 export type SendPostMutationVariables = Exact<{
   text: Scalars['String'];
+  studentsOnly: Scalars['Boolean'];
 }>;
 
 
-export type SendPostMutation = { __typename?: 'Mutation', sendPost: { __typename?: 'SendPostResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, post?: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } } | null } };
+export type SendPostMutation = { __typename?: 'Mutation', sendPost: { __typename?: 'SendPostResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, post?: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } } | null } };
 
 export type SingleUploadMutationVariables = Exact<{
   file: Scalars['Upload'];
@@ -416,12 +430,12 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'UserResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null } | null } };
+export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'UserResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null } | null } };
 
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChatsQuery = { __typename?: 'Query', getChats: Array<{ __typename?: 'User', id: number, username: string, name: string, color?: string | null }> };
+export type GetChatsQuery = { __typename?: 'Query', getChats: Array<{ __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null }> };
 
 export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -431,7 +445,7 @@ export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } }> };
+export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> };
 
 export type GetMessagesQueryVariables = Exact<{
   target: Scalars['Int'];
@@ -446,19 +460,24 @@ export type GetPostsFromUserQueryVariables = Exact<{
 }>;
 
 
-export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } }> };
+export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> };
 
 export type GetPostsWeightedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } }> } };
+export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> } };
+
+export type GetUniversitiesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUniversitiesQuery = { __typename?: 'Query', getUniversities: Array<{ __typename?: 'University', id: number, name: string, shortName?: string | null, publicRestricted: number }> };
 
 export type GetUserQueryVariables = Exact<{
   userId: Scalars['Int'];
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null } | null };
+export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null } | null };
 
 export type GetUserByHandleQueryVariables = Exact<{
   handle: Scalars['String'];
@@ -475,7 +494,7 @@ export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Ar
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, name: string, color?: string | null, uni?: string | null, birthDate?: any | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', uni?: string | null, birthDate?: any | null, id: number, username: string, name: string, universityId?: number | null, color?: string | null } | null };
 
 export type HeartbeatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -490,12 +509,12 @@ export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: 
 export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } } };
+export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } } };
 
 export type NewPostsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, color?: string | null } }> | null };
+export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -1085,6 +1104,16 @@ export default {
             },
             "args": [
               {
+                "name": "studentsOnly",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
                 "name": "text",
                 "type": {
                   "kind": "NON_NULL",
@@ -1230,7 +1259,29 @@ export default {
             "args": []
           },
           {
+            "name": "studentsOnly",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
             "name": "text",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "universityId",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -1474,6 +1525,24 @@ export default {
             ]
           },
           {
+            "name": "getUniversities",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "University",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          },
+          {
             "name": "getUser",
             "type": {
               "kind": "OBJECT",
@@ -1689,6 +1758,54 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "University",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "name",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "publicRestricted",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "shortName",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "User",
         "fields": [
           {
@@ -1853,6 +1970,14 @@ export default {
           },
           {
             "name": "uni",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "universityId",
             "type": {
               "kind": "SCALAR",
               "name": "Any"
@@ -2228,16 +2353,22 @@ export default {
     "directives": []
   }
 } as unknown as IntrospectionQuery;
-export const UserMdFieldsFragmentDoc = gql`
-    fragment UserMdFields on User {
+export const UserSmFieldsFragmentDoc = gql`
+    fragment UserSmFields on User {
   id
   username
   name
+  universityId
   color
+}
+    `;
+export const UserMdFieldsFragmentDoc = gql`
+    fragment UserMdFields on User {
+  ...UserSmFields
   uni
   birthDate
 }
-    `;
+    ${UserSmFieldsFragmentDoc}`;
 export const UserLgFieldsFragmentDoc = gql`
     fragment UserLgFields on User {
   ...UserMdFields
@@ -2249,14 +2380,6 @@ export const UserLgFieldsFragmentDoc = gql`
   matchDate
 }
     ${UserMdFieldsFragmentDoc}`;
-export const UserSmFieldsFragmentDoc = gql`
-    fragment UserSmFields on User {
-  id
-  username
-  name
-  color
-}
-    `;
 export const UserXsFieldsFragmentDoc = gql`
     fragment UserXsFields on User {
   id
@@ -2384,8 +2507,8 @@ export function useSendMessageMutation() {
   return Urql.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument);
 };
 export const SendPostDocument = gql`
-    mutation SendPost($text: String!) {
-  sendPost(text: $text) {
+    mutation SendPost($text: String!, $studentsOnly: Boolean!) {
+  sendPost(text: $text, studentsOnly: $studentsOnly) {
     ok
     errors {
       field
@@ -2534,6 +2657,20 @@ export const GetPostsWeightedDocument = gql`
 
 export function useGetPostsWeightedQuery(options?: Omit<Urql.UseQueryArgs<GetPostsWeightedQueryVariables>, 'query'>) {
   return Urql.useQuery<GetPostsWeightedQuery>({ query: GetPostsWeightedDocument, ...options });
+};
+export const GetUniversitiesDocument = gql`
+    query GetUniversities {
+  getUniversities {
+    id
+    name
+    shortName
+    publicRestricted
+  }
+}
+    `;
+
+export function useGetUniversitiesQuery(options?: Omit<Urql.UseQueryArgs<GetUniversitiesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUniversitiesQuery>({ query: GetUniversitiesDocument, ...options });
 };
 export const GetUserDocument = gql`
     query GetUser($userId: Int!) {

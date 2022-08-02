@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { login, logout } from '../authentication';
+import { login, logout, updateTokens } from '../authentication';
 import { prisma } from '../server';
 import { consoleError, formatErrors, getBigUser, getUserRelations } from '../utils';
 import { Context } from '../types';
@@ -336,8 +336,9 @@ const resolvers: Resolvers = {
                 };
             }
         },
-        updateMe: async (_parent, rawArgs, { userCore }: Context) => {
+        updateMe: async (_parent, rawArgs, { req, res, userCore }: Context) => {
             try {
+                console.log(userCore);
                 const meId = userCore.id;
                 console.log('Received request for updateMe:', meId, rawArgs);
                 const { oldPassword, ...args } = rawArgs;
@@ -355,6 +356,10 @@ const resolvers: Resolvers = {
                     where: { id: meId },
                     data: args,
                 });
+
+                if (args.username || args.universityId) {
+                    await updateTokens(req, res, userCore);
+                }
 
                 return { ok: true, user };
             } catch (err) {
@@ -381,10 +386,12 @@ const resolvers: Resolvers = {
             const relations = await getUserRelations(userId);
             return relations;
         },
-        posts: async ({ id: userId }, { limit }) => {
+        posts: async ({ id: userId }, { limit }, { userCore }: Context) => {
+            const { universityId } = userCore;
+
             const posts = await prisma.post.findMany({
                 // Could improve as prisma.posts.findMany where creatorId=userId
-                where: { creatorId: userId },
+                where: { creatorId: userId, universityId },
                 take: limit ?? undefined,
                 include: { creator: true },
             });

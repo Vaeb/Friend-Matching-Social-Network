@@ -1,8 +1,5 @@
 fragment UserMdFields on User {
-    id
-    username
-    name
-    color
+    ...UserSmFields
     uni
     birthDate
 }

@@ -8,6 +8,7 @@ import {
     GetChatsDocument,
     GetMatchesDocument,
     GetMessagesDocument,
+    GetPostsWeightedDocument,
     GetUserDocument,
     GetUserInterestsDocument,
     MeDocument,
@@ -186,6 +187,13 @@ const exchanges = [
                                 return data;
                             }
                         );
+                    }
+                },
+                updateMe: (_result, _args, cache, _info) => {
+                    const result = _result as any;
+                    const args = _args as any;
+                    if (result?.updateMe?.ok && args?.universityId !== undefined) {
+                        cache.invalidate('Query', 'getPostsWeighted');
                     }
                 },
             },
