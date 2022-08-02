@@ -1,11 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Global, MantineProvider } from '@mantine/core';
 import { AppProps } from 'next/app';
 import { Provider } from 'urql';
 
-import { client } from '../urqlClient';
+import { makeClient } from '../urqlClient';
 import myTheme from '../theme';
 import { myEmotionCache } from '../emotionCache';
 import '../styles/globals.css';
+import { useMiscStore } from '../state';
 
 function MyGlobalStyles() {
     return (
@@ -26,6 +28,17 @@ function MyGlobalStyles() {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+    const [client, setClient] = useState(makeClient());
+    const setResetClient = useMiscStore(state => state.setResetClient);
+
+    useEffect(() => {
+        console.log('Set resetClient...');
+        setResetClient(() => {
+            console.log('Resetting URQL client!');
+            setClient(makeClient());
+        });
+    }, [setResetClient]);
+
     return (
         <Provider value={client}>
             <MantineProvider

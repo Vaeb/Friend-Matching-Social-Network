@@ -2,7 +2,7 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
-import { GetMatchesDocument, Match, MeDocument, MeQuery, Post, User } from './generated/graphql';
+import { Post, User } from './generated/graphql';
 
 type Panel = 'left' | 'mid' | 'right';
 
@@ -113,12 +113,19 @@ export const useTimelineStore = create<TimelineState>(set => ({
 }));
 
 interface MiscState {
+    resetClient: () => void;
     setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
+    setResetClient: (resetClient: () => void) => void;
     setSetSearchOpened: (setSearchOpened: React.Dispatch<React.SetStateAction<boolean>>) => void;
 }
 
 export const useMiscStore = create<MiscState>(set => ({
+    resetClient: null,
     setSearchOpened: null,
+    setResetClient: resetClient =>
+        set(produce((state) => {
+            state.resetClient = resetClient;
+        })),
     setSetSearchOpened: setSearchOpened =>
         set(produce((state) => {
             state.setSearchOpened = setSearchOpened;

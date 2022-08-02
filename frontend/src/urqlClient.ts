@@ -264,10 +264,10 @@ if (!isServer) {
     exchanges.push(subExchange);
 }
 
-const client = createClient({
+const makeClient = () => createClient({
     url: graphqlUrl,
     exchanges,
     fetchOptions: { credentials: 'include' as const },
 });
 
-export { client, ssrCache };
+export { makeClient, ssrCache };

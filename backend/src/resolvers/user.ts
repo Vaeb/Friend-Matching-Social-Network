@@ -107,10 +107,18 @@ const resolvers: Resolvers = {
                     if (existingUser.email.toLowerCase() === args.email.toLowerCase()) {
                         parseErrors.push({ field: 'email', message: 'Email already exists.' });
                     }
+                    throw new Error('User already exists.');
+                }
+
+                if (Number.isNaN(args.universityId)) {
+                    parseErrors.push({ field: 'universityId', message: 'University not valid' });
+                    throw new Error('University not valid');
                 }
 
                 args.password = await hashPassword(rawPass);
+
                 const user = await prisma.user.create({ data: args });
+
                 console.log('Success! Logging in...');
                 await login(args.username, rawPass, res);
 

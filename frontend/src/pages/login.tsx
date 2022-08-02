@@ -7,12 +7,17 @@ import Page from '../components/Page';
 import { useRouter } from 'next/router';
 import { useLoginMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
+import { useAppStore, useMiscStore } from '../state';
 
 interface LoginProps {}
 
 const Login: React.FC<LoginProps> = ({}) => {
     const router = useRouter();
     const [, login] = useLoginMutation();
+
+    const setView = useAppStore(state => state.setView);
+    // const resetClient = useMiscStore(state => state.resetClient);
+
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm({
@@ -38,12 +43,13 @@ const Login: React.FC<LoginProps> = ({}) => {
             return;
         }
         console.log(values, response.data?.login);
+        setView('base', 'all');
         router.push('/');
     };
 
     return (
         <Page type='center' needsAuth={false}>
-            <Box className='bg-_blackT-600 min-w-[21vw] rounded-md shadow-_box5' p='30px'>
+            <Box className='bg-_blackT-600 min-w-[450px] rounded-md shadow-_box5 py-8 px-8'>
                 <Box className='text-xl font-semibold' mb={4}>
                     <p>Welcome back!</p>
                     {/* <p>Please login.</p> */}
@@ -58,7 +64,7 @@ const Login: React.FC<LoginProps> = ({}) => {
                         <Box>
                             <TextInput autoFocus name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
                         </Box>
-                        <Box mt={9}>
+                        <Box mt={10}>
                             <PasswordInput name='password' label='PASSWORD' placeholder='' {...form.getInputProps('password')} />
                         </Box>
                         <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>

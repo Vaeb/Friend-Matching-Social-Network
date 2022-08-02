@@ -3,16 +3,18 @@ import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
 import { useLogoutMutation } from '../../generated/graphql';
-import { useAppStore } from '../../state';
+import { useAppStore, useMiscStore } from '../../state';
 
 const SettingsLeft = () => {
     const theme = useMantineTheme();
     const [, doLogout] = useLogoutMutation();
 
     const { section, setView } = useAppStore(state => ({ section: state.left.viewValue, setView: state.setView }), shallow);
+    const resetClient = useMiscStore(state => state.resetClient);
 
     const logout = async () => {
         await doLogout();
+        resetClient();
     };
 
     const SettingGroupButton: FC<any> = ({ children, name }) => {

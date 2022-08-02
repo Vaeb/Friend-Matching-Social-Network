@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
-import { Box, Button, PasswordInput, TextInput } from '@mantine/core';
+import { Box, Button, PasswordInput, Select, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 
 import Page from '../components/Page';
-import { useRegisterMutation } from '../generated/graphql';
+import { useGetUniversitiesQuery, useRegisterMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
+import { useAppStore, useMiscStore } from '../state';
 
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = ({}) => {
     // const validateUsername = (value: string) => value && value.length > 3 ? undefined : 'Username must be at least 3 characters';
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+
     const [, register] = useRegisterMutation();
+    const [universitiesQuery] = useGetUniversitiesQuery();
+    const universities = !universitiesQuery.fetching ? universitiesQuery?.data?.getUniversities : [];
+
+    const setView = useAppStore(state => state.setView);
+    // const resetClient = useMiscStore(state => state.resetClient);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [universityId, setUniversityId] = useState('');
+
+    const universityValues = universities.map(university => ({ value: String(university.id), label: university.name }));
 
     const isServer = typeof window === 'undefined';
     console.log('CUSTOM CHECK SSR:', isServer);
@@ -24,13 +35,16 @@ const Register: React.FC<RegisterProps> = ({}) => {
             username: '',
             email: '',
             password: '',
-            // confirmPassword: '',
+            confirmPassword: '',
+            universityId: '',
             name: '',
         },
         validate: {
             username: value => (!value.length ? 'Username is required' : null),
             email: value => (!value.length ? 'Email is required' : null),
             password: value => (!value.length ? 'Password is required' : null),
+            confirmPassword: (value, { password }) => (!value.length ? 'Confirm password is required' : value !== password ? 'Passwords must match' : null),
+            universityId: value => (!value.length ? 'University is required' : null),
             name: value => (!value.length ? 'Name is required' : null),
         },
     });
@@ -42,6 +56,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
             name: values.name,
             email: values.email,
             password: values.password,
+            universityId: Number(values.universityId),
         });
         if (response.data?.register.errors) {
             form.setErrors(mapErrors(response.data.register.errors));
@@ -49,13 +64,14 @@ const Register: React.FC<RegisterProps> = ({}) => {
             return;
         }
         console.log(values, response.data?.register);
+        setView('base', 'all');
         router.push('/');
     };
 
     return (
         // T6
         <Page type='center' needsAuth={false}>
-            <Box className='bg-_blackT-600 min-w-[21vw] rounded-md shadow-_box5' p='30px'>
+            <Box className='bg-_blackT-600 min-w-[450px] rounded-md shadow-_box5 py-8 px-8'>
                 <Box className='text-xl font-semibold' mb={4}>
                     <p>Welcome!</p>
                     <p>Please register an account.</p>
@@ -77,7 +93,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                                 {...form.getInputProps('username')}
                             />
                         </Box>
-                        <Box mt={9}>
+                        <Box mt={10}>
                             <TextInput
                                 name='email'
                                 label='EMAIL'
@@ -86,7 +102,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                                 {...form.getInputProps('email')}
                             />
                         </Box>
-                        <Box mt={9}>
+                        <Box mt={10}>
                             <PasswordInput
                                 name='password'
                                 label='PASSWORD'
@@ -95,7 +111,30 @@ const Register: React.FC<RegisterProps> = ({}) => {
                                 {...form.getInputProps('password')}
                             />
                         </Box>
-                        <Box mt={9}>
+                        <Box mt={10}>
+                            <PasswordInput
+                                name='confirmPassword'
+                                label='CONFIRM PASSWORD'
+                                placeholder='*********'
+                                autoComplete='new-password'
+                                {...form.getInputProps('confirmPassword')}
+                            />
+                        </Box>
+                        <Box mt={10}>
+                            <Select
+                                name='universityId'
+                                // variant='filled'
+                                label='CHOOSE YOUR UNIVERSITY'
+                                value={universityId}
+                                onChange={setUniversityId}
+                                placeholder='...'
+                                searchable
+                                nothingFound='No options'
+                                data={universityValues}
+                                {...form.getInputProps('universityId')}
+                            />
+                        </Box>
+                        <Box mt={10}>
                             <TextInput
                                 name='name'
                                 label='PREFERRED NAME'

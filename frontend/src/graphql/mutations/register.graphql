@@ -1,5 +1,5 @@
-mutation Register($username: String!, $email: String!, $password: String!, $name: String!) {
-    register(username: $username, email: $email, password: $password, name: $name) {
+mutation Register($username: String!, $email: String!, $password: String!, $name: String!, $universityId: Int!) {
+    register(username: $username, email: $email, password: $password, name: $name, universityId: $universityId) {
         ok
         errors {
             field

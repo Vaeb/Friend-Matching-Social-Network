@@ -118,6 +118,7 @@ export type MutationRegisterArgs = {
   email: Scalars['String'];
   name: Scalars['String'];
   password: Scalars['String'];
+  universityId: Scalars['Int'];
   username: Scalars['String'];
 };
 
@@ -390,6 +391,7 @@ export type RegisterMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
   name: Scalars['String'];
+  universityId: Scalars['Int'];
 }>;
 
 
@@ -1039,6 +1041,16 @@ export default {
               },
               {
                 "name": "password",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "universityId",
                 "type": {
                   "kind": "NON_NULL",
                   "ofType": {
@@ -2463,8 +2475,14 @@ export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
-    mutation Register($username: String!, $email: String!, $password: String!, $name: String!) {
-  register(username: $username, email: $email, password: $password, name: $name) {
+    mutation Register($username: String!, $email: String!, $password: String!, $name: String!, $universityId: Int!) {
+  register(
+    username: $username
+    email: $email
+    password: $password
+    name: $name
+    universityId: $universityId
+  ) {
     ok
     errors {
       field

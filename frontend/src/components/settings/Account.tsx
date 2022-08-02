@@ -43,7 +43,6 @@ const Account: FC<any> = () => {
     const passwordRef2 = useRef<HTMLInputElement>(null);
     const passwordRef3 = useRef<HTMLInputElement>(null);
     const [universityId, setUniversityId] = useState(me?.universityId ? String(me.universityId) : '');
-
     const [birthDate, setBirthDate] = useState(me?.birthDate ? new Date(me.birthDate) : null);
     const [colorValue, setColorValue] = useState(me?.color || theme.colors._gray[8]);
     const [{ file, fileUrl }, setFile] = useState({ file: null, fileUrl: null });
