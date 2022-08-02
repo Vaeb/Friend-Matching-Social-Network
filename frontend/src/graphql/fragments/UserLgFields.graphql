@@ -1,0 +1,9 @@
+fragment UserLgFields on User {
+    ...UserMdFields
+    visInterests
+    createdAt
+    areFriends
+    friendDate
+    haveMatched
+    matchDate
+}

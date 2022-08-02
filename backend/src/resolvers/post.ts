@@ -31,7 +31,7 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
         // where: { creatorId: { in: userIds } },
         include: { creator: true },
         orderBy: { createdAt: 'desc' },
-        take: 50,
+        take: 40,
     });
 
     return { id: 1, posts };
@@ -106,6 +106,8 @@ const resolvers: Resolvers = {
             });
         },
         getPostsFromUser: async (_parent, { userId, limit }) => {
+            console.log('Received request for getPostsFromUser:', userId, limit);
+
             const posts = await prisma.post.findMany({
                 where: { creatorId: userId },
                 include: { creator: true },
@@ -128,12 +130,20 @@ const resolvers: Resolvers = {
 
             return posts;
         },
-        getPostsWeighted: getPostsWeighted,
+        getPostsWeighted: async (_parent, args, context: Context) => {
+            console.log('Received request for getPostsWeighted:', args);
+            return getPostsWeighted(_parent, args, context);
+        },
     },
     Mutation: {
         sendPost: async (_parent, { text }, { userCore }: Context) => {
             try {
                 const { id: userId } = userCore;
+                console.log('Received request for sendPost:', text);
+
+                if (text.trim().length === 0) {
+                    throw new Error('Post must have text');
+                }
 
                 const post = await prisma.post.create({
                     data: { creatorId: userId, text },

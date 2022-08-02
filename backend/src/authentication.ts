@@ -133,10 +133,12 @@ export const logout = async (userCore: Context['userCore'], res: Context['res'])
     res.clearCookie('tokenRefresh');
     res.clearCookie('username');
 
+    const user = await prisma.user.findUnique({ where: { id: userCore.id } });
+
     console.log('Logout success!', res.cookie);
 
     return {
         ok: true,
-        user: userCore,
+        user,
     } as const;
 };

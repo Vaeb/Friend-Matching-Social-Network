@@ -7,6 +7,8 @@ import { BsPersonBadge as IconPerson } from 'react-icons/bs';
 import { useAppStore } from '../../state';
 import PanelAction from '../PanelAction';
 import { useGetChatsQuery, useGetMatchesQuery } from '../../generated/graphql';
+import UserAvatar from '../UserAvatar';
+import { avatarUrl } from '../../utils/avatarUrl';
 
 const BaseRight: FC<any> = () => {
     const theme = useMantineTheme();
@@ -30,10 +32,15 @@ const BaseRight: FC<any> = () => {
             {chats
                 ? chats.map(user => (
                     <Stack className='w-full items-center' key={user.id} spacing={4}>
-                        <PanelAction onClick={() => setView('chat', null, user)} color='green'>
-                            <IconPerson style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
-                        </PanelAction>
-                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full' px={6}>
+                        {/* <PanelAction> */}
+                        <UserAvatar
+                            // className='rounded-full w-full h-full cursor-pointer hover:opacity-75'
+                            className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
+                            url={avatarUrl(user)}
+                            onClick={() => setView('chat', null, user)}
+                        />
+                        {/* </PanelAction> */}
+                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer' px={6} onClick={() => setView('chat', null, user)}>
                             @{user.username}
                         </Text>
                     </Stack>

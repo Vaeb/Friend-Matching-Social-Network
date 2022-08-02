@@ -1,9 +1,5 @@
 query GetUserByHandle($handle: String!) {
     getUserByHandle(handle: $handle) {
-        id
-        username
-        name
-        visInterests
-        createdAt
+        ...UserXsFields
     }
 }

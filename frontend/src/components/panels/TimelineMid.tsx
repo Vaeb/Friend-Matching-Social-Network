@@ -2,13 +2,13 @@ import {
     Box, Button, ScrollArea, Stack, Text, Textarea, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
-import { BsPersonCircle as IconPerson } from 'react-icons/bs';
 import shallow from 'zustand/shallow';
 
-import { useGetPostsWeightedQuery, useMeQuery, useSendPostMutation } from '../../generated/graphql';
+import { useMeQuery, useSendPostMutation } from '../../generated/graphql';
 import { useAppStore, useTimelineStore } from '../../state';
-// import { useAppStore, useConvoStore } from '../../state';
+import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
+import UserAvatar from '../UserAvatar';
 
 const getPostTime = (postDateRaw: Date | number, nowDate = new Date()) => {
     const postDate = new Date(postDateRaw);
@@ -74,30 +74,24 @@ const TimelineMid: FC = () => {
                 <Stack className='' spacing={23}>
                     <Box className='flex flex-col justify-end'>
                         <Box className='flex w-full'>
-                            {/* <Box>
-                            <IconPerson className='text-_gray-800 h-10 w-10 mt-[15px] cursor-pointer' onClick={() => setView('user', null, me.id)} />
-                        </Box> */}
                             <Textarea
                                 ref={textareaRef}
                                 // contentEditable='true' data-testid='tweetTextarea_0' role='textbox' spellCheck='true' tabIndex={0}
                                 autoComplete='off'
                                 className='grow'
+                                classNames={{
+                                    input: 'h-[90px] min-h-[70px] text-_gray-800 pl-[66px]',
+                                    icon: 'items-start mt-[15px]',
+                                }}
                                 styles={{
                                     input: {
                                         '::placeholder': {
                                             fontSize: '18px',
                                             color: theme.colors._gray[6],
-                                        // lineHeight: '68px',
+                                            // lineHeight: '68px',
                                         },
-                                        height: '90px',
-                                        minHeight: '70px',
                                         paddingTop: '20px !important',
-                                        // lineHeight: '48px',
-                                        color: theme.colors._gray[8],
-                                    },
-                                    icon: {
-                                        alignItems: 'flex-start',
-                                        marginTop: 15,
+                                        // // lineHeight: '48px',
                                     },
                                 }}
                                 size='xl'
@@ -112,7 +106,13 @@ const TimelineMid: FC = () => {
                                     className: 'flex flex-col self-end',
                                 }}
                                 placeholder={'What\'s on your mind?'}
-                                icon={<IconPerson className='h-10 w-10' color={theme.colors._gray[8]} />}
+                                icon={
+                                    // <IconPerson className='h-10 w-10' color={theme.colors._gray[8]} />
+                                    <UserAvatar
+                                        className='rounded-full w-10 h-10 cursor-pointer'
+                                        url={avatarUrl(me)}
+                                    />
+                                }
                                 // onKeyDown={onKeyDown}
                                 autosize
                             // minRows={2}
@@ -122,14 +122,19 @@ const TimelineMid: FC = () => {
                             <Button className='float-left' size='sm' variant='default'>Send post</Button>
                         </Box> */}
                     </Box>
-                    {posts.map(post => (
+                    {posts.map(post => ( // style={{ color: post.creator.color, opacity: 0.7 }}
                         <Box className='flex w-full text-_gray-800 px-[10px]' key={post.id}>
                             <Box>
-                                <IconPerson className='h-10 w-10 mt-[5px] cursor-pointer' onClick={() => onUserClick(post)} />
+                                {/* <IconPerson className='h-10 w-10 mt-[5px] cursor-pointer' onClick={() => onUserClick(post)} /> */}
+                                <UserAvatar
+                                    className='rounded-full w-10 h-10 mt-[2px] cursor-pointer'
+                                    url={avatarUrl(post.creator)}
+                                    onClick={() => onUserClick(post)}
+                                />
                             </Box>
-                            <Stack ml={9} spacing={0}>
+                            <Stack ml={16} spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
-                                    <Text className='font-bold cursor-pointer' onClick={() => onUserClick(post)}>{post.creator.name}</Text>
+                                    <Text className='font-bold cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
                                     <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.creator.username})</Text>
                                     <Text className='text-xs'>·</Text>
                                     <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>

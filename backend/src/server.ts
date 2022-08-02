@@ -2,6 +2,7 @@ import 'dotenv/config';
 import PrismaWrapper from '@prisma/client';
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
+import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import express from 'express';
@@ -10,6 +11,8 @@ import cookieParser from 'cookie-parser';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
+// @ts-ignore
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 
 // Don't import ./utils.ts (b/c prisma cycle)
 import typeDefs from './schema';
@@ -114,12 +117,18 @@ export const listen = async (): Promise<void> => {
 
     await server.start();
 
+    app.use(graphqlUploadExpress());
+
     server.applyMiddleware({ app, cors: false });
 
     app.get('/img/:imageName', function (req, res) {
         const imgPath = path.resolve(`./images/${req.params.imageName}`); // yarn ran from backend/
         console.log('Request for image:', imgPath);
-        res.sendFile(imgPath);
+        if (fs.existsSync(imgPath)) {
+            res.sendFile(imgPath);
+        } else {
+            res.sendFile(path.resolve('./images/Default-5b.png'));
+        }
     });
 
     app.use((_req, res) => {

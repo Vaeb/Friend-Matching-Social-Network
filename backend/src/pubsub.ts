@@ -17,4 +17,4 @@ export const NEW_POSTS = 'NEW_POSTS';
 
 setInterval(() => {
     pubsub.publish(HEARTBEAT, String(+new Date()));
-}, 40000);
+}, 1000 * 40);

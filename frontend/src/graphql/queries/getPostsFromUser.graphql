@@ -3,9 +3,7 @@ query GetPostsFromUser($userId: Int!, $limit: Int) {
         id
         text
         creator {
-            id
-            username
-            name
+            ...UserSmFields
         }
         createdAt
     }

@@ -6,15 +6,7 @@ mutation AddFriend($userId: Int!, $remove: Boolean) {
             message
         }
         user {
-            id
-            username
-            name
-            visInterests
-            createdAt
-            areFriends
-            friendDate
-            haveMatched
-            matchDate
+            ...UserLgFields
         }
     }
 }

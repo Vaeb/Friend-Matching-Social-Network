@@ -4,5 +4,5 @@ export const baseApiUrl = process.env.NEXT_PUBLIC_ENV === 'PROD' ? 'http://vaeb.
 export const graphqlUrl = `${baseApiUrl}/graphql`;
 export const wsUrl = graphqlUrl.replace(/^\w+/, 'ws');
 
-export const defaultAvatarUrl = `${baseApiUrl}/img/Icon-User-2.png`;
+export const defaultAvatarUrl = `${baseApiUrl}/img/Default-5b.png`;
 // export const defaultAvatarUrl = `${baseApiUrl}/img/Example1.jpg`;

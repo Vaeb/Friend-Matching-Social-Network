@@ -1,5 +1,6 @@
 import { createClient, ssrExchange, dedupExchange, fetchExchange, subscriptionExchange } from 'urql';
 import { cacheExchange } from '@urql/exchange-graphcache';
+import { multipartFetchExchange } from '@urql/exchange-multipart-fetch';
 import { devtoolsExchange } from '@urql/devtools';
 import { createClient as createWSClient } from 'graphql-ws';
 
@@ -236,7 +237,7 @@ const exchanges = [
         },
     }),
     ssrCache,
-    fetchExchange,
+    multipartFetchExchange,
 ];
 
 if (!isServer) {

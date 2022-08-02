@@ -1,0 +1,4 @@
+fragment UserXsFields on User {
+    id
+    username
+}

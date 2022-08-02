@@ -6,6 +6,8 @@ import { consoleError, formatErrors, getBigUser, getUserRelations } from '../uti
 import { Context } from '../types';
 import type { Error, Resolvers } from '../schema/generated';
 
+const hashPassword = (rawPassword: string) => bcrypt.hash(rawPassword, 5);
+
 const resolvers: Resolvers = {
     Query: {
         getUser: async (_parent, { userId }, { userCore }: Context) => {
@@ -107,7 +109,7 @@ const resolvers: Resolvers = {
                     }
                 }
 
-                args.password = await bcrypt.hash(rawPass, 5);
+                args.password = await hashPassword(rawPass);
                 const user = await prisma.user.create({ data: args });
                 console.log('Success! Logging in...');
                 await login(args.username, rawPass, res);
@@ -215,8 +217,8 @@ const resolvers: Resolvers = {
         addUserInterest: async (_parent, { userInterest, override }, { userCore }: Context) => {
             try {
                 const meId = userCore.id;
-                const nowDate = new Date();
                 console.log('Received request for addUserInterest:', meId, userInterest);
+                const nowDate = new Date();
 
                 const userInterestToCreate = {
                     ...userInterest,
@@ -328,6 +330,27 @@ const resolvers: Resolvers = {
                 // return { ok: false, errors: formatErrors('test') };
             } catch (err) {
                 consoleError('ADD_USER_INTEREST', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        updateMe: async (_parent, args, { userCore }: Context) => {
+            try {
+                const meId = userCore.id;
+                console.log('Received request for updateMe:', meId, args);
+
+                if (args.password) args.password = await hashPassword(args.password);
+
+                const user = await prisma.user.update({
+                    where: { id: meId },
+                    data: args,
+                });
+
+                return { ok: true, user };
+            } catch (err) {
+                consoleError('UPDATE_ME', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

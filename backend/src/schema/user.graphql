@@ -3,6 +3,9 @@ type User {
     username: String!
     email: String!
     name: String!
+    color: String
+    uni: String
+    birthDate: Date
     matchPrecision: Int!
     visEmail: Int!
     visInterests: Int!
@@ -35,13 +38,13 @@ type UserRelation {
     haveMatched: Boolean!
 }
 
-type AuthResponse {
+type UserResponse {
     ok: Boolean!
     errors: [Error!]
     user: User
 }
 
-type AuthResponseCore {
+type UserCoreResponse {
     ok: Boolean!
     errors: [Error!]
     user: UserCore
@@ -82,11 +85,12 @@ type Query {
 }
 
 type Mutation {
-    register(username: String!, email: String!, password: String!, name: String!): AuthResponse!
-    login(handle: String!, password: String!): AuthResponse!
-    logout: AuthResponseCore!
-    deleteUser: AuthResponse!
-    addFriend(userId: Int!, remove: Boolean): AuthResponse!
+    register(username: String!, email: String!, password: String!, name: String!): UserResponse!
+    login(handle: String!, password: String!): UserResponse!
+    logout: UserResponse!
+    deleteUser: UserResponse!
+    updateMe(username: String, email: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): UserResponse!
+    addFriend(userId: Int!, remove: Boolean): UserResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
 }

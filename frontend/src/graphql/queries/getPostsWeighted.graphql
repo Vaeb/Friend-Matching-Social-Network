@@ -5,9 +5,7 @@ query GetPostsWeighted {
             id
             text
             creator {
-                id
-                username
-                name
+                ...UserSmFields
             }
             createdAt
         }

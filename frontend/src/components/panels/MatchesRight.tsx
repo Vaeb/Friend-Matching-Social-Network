@@ -6,6 +6,8 @@ import { BsPersonBadge as IconPerson } from 'react-icons/bs';
 import { useAppStore } from '../../state';
 import PanelAction from '../PanelAction';
 import { useGetMatchesQuery } from '../../generated/graphql';
+import UserAvatar from '../UserAvatar';
+import { avatarUrl } from '../../utils/avatarUrl';
 
 const MatchesRight: FC<any> = () => {
     const theme = useMantineTheme();
@@ -23,9 +25,11 @@ const MatchesRight: FC<any> = () => {
             {!matchesFetching
                 ? matches.map(match => (
                     <Stack className='w-full items-center' key={match.user.id} spacing={4}>
-                        <PanelAction onClick={() => setView('match', null, match.user)} color='green'>
-                            <IconPerson style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
-                        </PanelAction>
+                        <UserAvatar
+                            className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
+                            url={avatarUrl(match.user)}
+                            onClick={() => setView('match', null, match.user)}
+                        />
                         <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full' px={6}>
                             @{match.user.username}
                         </Text>

@@ -1,0 +1,6 @@
+fragment UserSmFields on User {
+    id
+    username
+    name
+    color
+}

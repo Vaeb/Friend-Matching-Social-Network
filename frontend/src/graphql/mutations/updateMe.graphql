@@ -1,0 +1,28 @@
+mutation UpdateMe(
+    $username: String
+    $email: String
+    $password: String
+    $name: String
+    $color: String
+    $birthDate: Date
+    $universityId: Int
+) {
+    updateMe(
+        username: $username
+        email: $email
+        password: $password
+        name: $name
+        color: $color
+        birthDate: $birthDate
+        universityId: $universityId
+    ) {
+        ok
+        errors {
+            field
+            message
+        }
+        user {
+            ...UserMdFields
+        }
+    }
+}

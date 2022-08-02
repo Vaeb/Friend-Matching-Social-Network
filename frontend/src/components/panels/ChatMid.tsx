@@ -1,13 +1,14 @@
 import {
+    Avatar,
     Box, Group, ScrollArea, Space, Stack, Text, TextInput, TextInputProps, Title, Tooltip, 
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
-import { BsPersonCircle as IconPerson } from 'react-icons/bs';
-// import shallow from 'zustand/shallow';
 
 import { GetUserQuery, useGetMessagesQuery, useMeQuery, User, useSendMessageMutation } from '../../generated/graphql';
 import { useAppStore } from '../../state';
+import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
+import UserAvatar from '../UserAvatar';
 
 const ChatMid: FC = () => {
     // const theme = useMantineTheme();
@@ -63,21 +64,30 @@ const ChatMid: FC = () => {
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
-        <Stack className='h-full'>
-            <Title className='text-base font-bold' color='dimmed'>
+        <Stack className='h-full' spacing={0}>
+            <Title className='text-base font-bold mb-[16px]' color='dimmed'>
                 Welcome to the @{me.username} @{user.username} channel.
             </Title>
             <ScrollArea className='grow px-0 pb-0 mb-0' viewportRef={scrollRef} offsetScrollbars>
                 <Stack className='' spacing={23}>
                     {messages.map(message => (
                         <Box
-                            className={`flex items-center w-full ${isMe(message.from) ? 'text-sky-400' : 'text-red-400'}`}
+                            className='flex w-full'
                             key={message.id}
                         >
-                            <IconPerson className='h-10 w-10 cursor-pointer' onClick={() => onUserClick(message)} />
-                            <Stack ml={9} spacing={0}>
+                            {/* <IconPerson className='h-10 w-10 cursor-pointer' onClick={() => onUserClick(message)} /> */}
+                            <UserAvatar
+                                className='rounded-full w-10 h-10 mt-[2px] cursor-pointer'
+                                url={avatarUrl(message.from)}
+                                onClick={() => onUserClick(message)}
+                            />
+                            <Stack ml={16} spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
-                                    <Text className='font-medium cursor-pointer' onClick={() => onUserClick(message)}>{`${users[message.from.id].name}`}</Text>
+                                    <Text
+                                        className='font-medium cursor-pointer text-_gray-800'
+                                        style={{ color: users[message.from.id].color }}
+                                        onClick={() => onUserClick(message)}
+                                    >{`${users[message.from.id].name}`}</Text>
                                     <Text className='text-xs text-_gray-800'>·</Text>
                                     <Tooltip className='opacity-50' label={getDateString(new Date(message.createdAt))} withArrow openDelay={400}>
                                         <Text className='text-xs text-_gray-400'>{formatTime(+new Date() - +new Date(message.createdAt))}</Text>
@@ -88,7 +98,7 @@ const ChatMid: FC = () => {
                         </Box>
                     ))}
                 </Stack>
-                <Space h={10} />
+                <Space h={18} />
             </ScrollArea>
             <Box className='flex flex-col justify-end'>
                 <TextInput

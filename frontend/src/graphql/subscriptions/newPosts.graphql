@@ -3,9 +3,7 @@ subscription NewPosts {
         id
         text
         creator {
-            id
-            username
-            name
+            ...UserSmFields
         }
         createdAt
     }

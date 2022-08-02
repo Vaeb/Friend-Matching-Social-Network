@@ -18,6 +18,7 @@ const resolvers: Resolvers = {
             return 'Pong';
         }),
         getMessages: (_parent, { target, limit }, { userCore }: Context) => {
+            if (limit === undefined) limit = 20;
             console.log('Received request for getMessages:', target, limit);
             const meId = userCore.id;
             return prisma.message.findMany({

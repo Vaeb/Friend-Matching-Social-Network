@@ -23,6 +23,7 @@
         "@mantine/rte": "^5.0.0-alpha.19",
         "@urql/devtools": "^2.0.3",
         "@urql/exchange-graphcache": "^4.4.3",
+        "@urql/exchange-multipart-fetch": "^0.1.14",
         "dayjs": "^1.11.4",
         "embla-carousel-react": "^7.0.0-rc04",
         "framer-motion": "^6.3.0",

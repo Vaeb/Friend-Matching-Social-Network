@@ -1,0 +1,8 @@
+fragment UserMdFields on User {
+    id
+    username
+    name
+    color
+    uni
+    birthDate
+}
