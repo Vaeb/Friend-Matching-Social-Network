@@ -4,6 +4,8 @@ query GetPostsWeighted {
         posts {
             id
             text
+            universityId
+            studentsOnly
             creator {
                 ...UserSmFields
             }

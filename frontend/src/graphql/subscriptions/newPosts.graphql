@@ -2,6 +2,8 @@ subscription NewPosts {
     newPosts {
         id
         text
+        universityId
+        studentsOnly
         creator {
             ...UserSmFields
         }

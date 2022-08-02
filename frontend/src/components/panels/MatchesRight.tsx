@@ -30,7 +30,7 @@ const MatchesRight: FC<any> = () => {
                             url={avatarUrl(match.user)}
                             onClick={() => setView('match', null, match.user)}
                         />
-                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full' px={6}>
+                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer px-[6px]' onClick={() => setView('user', null, match.user.id)}>
                             @{match.user.username}
                         </Text>
                     </Stack>

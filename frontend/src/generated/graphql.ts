@@ -467,7 +467,7 @@ export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Ar
 export type GetPostsWeightedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> } };
+export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> } };
 
 export type GetUniversitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -511,12 +511,12 @@ export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: 
 export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } } };
+export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } } };
 
 export type NewPostsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> | null };
+export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -2664,6 +2664,8 @@ export const GetPostsWeightedDocument = gql`
     posts {
       id
       text
+      universityId
+      studentsOnly
       creator {
         ...UserSmFields
       }
@@ -2771,6 +2773,8 @@ export const NewPostDocument = gql`
   newPost {
     id
     text
+    universityId
+    studentsOnly
     creator {
       ...UserSmFields
     }
@@ -2787,6 +2791,8 @@ export const NewPostsDocument = gql`
   newPosts {
     id
     text
+    universityId
+    studentsOnly
     creator {
       ...UserSmFields
     }

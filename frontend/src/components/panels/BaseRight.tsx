@@ -40,7 +40,7 @@ const BaseRight: FC<any> = () => {
                             onClick={() => setView('chat', null, user)}
                         />
                         {/* </PanelAction> */}
-                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer' px={6} onClick={() => setView('chat', null, user)}>
+                        <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer' px={6} onClick={() => setView('user', null, user.id)}>
                             @{user.username}
                         </Text>
                     </Stack>
