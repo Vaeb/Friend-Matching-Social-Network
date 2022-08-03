@@ -47,6 +47,7 @@ export type Interest = {
 
 export type Match = {
   __typename?: 'Match';
+  id: Scalars['Int'];
   matchDate: Scalars['Date'];
   user: User;
 };
@@ -309,6 +310,7 @@ export type UserCoreResponse = {
 
 export type UserInterest = {
   __typename?: 'UserInterest';
+  id: Scalars['String'];
   interest: Interest;
   interestId: Scalars['Int'];
   score: Scalars['Int'];
@@ -447,7 +449,7 @@ export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> };
+export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', id: number, username: string, name: string, universityId?: number | null, color?: string | null } }> };
 
 export type GetMessagesQueryVariables = Exact<{
   target: Scalars['Int'];
@@ -491,7 +493,7 @@ export type GetUserByHandleQuery = { __typename?: 'Query', getUserByHandle?: { _
 export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Array<{ __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
+export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Array<{ __typename?: 'UserInterest', id: string, score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -674,6 +676,17 @@ export default {
         "kind": "OBJECT",
         "name": "Match",
         "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
           {
             "name": "matchDate",
             "type": {
@@ -2132,6 +2145,17 @@ export default {
         "name": "UserInterest",
         "fields": [
           {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
             "name": "interest",
             "type": {
               "kind": "NON_NULL",
@@ -2611,6 +2635,7 @@ export function useGetInterestsQuery(options?: Omit<Urql.UseQueryArgs<GetInteres
 export const GetMatchesDocument = gql`
     query GetMatches {
   getMatches {
+    id
     user {
       ...UserSmFields
     }
@@ -2717,6 +2742,7 @@ export function useGetUserByHandleQuery(options: Omit<Urql.UseQueryArgs<GetUserB
 export const GetUserInterestsDocument = gql`
     query GetUserInterests {
   getUserInterests {
+    id
     interest {
       id
       name

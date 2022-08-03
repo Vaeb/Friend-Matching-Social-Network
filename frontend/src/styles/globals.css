@@ -17,3 +17,7 @@
         font-family: 'Inter', system-ui, sans-serif;
     }
 }
+
+div.mantine-ScrollArea-scrollbar[data-orientation="horizontal"] {
+    display: none !important;
+}

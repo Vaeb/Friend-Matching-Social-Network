@@ -2,7 +2,7 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
-import { Post, User } from './generated/graphql';
+import { GetUniversitiesQuery, Post, User } from './generated/graphql';
 
 type Panel = 'left' | 'mid' | 'right';
 
@@ -115,13 +115,16 @@ export const useTimelineStore = create<TimelineState>(set => ({
 interface MiscState {
     resetClient: () => void;
     setSearchOpened: (React.Dispatch<React.SetStateAction<boolean>>) | null;
-    setResetClient: (resetClient: () => void) => void;
-    setSetSearchOpened: (setSearchOpened: React.Dispatch<React.SetStateAction<boolean>>) => void;
+    universityMap: Record<string | number, GetUniversitiesQuery['getUniversities'][0]>;
+    setResetClient: (resetClient: MiscState['resetClient']) => void;
+    setSetSearchOpened: (setSearchOpened: MiscState['setSearchOpened']) => void;
+    setUniversityMap: (universities: MiscState['universityMap']) => void;
 }
 
 export const useMiscStore = create<MiscState>(set => ({
     resetClient: null,
     setSearchOpened: null,
+    universityMap: {},
     setResetClient: resetClient =>
         set(produce((state) => {
             state.resetClient = resetClient;
@@ -129,6 +132,10 @@ export const useMiscStore = create<MiscState>(set => ({
     setSetSearchOpened: setSearchOpened =>
         set(produce((state) => {
             state.setSearchOpened = setSearchOpened;
+        })),
+    setUniversityMap: universityMap =>
+        set(produce((state) => {
+            state.universityMap = universityMap;
         })),
 }));
 

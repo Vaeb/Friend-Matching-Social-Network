@@ -1,5 +1,6 @@
 query GetUserInterests {
     getUserInterests {
+        id
         interest {
             id
             name

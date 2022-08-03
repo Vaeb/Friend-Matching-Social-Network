@@ -115,22 +115,22 @@ const Account: FC<any> = () => {
 
     return (
         <Stack spacing={16}>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>Name</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Name</Text>
                 <div className='flex gap-1'>
                     <TextInput ref={nameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me?.name} />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('name', [nameRef])}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>Username</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Username</Text>
                 <div className='flex gap-1'>
                     <TextInput ref={usernameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder={me?.username} />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('username', [usernameRef])}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>Password</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Password</Text>
                 <div className='flex gap-1'>
                     <PasswordInput ref={passwordRef1} classNames={{ root: 'grow' }} placeholder='Current password' autoComplete='new-password' variant='filled' />
                     <PasswordInput ref={passwordRef2} classNames={{ root: 'grow' }} placeholder='New password' autoComplete='new-password' variant='filled' />
@@ -138,8 +138,8 @@ const Account: FC<any> = () => {
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('password', [passwordRef1, passwordRef2, passwordRef3])}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>University</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>University</Text>
                 <div className='flex gap-1'>
                     <Select
                         variant='filled'
@@ -154,15 +154,15 @@ const Account: FC<any> = () => {
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>Birth date</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Birth date</Text>
                 <div className='flex gap-1'>
                     <DatePicker value={birthDate} onChange={setBirthDate} classNames={{ root: 'grow' }} variant='filled' />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('birthDate', birthDate)}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>User colour</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>User colour</Text>
                 <div className='flex gap-1'>
                     <ColorInput
                         classNames={{ root: 'grow' }}
@@ -178,8 +178,8 @@ const Account: FC<any> = () => {
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('color', colorValue)}>Save</Button>
                 </div>
             </Stack>
-            <Stack spacing={5}>
-                <Text size='md' weight='bold' color={theme.colors._gray[4]}>Avatar</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Avatar</Text>
                 <div className='flex gap-[4px]'>
                     <Dropzone
                         onDrop={onDropFiles}

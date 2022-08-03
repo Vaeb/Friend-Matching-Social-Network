@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { useMantineTheme, Box } from '@mantine/core';
+import { useMantineTheme, Box, ScrollArea } from '@mantine/core';
 
 import { useGetPostsWeightedQuery, useMeQuery, useNewMessageSubscription, useNewPostsSubscription } from '../generated/graphql';
 import { useAppStore, useTimelineStore } from '../state';
@@ -47,7 +47,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     }, [res, setPosts]);
 
     return (
-        <Box className={`h-full overflow-hidden grow bg-_black-300 ${view === 'settings' ? 'px-[50px] py-[30px]' : 'px-8 py-5'}`}>
+        <Box className='bg-_black-300 h-full grow'>
             <Heartbeat />
             <SearchModal />
             {{

@@ -3,6 +3,7 @@ import {
     AutocompleteItem,
     Box,
     Button,
+    Divider,
     Group,
     Highlight,
     NumberInput,
@@ -11,23 +12,30 @@ import {
     Switch,
     Table,
     Text,
+    TextInput,
     useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery } from '../../generated/graphql';
+import { MeQuery, useAddUserInterestMutation, useGetInterestsQuery, useGetUserInterestsQuery } from '../../generated/graphql';
 import { properToSlider, sliderToProper } from '../../utils/convertScore';
+import { useMiscStore } from '../../state';
 
 // type InterestResult = Pick<Interest, 'name'> & Partial<Pick<Interest, 'id'>>;
 // type UserInterestResult = Pick<UserInterest, 'score'> & { interest: InterestResult };
 
-const Matching = ({ userId }: { userId: number }) => {
+export const desc = 'Meet new people';
+
+const Matching = ({ me }: { me: MeQuery['me'] }) => {
     const theme = useMantineTheme();
 
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
     const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery();
     const [, sendAddUserInterest] = useAddUserInterestMutation();
+
+    const universityMap = useMiscStore(state => state.universityMap);
+
     const [filterValue, setFilterValue] = useLocalStorage({ key: 'filter-value', defaultValue: 0 });
 
     const allInterests = allInterestsParent?.getInterests || [];
@@ -120,27 +128,41 @@ const Matching = ({ userId }: { userId: number }) => {
 
     return (
         <Stack spacing={16}>
+            <Stack spacing={0}>
+                <div className='flex justify-between'>
+                    <Text className='text-[14px] font-[500] mb-[8px] text-_label'>Friend matching</Text>
+                    <div className='flex gap-1'>
+                        <Switch onLabel='ON' offLabel='OFF' size='lg' />
+                        {/* <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button> */}
+                    </div>
+                </div>
+                <Text className='text-[13px] font-[400] text-_gray-600'>Meet people with similar interests using our matching algorithm!</Text>
+            </Stack>
+
+            <Divider size='xs' color={theme.colors._dividerT2[0]} />
             {/* <Group mb='12px'> */}
-            <Autocomplete
-                mt={4}
-                className='shadow-sm'
-                label='Add new interest'
-                value={searchValue}
-                onChange={setSearchValue}
-                onDropdownOpen={() => {
-                    if (!dropdownOpen) {
-                        setSearchValue('');
-                    }
-                    console.log('opening');
-                    dropdownOpenHandlers.open();
-                }}
-                onDropdownClose={dropdownOpenHandlers.close}
-                onItemSubmit={focusInterest}
-                data={filteredInterests}
-                transition='slide-up'
-                transitionDuration={250}
-                transitionTimingFunction='ease'
-            />
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Add new interest</Text>
+                <Autocomplete
+                    mt={4}
+                    className='shadow-sm'
+                    value={searchValue}
+                    onChange={setSearchValue}
+                    onDropdownOpen={() => {
+                        if (!dropdownOpen) {
+                            setSearchValue('');
+                        }
+                        console.log('opening');
+                        dropdownOpenHandlers.open();
+                    }}
+                    onDropdownClose={dropdownOpenHandlers.close}
+                    onItemSubmit={focusInterest}
+                    data={filteredInterests}
+                    transition='slide-up'
+                    transitionDuration={250}
+                    transitionTimingFunction='ease'
+                />
+            </Stack>
             {addingInterest !== '' ? (
                 <Box className='relative mt-[-16px]'>
                     <Stack className='absolute w-full h-[200]'>
@@ -191,6 +213,35 @@ const Matching = ({ userId }: { userId: number }) => {
                     <tbody>{rows}</tbody>
                 </Table>
             </motion.div>
+
+            <Divider size='xs' color={theme.colors._dividerT2[0]} />
+            <Text className='text-[14px] font-[700] text-_gray-400 uppercase'>{universityMap[me.universityId]?.name} SETTINGS</Text>
+            <Stack spacing={0}>
+                <div className='flex justify-between'>
+                    <Text className='text-[14px] font-[500] mb-[8px] text-_label'>Automatic friend generation</Text>
+                    <div className='flex gap-1'>
+                        <Switch onLabel='ON' offLabel='OFF' size='lg' />
+                        {/* <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button> */}
+                    </div>
+                </div>
+                <Text className='text-[13px] font-[400] text-_gray-600'>Meet people with similar interests using our matching algorithm!</Text>
+            </Stack>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>User colour</Text>
+                <div className='flex gap-1'>
+                    <TextInput classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' />
+                    <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button>
+                </div>
+            </Stack>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>User colour</Text>
+                <div className='flex gap-1'>
+                    <TextInput classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' />
+                    <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button>
+                </div>
+            </Stack>
+
+            <Divider size='xs' color={theme.colors._dividerT2[0]} />
             <NumberInput
                 className='shadow-sm'
                 defaultValue={filterValue}
@@ -213,7 +264,5 @@ const Matching = ({ userId }: { userId: number }) => {
         </Stack>
     );
 };
-
-export const desc = 'What are your interests?';
 
 export default Matching;

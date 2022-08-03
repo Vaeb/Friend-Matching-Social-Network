@@ -6,7 +6,9 @@ import React from 'react';
 import { useGetPostsFromUserQuery, useGetUserQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
 import { formatTime, getDateString } from '../../utils/formatTime';
+import CustomScroll from '../CustomScroll';
 import FullLoader from '../FullLoader';
+import PaddedArea from '../PaddedArea';
 
 const UserMid = () => {
     const userId = useAppStore(state => state.mid.viewValue);
@@ -18,13 +20,18 @@ const UserMid = () => {
     return (
         user ?
             <Stack className='h-full'>
-                <div className='flex gap-[5px] items-center'>
-                    <Text className='text-[26px] font-bold text-_gray-800'>{user.name}</Text>
-                    <Text className='text-[26px]'>·</Text>
-                    <Text className='text-[26px] text-_gray-800'>@{user.username}</Text>
-                </div>
+                <Stack spacing={0}>
+                    <PaddedArea x className='h-[50px] flex flex-col justify-center'>
+                        <div className='flex gap-[5px] items-center text-[22px]'>
+                            <p className='font-[700] text-_gray-800'>{user.name}</p>
+                            <p className=''>·</p>
+                            <p className='text-_gray-400'>@{user.username}</p>
+                        </div>
+                    </PaddedArea>
+                    <div className='h-[1px] shadow-_box6' />
+                </Stack>
 
-                <ScrollArea className='grow px-0 pb-0' offsetScrollbars>
+                <CustomScroll scrollPadded>
                     <SimpleGrid cols={4}>
                         {posts ? posts.map(post => (
                             <Card key={post.id} shadow='sm' p='lg' radius='md' withBorder>
@@ -47,7 +54,7 @@ const UserMid = () => {
                             </Card>
                         )) : null}
                     </SimpleGrid>
-                </ScrollArea>
+                </CustomScroll>
             </Stack>
             : <FullLoader />
     );

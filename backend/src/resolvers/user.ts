@@ -38,20 +38,23 @@ const resolvers: Resolvers = {
             if (!userCore) return null;
             return prisma.user.findUnique({ where: { id: userCore.id } });
         },
-        getUserInterests: (_parent, _, { userCore }: Context) => {
+        getUserInterests: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getUserInterests');
             const userId = userCore.id;
-            return prisma.userInterest.findMany({
+            const userInterests = (await prisma.userInterest.findMany({
                 where: { userId },
                 include: { interest: true },
                 orderBy: { score: 'desc' },
-            });
+            }))
+                .map(userInterest => ({ id: `${userInterest.userId}-${userInterest.interestId}`, ...userInterest }));
+            return userInterests;
         },
         getMatches: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getMatches');
             const userId = userCore.id;
 
-            const matches = await getUserRelations(userId, '"haveMatched" = true AND "areFriends" = false');
+            const matches = (await getUserRelations(userId, '"haveMatched" = true AND "areFriends" = false'))
+                .map(match => ({ id: match.user.id, ...match }));
 
             return matches as any;
         },

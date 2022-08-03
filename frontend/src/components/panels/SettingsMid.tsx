@@ -5,6 +5,8 @@ import Matching, { desc as matchingDesc } from '../settings/Matching';
 
 import { MeQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
+import CustomScroll from '../CustomScroll';
+import PaddedArea from '../PaddedArea';
 
 const descriptions: Record<string, string> = {
     account: accountDesc,
@@ -21,18 +23,20 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
     const desc = descriptions[section];
 
     return data?.me ? (
-        <ScrollArea className='h-full'>
-            <Title className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
-                {section}
-            </Title>
-            {desc ? <Text size='md' weight='bold' color={theme.colors._gray[4]} mb={34}>
-                {desc}
-            </Text> : null}
-            {{
-                account: <Account username={data.me.username} />,
-                matching: <Matching userId={data.me.id} />,
-            }[section]}
-        </ScrollArea>
+        <CustomScroll>
+            <PaddedArea full xScr y>
+                <Title className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
+                    {section}
+                </Title>
+                {desc ? <Text size='md' weight='bold' color={theme.colors._gray[4]} mb={34}>
+                    {desc}
+                </Text> : null}
+                {{
+                    account: <Account username={data.me.username} />,
+                    matching: <Matching me={data.me} />,
+                }[section]}
+            </PaddedArea>
+        </CustomScroll>
     ) : null;
 };
 

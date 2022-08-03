@@ -22,6 +22,10 @@ module.exports = {
                     800: '#dcddde',
                 },
                 _dividerT: 'rgba(79, 84, 92, 0.48)',
+                _dividerT2: 'rgba(79, 84, 92, 0.9)',
+                _label: '#c1c2c5',
+                _scrollThumb: { 50: 'hsl(216, 7.2%, 13.5%)', 100: 'hsl(216, 7.2%, 13.5%)', 200: 'hsl(216, 7.2%, 13.5%)' },
+                _scrollTrack: { 50: 'hsl(210, 9.8%, 20%)', 100: 'hsl(223, 6.9%, 19.8%)', 200: 'hsla(0,0%,0%,0)' },
                 _sky: {
                     500: '#00aff4',
                 },
@@ -33,6 +37,7 @@ module.exports = {
                     0 15.1px 24.1px rgba(0, 0, 0, 0.051),
                     0 30px 40px rgba(0, 0, 0, 0.5)
                 `,
+                _box6: 'rgba(4, 4, 5, 0.2) 0px 1px 0px 0px, rgba(6, 6, 7, 0.05) 0px 1.5px 0px 0px, rgba(4, 4, 5, 0.05) 0px 2px 0px 0px',
             },
             fontFamily: {
                 sans: ["'Inter'", ...defaultTheme.fontFamily.sans],

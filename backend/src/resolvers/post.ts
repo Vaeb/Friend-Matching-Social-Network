@@ -32,7 +32,7 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
         // where: { creatorId: { in: userIds } },
         include: { creator: true },
         orderBy: { createdAt: 'desc' },
-        take: 40,
+        take: 30,
     });
 
     return { id: 1, posts };

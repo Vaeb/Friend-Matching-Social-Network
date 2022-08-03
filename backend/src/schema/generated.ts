@@ -44,6 +44,7 @@ export type Interest = {
 
 export type Match = {
   __typename?: 'Match';
+  id: Scalars['Int'];
   matchDate: Scalars['Date'];
   user: User;
 };
@@ -306,6 +307,7 @@ export type UserCoreResponse = {
 
 export type UserInterest = {
   __typename?: 'UserInterest';
+  id: Scalars['String'];
   interest: Interest;
   interestId: Scalars['Int'];
   score: Scalars['Int'];
@@ -508,6 +510,7 @@ export type InterestResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type MatchResolvers<ContextType = any, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchDate?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -648,6 +651,7 @@ export type UserCoreResponseResolvers<ContextType = any, ParentType extends Reso
 };
 
 export type UserInterestResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserInterest'] = ResolversParentTypes['UserInterest']> = {
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   interest?: Resolver<ResolversTypes['Interest'], ParentType, ContextType>;
   interestId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

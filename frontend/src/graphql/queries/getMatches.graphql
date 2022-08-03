@@ -1,5 +1,6 @@
 query GetMatches {
     getMatches {
+        id
         user {
             ...UserSmFields
         }

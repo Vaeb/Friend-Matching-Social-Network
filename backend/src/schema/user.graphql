@@ -52,6 +52,7 @@ type UserCoreResponse {
 }
 
 type UserInterest {
+    id: String!
     userId: Int!
     interestId: Int!
     user: User
@@ -71,6 +72,7 @@ type UserInterestResponse {
 }
 
 type Match {
+    id: Int!
     user: User!
     matchDate: Date!
 }

@@ -1,5 +1,5 @@
 import {
-    Box, Button, ScrollArea, Stack, Text, Textarea, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
+    Box, Button, Divider, ScrollArea, Stack, Text, Textarea, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
 import shallow from 'zustand/shallow';
@@ -8,6 +8,8 @@ import { useMeQuery, useSendPostMutation } from '../../generated/graphql';
 import { useAppStore, useTimelineStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
+import CustomScroll from '../CustomScroll';
+import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
 
 const getPostTime = (postDateRaw: Date | number, nowDate = new Date()) => {
@@ -70,60 +72,66 @@ const TimelineMid: FC = () => {
         <Stack className='h-full'>
             {/* Your Timeline */}
             {/* Should have timeline 'For You' (Weighted 'Friends' 'Recent', 'Likes', 'Interest Compatibility' (if allowed)): Can tick individual boxes for algorithm */}
-            <Title className='text-[26px] font-bold text-_gray-800'>Timeline</Title>
-            <ScrollArea className='grow px-0 pb-0' viewportRef={scrollRef} offsetScrollbars>
-                <Stack className='' spacing={23}>
-                    <Box className='flex flex-col justify-end'>
-                        <Box className='flex w-full'>
-                            <Textarea
-                                ref={textareaRef}
-                                // contentEditable='true' data-testid='tweetTextarea_0' role='textbox' spellCheck='true' tabIndex={0}
-                                autoComplete='off'
-                                className='grow'
-                                classNames={{
-                                    input: 'h-[90px] min-h-[70px] text-_gray-800 pl-[66px]',
-                                    icon: 'items-start mt-[15px]',
-                                }}
-                                styles={{
-                                    input: {
-                                        '::placeholder': {
-                                            fontSize: '18px',
-                                            color: theme.colors._gray[6],
-                                            // lineHeight: '68px',
-                                        },
-                                        paddingTop: '20px !important',
-                                        // // lineHeight: '48px',
+            <Stack spacing={0}>
+                <PaddedArea x className='h-[50px] flex flex-col justify-center'>
+                    <Text className='text-[22px] font-[700] text-_gray-800'>Timeline</Text>
+                </PaddedArea>
+                <div className='h-[1px] shadow-_box6' />
+            </Stack>
+            <CustomScroll ref={scrollRef} scrollPadded>
+                <Box className='flex flex-col justify-end'>
+                    <Box className='flex w-full'>
+                        <Textarea
+                            ref={textareaRef}
+                            // contentEditable='true' data-testid='tweetTextarea_0' role='textbox' spellCheck='true' tabIndex={0}
+                            autoComplete='off'
+                            className='grow'
+                            classNames={{
+                                input: 'h-[90px] min-h-[70px] text-_gray-800 pl-[66px]',
+                                icon: 'items-start mt-[15px]',
+                            }}
+                            styles={{
+                                input: {
+                                    '::placeholder': {
+                                        fontSize: '18px',
+                                        color: theme.colors._gray[6],
+                                        // lineHeight: '68px',
                                     },
-                                }}
-                                size='xl'
-                                radius='md'
-                                rightSection={
-                                    <Box className='w-30 self-end mb-[14px]'>
-                                        <Button className='float-left' styles={{ root: { width: 130 } }} size='md' variant='gradient' onClick={sendPost}>Send post</Button>
-                                    </Box>
-                                }
-                                rightSectionWidth={160}
-                                rightSectionProps={{
-                                    className: 'flex flex-col self-end',
-                                }}
-                                placeholder={'What\'s on your mind?'}
-                                icon={
-                                    // <IconPerson className='h-10 w-10' color={theme.colors._gray[8]} />
-                                    <UserAvatar
-                                        className='rounded-full w-10 h-10 cursor-pointer'
-                                        url={avatarUrl(me)}
-                                    />
-                                }
-                                // onKeyDown={onKeyDown}
-                                autosize
+                                    paddingTop: '20px !important',
+                                    // // lineHeight: '48px',
+                                },
+                            }}
+                            size='xl'
+                            radius='md'
+                            rightSection={
+                                <Box className='w-30 self-end mb-[14px]'>
+                                    <Button className='float-left' styles={{ root: { width: 130 } }} size='md' variant='gradient' onClick={sendPost}>Send post</Button>
+                                </Box>
+                            }
+                            rightSectionWidth={160}
+                            rightSectionProps={{
+                                className: 'flex flex-col self-end',
+                            }}
+                            placeholder={'What\'s on your mind?'}
+                            icon={
+                                // <IconPerson className='h-10 w-10' color={theme.colors._gray[8]} />
+                                <UserAvatar
+                                    className='rounded-full w-10 h-10 cursor-pointer'
+                                    url={avatarUrl(me)}
+                                />
+                            }
+                            // onKeyDown={onKeyDown}
+                            autosize
                             // minRows={2}
-                            />
-                        </Box>
-                        {/* <Box>
+                        />
+                    </Box>
+                    {/* <Box>
                             <Button className='float-left' size='sm' variant='default'>Send post</Button>
                         </Box> */}
-                    </Box>
+                </Box>
+                <Stack className='mt-[23px] mb-[18px]' spacing={23}>
                     {posts.map(post => ( // style={{ color: post.creator.color, opacity: 0.7 }}
+                        // <>
                         <Box className='flex w-full text-_gray-800 px-[10px]' key={post.id}>
                             <Box>
                                 {/* <IconPerson className='h-10 w-10 mt-[5px] cursor-pointer' onClick={() => onUserClick(post)} /> */}
@@ -135,7 +143,7 @@ const TimelineMid: FC = () => {
                             </Box>
                             <Stack ml={16} spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
-                                    <Text className='font-[600] cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
+                                    <Text className='font-[500] cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
                                     <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.creator.username})</Text>
                                     <Text className='text-xs'>·</Text>
                                     <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>
@@ -145,9 +153,10 @@ const TimelineMid: FC = () => {
                                 <Text className='text-base text-gray-_800'>{post.text}</Text>
                             </Stack>
                         </Box>
+                        // <Divider key={`${post.id}-divider`} size='xs' color={theme.colors._dividerT2[0]} /> </>
                     ))}
                 </Stack>
-            </ScrollArea>
+            </CustomScroll>
         </Stack>
     );
 };
