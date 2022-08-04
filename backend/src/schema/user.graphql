@@ -1,23 +1,44 @@
-type User {
+type Me {
     id: Int!
     username: String!
     email: String!
     name: String!
     color: String
     universityId: Int
-    uni: String
+    confirmedUniversityIds: [Int!]
     birthDate: Date
     matchPrecision: Int!
     visEmail: Int!
     visInterests: Int!
-    relations: [UserRelation]
-    posts(limit: Int): [Post]
+    # relations: [UserRelation]
+    # posts(limit: Int): [Post]
     # comments(limit: Int): [Int]!
     # reactions(limit: Int): [Int]!
-    savedPosts(limit: Int): [Post]
+    # savedPosts(limit: Int): [Post]
     updatedInterests: Date
     updatedAt: Date
     createdAt: Date
+    uni: String
+    # Match Settings
+    manualEnabled: Boolean
+    lastAutoMatched: Date
+    autoFreq: Int
+    matchStudents: Boolean
+    snoozedUntil: Date
+}
+
+type User {
+    id: Int!
+    username: String!
+    name: String!
+    color: String
+    confirmedUniversityIds: [Int!]
+    birthDate: Date
+    visEmail: Int!
+    visInterests: Int!
+    updatedAt: Date
+    createdAt: Date
+    # Relation Fields
     areFriends: Boolean
     friendDate: Date
     haveMatched: Boolean
@@ -43,6 +64,12 @@ type UserResponse {
     ok: Boolean!
     errors: [Error!]
     user: User
+}
+
+type MeResponse {
+    ok: Boolean!
+    errors: [Error!]
+    user: Me
 }
 
 type UserCoreResponse {
@@ -84,15 +111,16 @@ type Query {
     getUserInterests: [UserInterest!]!
     getMatches: [Match!]!
     getChats: [User!]!
-    me: User
+    me: Me
 }
 
 type Mutation {
-    register(username: String!, email: String!, password: String!, name: String!, universityId: Int!): UserResponse!
-    login(handle: String!, password: String!): UserResponse!
-    logout: UserResponse!
-    deleteUser: UserResponse!
-    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): UserResponse!
+    register(username: String!, email: String!, password: String!, name: String!, universityId: Int!): MeResponse!
+    login(handle: String!, password: String!): MeResponse!
+    logout: MeResponse!
+    deleteUser: MeResponse!
+    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): MeResponse!
+    updateMatchSettings(manualEnabled: Boolean, autoFreq: Int, matchStudents: Boolean, snoozedUntil: Date): MeResponse!
     addFriend(userId: Int!, remove: Boolean): UserResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!

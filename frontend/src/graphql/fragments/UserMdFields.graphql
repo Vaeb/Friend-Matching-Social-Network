@@ -1,5 +1,4 @@
 fragment UserMdFields on User {
     ...UserSmFields
-    uni
     birthDate
 }

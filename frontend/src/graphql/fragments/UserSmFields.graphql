@@ -1,7 +1,5 @@
 fragment UserSmFields on User {
-    id
-    username
+    ...UserXsFields
     name
-    universityId
     color
 }

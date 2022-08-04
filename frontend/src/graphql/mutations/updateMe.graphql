@@ -24,7 +24,7 @@ mutation UpdateMe(
             message
         }
         user {
-            ...UserMdFields
+            ...MeMdFields
         }
     }
 }

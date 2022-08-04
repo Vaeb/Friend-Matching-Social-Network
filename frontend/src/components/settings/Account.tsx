@@ -1,7 +1,7 @@
 import {
     ActionIcon,
     Avatar,
-    Button, ColorInput, Group, Image, PasswordInput, Select, Stack, Text, TextInput, useMantineTheme, 
+    Button, ColorInput, Divider, Group, Image, PasswordInput, Select, Stack, Text, TextInput, useMantineTheme, 
 } from '@mantine/core';
 import React, { FC, useRef, useState } from 'react';
 import { DatePicker } from '@mantine/dates';
@@ -114,7 +114,7 @@ const Account: FC<any> = () => {
     };
 
     return (
-        <Stack spacing={16}>
+        <Stack spacing={18}>
             <Stack spacing={2}>
                 <Text className='text-[14px] font-[500] text-_label'>Name</Text>
                 <div className='flex gap-1'>
@@ -229,6 +229,18 @@ const Account: FC<any> = () => {
                         <Button size='sm' variant='filled' color='grape' onClick={() => saveAvatar()}>Save</Button>
                     </Stack>
                 </div>
+            </Stack>
+
+            <Divider size='xs' color={theme.colors._dividerT2[0]} />
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Confirm university membership</Text>
+                <div className='flex gap-1'>
+                    <TextInput ref={nameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder='student@university.ac.uk' />
+                    <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
+                </div>
+                <Text className='text-[13px] font-[400] text-_gray-600'>
+                    Confirm your student status by providing your {me.uni} email address.
+                </Text>
             </Stack>
         </Stack>
     );

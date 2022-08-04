@@ -168,18 +168,46 @@ export const getUserRelations = async (userId: number, bonusWhere?: string, othe
     return relations;
 };
 
-export const getBigUser = async (meId, userId) => {
-    const [userRelation] = await getUserRelations(meId, undefined, userId);
-
+export const getBigUser = async (meId, userId?: any) => {
+    const [userRelation] = meId != userId ? await getUserRelations(meId, undefined, userId) : [];
     if (userRelation) {
         const { user: baseUser, ...bigUser } = { ...userRelation, ...userRelation.user };
 
-        return bigUser;
+        const extraDetails = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                university: { select: { name: true } },
+                matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
+            },
+        });
+
+        const fullUser = { ...bigUser, uni: extraDetails.university.name, ...extraDetails.matchSettings[0] };
+
+        return fullUser;
     } else {
         const user = await prisma.user.findUnique({
             where: { id: userId },
+            include: {
+                university: { select: { name: true } },
+                matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
+            },
         });
+        
+        const { university: _, matchSettings: __, ...fullUser } = { ...user, uni: user.university.name, ...user.matchSettings[0] };
 
-        return user;
+        return fullUser;
     }
+};
+
+export const setupMatchSettings = async (meId, universityId) => {
+    console.log(meId, universityId);
+    const matchSettings = await prisma.matchSettings.upsert({
+        where: { userId_universityId: { userId: meId, universityId } },
+        update: {},
+        create: {
+            userId: meId,
+            universityId,
+        },
+    });
+    return matchSettings;
 };

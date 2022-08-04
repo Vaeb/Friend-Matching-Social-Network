@@ -49,6 +49,37 @@ export type Match = {
   user: User;
 };
 
+export type Me = {
+  __typename?: 'Me';
+  autoFreq?: Maybe<Scalars['Int']>;
+  birthDate?: Maybe<Scalars['Date']>;
+  color?: Maybe<Scalars['String']>;
+  confirmedUniversityIds?: Maybe<Array<Scalars['Int']>>;
+  createdAt?: Maybe<Scalars['Date']>;
+  email: Scalars['String'];
+  id: Scalars['Int'];
+  lastAutoMatched?: Maybe<Scalars['Date']>;
+  manualEnabled?: Maybe<Scalars['Boolean']>;
+  matchPrecision: Scalars['Int'];
+  matchStudents?: Maybe<Scalars['Boolean']>;
+  name: Scalars['String'];
+  snoozedUntil?: Maybe<Scalars['Date']>;
+  uni?: Maybe<Scalars['String']>;
+  universityId?: Maybe<Scalars['Int']>;
+  updatedAt?: Maybe<Scalars['Date']>;
+  updatedInterests?: Maybe<Scalars['Date']>;
+  username: Scalars['String'];
+  visEmail: Scalars['Int'];
+  visInterests: Scalars['Int'];
+};
+
+export type MeResponse = {
+  __typename?: 'MeResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  user?: Maybe<Me>;
+};
+
 export type Message = {
   __typename?: 'Message';
   createdAt: Scalars['Date'];
@@ -78,14 +109,15 @@ export type Mutation = {
   addFriend: UserResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
-  deleteUser: UserResponse;
-  login: UserResponse;
-  logout: UserResponse;
-  register: UserResponse;
+  deleteUser: MeResponse;
+  login: MeResponse;
+  logout: MeResponse;
+  register: MeResponse;
   sendMessage: MessageResponse;
   sendPost: SendPostResponse;
   singleUpload: File;
-  updateMe: UserResponse;
+  updateMatchSettings: MeResponse;
+  updateMe: MeResponse;
 };
 
 
@@ -138,6 +170,14 @@ export type MutationSingleUploadArgs = {
 };
 
 
+export type MutationUpdateMatchSettingsArgs = {
+  autoFreq?: InputMaybe<Scalars['Int']>;
+  manualEnabled?: InputMaybe<Scalars['Boolean']>;
+  matchStudents?: InputMaybe<Scalars['Boolean']>;
+  snoozedUntil?: InputMaybe<Scalars['Date']>;
+};
+
+
 export type MutationUpdateMeArgs = {
   birthDate?: InputMaybe<Scalars['Date']>;
   color?: InputMaybe<Scalars['String']>;
@@ -175,7 +215,7 @@ export type Query = {
   getUserByHandle?: Maybe<User>;
   getUserInterests: Array<UserInterest>;
   getUsers: Array<User>;
-  me?: Maybe<User>;
+  me?: Maybe<Me>;
   ping: Scalars['String'];
   pingTest?: Maybe<Scalars['String']>;
 };
@@ -261,35 +301,18 @@ export type User = {
   birthDate?: Maybe<Scalars['Date']>;
   color?: Maybe<Scalars['String']>;
   compatibility?: Maybe<Scalars['Int']>;
+  confirmedUniversityIds?: Maybe<Array<Scalars['Int']>>;
   createdAt?: Maybe<Scalars['Date']>;
-  email: Scalars['String'];
   friendDate?: Maybe<Scalars['Date']>;
   haveMatched?: Maybe<Scalars['Boolean']>;
   id: Scalars['Int'];
   matchDate?: Maybe<Scalars['Date']>;
-  matchPrecision: Scalars['Int'];
   name: Scalars['String'];
-  posts?: Maybe<Array<Maybe<Post>>>;
-  relations?: Maybe<Array<Maybe<UserRelation>>>;
-  savedPosts?: Maybe<Array<Maybe<Post>>>;
-  uni?: Maybe<Scalars['String']>;
-  universityId?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
-  updatedInterests?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
   visEmail: Scalars['Int'];
   visInterests: Scalars['Int'];
-};
-
-
-export type UserPostsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type UserSavedPostsArgs = {
-  limit?: InputMaybe<Scalars['Int']>;
 };
 
 export type UserCore = {
@@ -425,6 +448,8 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Interest: ResolverTypeWrapper<Interest>;
   Match: ResolverTypeWrapper<Match>;
+  Me: ResolverTypeWrapper<Me>;
+  MeResponse: ResolverTypeWrapper<MeResponse>;
   Message: ResolverTypeWrapper<Message>;
   MessageResponse: ResolverTypeWrapper<MessageResponse>;
   MessageSubResponse: ResolverTypeWrapper<MessageSubResponse>;
@@ -457,6 +482,8 @@ export type ResolversParentTypes = {
   Int: Scalars['Int'];
   Interest: Interest;
   Match: Match;
+  Me: Me;
+  MeResponse: MeResponse;
   Message: Message;
   MessageResponse: MessageResponse;
   MessageSubResponse: MessageSubResponse;
@@ -516,6 +543,37 @@ export type MatchResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Me'] = ResolversParentTypes['Me']> = {
+  autoFreq?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  birthDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  confirmedUniversityIds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastAutoMatched?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  manualEnabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  matchPrecision?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  matchStudents?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  snoozedUntil?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  uni?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  universityId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  updatedInterests?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visEmail?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  visInterests?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MeResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MeResponse'] = ResolversParentTypes['MeResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MessageResolvers<ContextType = any, ParentType extends ResolversParentTypes['Message'] = ResolversParentTypes['Message']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   from?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -544,14 +602,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addFriend?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
-  deleteUser?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType>;
-  login?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
-  logout?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType>;
-  register?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
+  deleteUser?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType>;
+  login?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
+  logout?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType>;
+  register?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
   sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
   sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
   singleUpload?: Resolver<ResolversTypes['File'], ParentType, ContextType, RequireFields<MutationSingleUploadArgs, 'file'>>;
-  updateMe?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
+  updateMatchSettings?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, Partial<MutationUpdateMatchSettingsArgs>>;
+  updateMe?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
 };
 
 export type PostResolvers<ContextType = any, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
@@ -579,7 +638,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
   getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;
   getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
-  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   pingTest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
@@ -615,22 +674,15 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   birthDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   compatibility?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  confirmedUniversityIds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   friendDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   haveMatched?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  matchPrecision?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  posts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<UserPostsArgs>>;
-  relations?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserRelation']>>>, ParentType, ContextType>;
-  savedPosts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType, Partial<UserSavedPostsArgs>>;
-  uni?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  universityId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedCompatibility?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  updatedInterests?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   visEmail?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   visInterests?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -695,6 +747,8 @@ export type Resolvers<ContextType = any> = {
   GenResponse?: GenResponseResolvers<ContextType>;
   Interest?: InterestResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
+  Me?: MeResolvers<ContextType>;
+  MeResponse?: MeResponseResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   MessageResponse?: MessageResponseResolvers<ContextType>;
   MessageSubResponse?: MessageSubResponseResolvers<ContextType>;

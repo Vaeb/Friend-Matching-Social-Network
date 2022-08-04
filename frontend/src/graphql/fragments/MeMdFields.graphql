@@ -1,0 +1,10 @@
+fragment MeMdFields on Me {
+    ...MeSmFields
+    birthDate
+    uni
+    manualEnabled
+    lastAutoMatched
+    autoFreq
+    snoozedUntil
+    matchStudents
+}

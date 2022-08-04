@@ -1,0 +1,4 @@
+fragment MeXsFields on Me {
+    id
+    username
+}

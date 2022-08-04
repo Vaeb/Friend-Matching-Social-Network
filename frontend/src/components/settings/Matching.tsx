@@ -27,12 +27,19 @@ import { useMiscStore } from '../../state';
 
 export const desc = 'Meet new people';
 
+const matchFreqPhrase = (days) => {
+    if (days == 0) return 'no automatic matches';
+    if (days == 1) return 'at most one automatic match every day';
+    return `at most one automatic match every ${days} days`;
+};
+
 const Matching = ({ me }: { me: MeQuery['me'] }) => {
     const theme = useMantineTheme();
 
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
     const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery();
     const [, sendAddUserInterest] = useAddUserInterestMutation();
+    const meMatchFreq = 20;
 
     const universityMap = useMiscStore(state => state.universityMap);
 
@@ -127,13 +134,12 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
     ));
 
     return (
-        <Stack spacing={16}>
+        <Stack spacing={18}>
             <Stack spacing={0}>
                 <div className='flex justify-between'>
                     <Text className='text-[14px] font-[500] mb-[8px] text-_label'>Friend matching</Text>
                     <div className='flex gap-1'>
                         <Switch onLabel='ON' offLabel='OFF' size='lg' />
-                        {/* <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button> */}
                     </div>
                 </div>
                 <Text className='text-[13px] font-[400] text-_gray-600'>Meet people with similar interests using our matching algorithm!</Text>
@@ -216,29 +222,43 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />
             <Text className='text-[14px] font-[700] text-_gray-400 uppercase'>{universityMap[me.universityId]?.name} SETTINGS</Text>
+            <Stack spacing={2}>
+                <Text className='text-[14px] font-[500] text-_label'>Automatic match frequency (days)</Text>
+                <div className='flex gap-1 items-center'>
+                    <Slider
+                        className='shadow-sm mx-1'
+                        classNames={{ root: 'grow', markLabel: 'text-[13px] font-[400] text-_gray-600' }}
+                        defaultValue={meMatchFreq}
+                        min={0}
+                        max={31}
+                        step={1}
+                        marks={[{ value: 0, label: 'Off' }, { value: 31, label: '31' }]}
+                        // value={sliderValue}
+                        // onChange={setSliderValue}
+                    />
+                    <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button>
+                </div>
+                <Text className='mt-[9px] text-[13px] font-[400] text-_gray-600'>
+                    How often do you want to receive matches? You are currently receiving {matchFreqPhrase(meMatchFreq)}.
+                </Text>
+            </Stack>
             <Stack spacing={0}>
                 <div className='flex justify-between'>
-                    <Text className='text-[14px] font-[500] mb-[8px] text-_label'>Automatic friend generation</Text>
+                    <Text className='text-[14px] font-[500] text-_label'>Manual matching</Text>
                     <div className='flex gap-1'>
                         <Switch onLabel='ON' offLabel='OFF' size='lg' />
-                        {/* <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button> */}
                     </div>
                 </div>
-                <Text className='text-[13px] font-[400] text-_gray-600'>Meet people with similar interests using our matching algorithm!</Text>
+                <Text className='text-[13px] font-[400] text-_gray-600'>Instantly generate a match (at most once per day), and allow others to do the same with you.</Text>
             </Stack>
-            <Stack spacing={2}>
-                <Text className='text-[14px] font-[500] text-_label'>User colour</Text>
-                <div className='flex gap-1'>
-                    <TextInput classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' />
-                    <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button>
+            <Stack spacing={0}>
+                <div className='flex justify-between'>
+                    <Text className='opacity-40 text-[14px] font-[500] mb-[8px] text-_label'>Confirmed students only</Text>
+                    <div className='flex gap-1'>
+                        <Switch disabled onLabel='ON' offLabel='OFF' size='lg' />
+                    </div>
                 </div>
-            </Stack>
-            <Stack spacing={2}>
-                <Text className='text-[14px] font-[500] text-_label'>User colour</Text>
-                <div className='flex gap-1'>
-                    <TextInput classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' />
-                    <Button size='sm' variant='filled' color='grape' onClick={null}>Save</Button>
-                </div>
+                <Text className='opacity-40 text-[13px] font-[400] text-_gray-600'>Only match with confirmed students.</Text>
             </Stack>
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />

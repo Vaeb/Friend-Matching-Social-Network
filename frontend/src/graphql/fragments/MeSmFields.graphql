@@ -1,0 +1,6 @@
+fragment MeSmFields on Me {
+    ...MeXsFields
+    name
+    universityId
+    color
+}

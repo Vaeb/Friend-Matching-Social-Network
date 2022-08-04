@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 
 import { login, logout, updateTokens } from '../authentication';
 import { prisma } from '../server';
-import { consoleError, formatErrors, getBigUser, getUserRelations } from '../utils';
+import { consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings } from '../utils';
 import { Context } from '../types';
 import type { Error, Resolvers } from '../schema/generated';
 
@@ -34,9 +34,10 @@ const resolvers: Resolvers = {
                 take: limit ?? undefined,
             });
         },
-        me: (_parent, _, { userCore }: Context) => {
+        me: async (_parent, _, { userCore }: Context) => {
             if (!userCore) return null;
-            return prisma.user.findUnique({ where: { id: userCore.id } });
+            const me = await getBigUser(userCore.id, userCore.id);
+            return me;
         },
         getUserInterests: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getUserInterests');
@@ -121,6 +122,8 @@ const resolvers: Resolvers = {
                 args.password = await hashPassword(rawPass);
 
                 const user = await prisma.user.create({ data: args });
+
+                setupMatchSettings(user.id, user.universityId);
 
                 console.log('Success! Logging in...');
                 await login(args.username, rawPass, res);
@@ -368,11 +371,17 @@ const resolvers: Resolvers = {
                     data: args,
                 });
 
+                if (args.universityId) {
+                    setupMatchSettings(user.id, user.universityId);
+                }
+
                 if (args.username || args.universityId) {
                     await updateTokens(req, res, userCore);
                 }
 
-                return { ok: true, user };
+                const bigUser = await getBigUser(user.id, user.id);
+
+                return { ok: true, user: bigUser };
             } catch (err) {
                 consoleError('UPDATE_ME', err);
                 return {
@@ -383,43 +392,43 @@ const resolvers: Resolvers = {
         },
     },
     User: {
-        relations: async ({ id: userId }) => {
-            // const relations = await prisma.userRelations.findMany({
-            //     // Could improve as prisma.posts.findMany where creatorId=userId
-            //     where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
-            //     include: { user1: true, user2: true },
-            // });
+        // relations: async ({ id: userId }) => {
+        //     // const relations = await prisma.userRelations.findMany({
+        //     //     // Could improve as prisma.posts.findMany where creatorId=userId
+        //     //     where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
+        //     //     include: { user1: true, user2: true },
+        //     // });
 
-            // Two choices:
-            // 1. Add each relation twice (interchange user1 and user2) and have a separate table for the relation data
-            // b. Possible performance benefit: Can keep each user1 row stored on a server shard close to user1
-            // 2. Add each relation once and require all queries involving relations to be raw SQL + extra TS to parse together
-            const relations = await getUserRelations(userId);
-            return relations;
-        },
-        posts: async ({ id: userId }, { limit }, { userCore }: Context) => {
-            const { universityId } = userCore;
+        //     // Two choices:
+        //     // 1. Add each relation twice (interchange user1 and user2) and have a separate table for the relation data
+        //     // b. Possible performance benefit: Can keep each user1 row stored on a server shard close to user1
+        //     // 2. Add each relation once and require all queries involving relations to be raw SQL + extra TS to parse together
+        //     const relations = await getUserRelations(userId);
+        //     return relations;
+        // },
+        // posts: async ({ id: userId }, { limit }, { userCore }: Context) => {
+        //     const { universityId } = userCore;
 
-            const posts = await prisma.post.findMany({
-                // Could improve as prisma.posts.findMany where creatorId=userId
-                where: { creatorId: userId, universityId },
-                take: limit ?? undefined,
-                include: { creator: true },
-            });
+        //     const posts = await prisma.post.findMany({
+        //         // Could improve as prisma.posts.findMany where creatorId=userId
+        //         where: { creatorId: userId, universityId },
+        //         take: limit ?? undefined,
+        //         include: { creator: true },
+        //     });
 
-            return posts;
-        },
-        savedPosts: async ({ id: userId }, { limit }) => {
-            const me = await prisma.user.findUnique({
-                // Possible equivalent for many-to-many?
-                where: { id: userId },
-                select: {
-                    savedPosts: { take: limit ?? undefined, include: { creator: true } },
-                },
-            });
+        //     return posts;
+        // },
+        // savedPosts: async ({ id: userId }, { limit }) => {
+        //     const me = await prisma.user.findUnique({
+        //         // Possible equivalent for many-to-many?
+        //         where: { id: userId },
+        //         select: {
+        //             savedPosts: { take: limit ?? undefined, include: { creator: true } },
+        //         },
+        //     });
 
-            return me?.savedPosts ?? [];
-        },
+        //     return me?.savedPosts ?? [];
+        // },
     },
 };
 
