@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { Stack, Text, useMantineTheme } from '@mantine/core';
+import { Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { IoMdArrowBack as IconBack } from 'react-icons/io';
-import { BsPersonBadge as IconPerson } from 'react-icons/bs';
+// import { BsPersonBadge as IconPerson } from 'react-icons/bs';
 
 import { useAppStore } from '../../state';
 import PanelAction from '../PanelAction';
@@ -25,11 +25,13 @@ const MatchesRight: FC<any> = () => {
             {!matchesFetching
                 ? matches.map(match => (
                     <Stack className='w-full items-center' key={match.user.id} spacing={4}>
-                        <UserAvatar
-                            className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
-                            url={avatarUrl(match.user)}
-                            onClick={() => setView('match', null, match.user)}
-                        />
+                        <UnstyledButton aria-label='Match Chat'>
+                            <UserAvatar
+                                className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
+                                url={avatarUrl(match.user)}
+                                onClick={() => setView('match', null, match.user)}
+                            />
+                        </UnstyledButton>
                         <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer px-[6px]' onClick={() => setView('user', null, match.user.id)}>
                             @{match.user.username}
                         </Text>

@@ -28,8 +28,18 @@ const walk = (list, v, adjL, matchL, coverL, matchR, coverR) => {
     }
 };
 
+const arrToTable = (arr) => arr.reduce((obj, pair) => {
+    if (!obj[pair[0]]) obj[pair[0]] = {};
+    obj[pair[0]][pair[1]] = 11111111;
+    return obj;
+}, {});
+
 const bipartiteVertexCover = (n, m, edges) => {
+    // console.log('bipartiteMatching data:', n, m);
+    // console.table(arrToTable(edges));
     const match = bipartiteMatching(n, m, edges);
+    // console.log('Bipartite match:');
+    // console.table(arrToTable(match));
 
     // Initialize adjacency lists
     const adjL = new Array(n);

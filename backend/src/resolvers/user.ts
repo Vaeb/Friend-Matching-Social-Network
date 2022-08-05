@@ -36,6 +36,9 @@ const resolvers: Resolvers = {
         },
         me: async (_parent, _, { userCore }: Context) => {
             if (!userCore) return null;
+            // for (const user of await prisma.user.findMany()) {
+            //     setupUserRelations(user.id, user.universityId);
+            // }
             const me = await getBigUser(userCore.id, userCore.id);
             return me;
         },
@@ -123,7 +126,8 @@ const resolvers: Resolvers = {
 
                 const user = await prisma.user.create({ data: args });
 
-                setupMatchSettings(user.id, user.universityId);
+                await setupMatchSettings(user.id, user.universityId);
+                // await setupUserRelations(user.id, user.universityId);
 
                 console.log('Success! Logging in...');
                 await login(args.username, rawPass, res);
@@ -183,7 +187,7 @@ const resolvers: Resolvers = {
                     INSERT INTO user_relations
                         ("user1Id", "user2Id", "areFriends", "friendDate", "updatedAt")
                     VALUES
-                        (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, current_timestamp, current_timestamp)
+                        (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, timezone('utc', now()), timezone('utc', now()))
                     ON CONFLICT ("user1Id", "user2Id") DO UPDATE
                         SET "areFriends" = excluded."areFriends", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
                 `;
@@ -318,19 +322,19 @@ const resolvers: Resolvers = {
                     const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
                     if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
                         const isFirst = meId < youId;
-                        insertRecords.push(`(${isFirst ? meId : youId}, ${isFirst ? youId : meId}, ${compatibility}, current_timestamp, current_timestamp)`);
+                        insertRecords.push(`(${isFirst ? meId : youId}, ${isFirst ? youId : meId}, ${compatibility}, timezone('utc', now()), timezone('utc', now()))`);
                     }
                 }
 
                 if (insertRecords.length > 0) {
                     const queryUpsertRows = `
-                            INSERT INTO user_relations
-                                ("user1Id", "user2Id", "compatibility", "updatedCompatibility", "updatedAt")
-                            VALUES
-                                ${insertRecords.join(', ')}
-                            ON CONFLICT ("user1Id", "user2Id") DO UPDATE
-                                SET "compatibility" = excluded."compatibility", "updatedCompatibility" = excluded."updatedCompatibility", "updatedAt" = excluded."updatedAt";
-                        `;
+                        INSERT INTO user_relations
+                            ("user1Id", "user2Id", "compatibility", "updatedCompatibility", "updatedAt")
+                        VALUES
+                            ${insertRecords.join(', ')}
+                        ON CONFLICT ("user1Id", "user2Id") DO UPDATE
+                            SET "compatibility" = excluded."compatibility", "updatedCompatibility" = excluded."updatedCompatibility", "updatedAt" = excluded."updatedAt";
+                    `;
 
                     console.log(queryUpsertRows);
                     const upsertResult = await prisma.$executeRawUnsafe(queryUpsertRows);

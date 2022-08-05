@@ -96,7 +96,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
                         <Box mt={10}>
                             <TextInput
                                 name='email'
-                                label='EMAIL'
+                                label='PERSONAL EMAIL'
                                 placeholder='your@email.com'
                                 autoComplete='new-password'
                                 {...form.getInputProps('email')}

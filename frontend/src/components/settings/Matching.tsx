@@ -221,7 +221,7 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
             </motion.div>
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />
-            <Text className='text-[14px] font-[700] text-_gray-400 uppercase'>{universityMap[me.universityId]?.name} SETTINGS</Text>
+            <Text className='text-[14px] font-[700] text-_gray-400 uppercase'>{me.uni} SETTINGS</Text>
             <Stack spacing={2}>
                 <Text className='text-[14px] font-[500] text-_label'>Automatic match frequency (days)</Text>
                 <div className='flex gap-1 items-center'>
@@ -258,7 +258,7 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
                         <Switch disabled onLabel='ON' offLabel='OFF' size='lg' />
                     </div>
                 </div>
-                <Text className='opacity-40 text-[13px] font-[400] text-_gray-600'>Only match with confirmed students.</Text>
+                <Text className='opacity-40 text-[13px] font-[400] text-_gray-600'>Only match with confirmed {me.uni} students.</Text>
             </Stack>
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />

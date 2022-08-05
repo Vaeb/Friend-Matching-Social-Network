@@ -51,7 +51,7 @@ model MatchSettings {
     universityId      Int
     manualEnabled     Boolean    @default(true)
     // eligibleAfter  DateTime? // Requires: updating every MatchSettings after-match with individual eligibleAfter + fetch matches by eligibleAfter + refresh on changed freq
-    lastAutoMatched   DateTime? // Requires: updating every MatchSettings after-match with common nowDate + fetch matches by lastAutoMatched+eligibleFreq [BEST]
+    lastAutoMatched   DateTime   @default("1970-01-01T00:00:00.000Z") // Requires: updating every MatchSettings after-match with common nowDate + fetch matches by lastAutoMatched+eligibleFreq [BEST]
     autoFreq          Int        @default(0) // Days
     snoozedUntil      DateTime?
     matchStudents     Boolean    @default(false) // Match students only
@@ -71,10 +71,10 @@ model UserRelation {
     user2Id              Int
     areFriends           Boolean   @default(false)
     friendDate           DateTime?
-    compatibility        Float?
+    compatibility        Int       @default(0)
+    updatedCompatibility DateTime?
     haveMatched          Boolean   @default(false)
     matchDate            DateTime?
-    updatedCompatibility DateTime?
     createdAt            DateTime  @default(now())
     updatedAt            DateTime  @updatedAt
 

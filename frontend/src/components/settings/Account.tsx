@@ -239,7 +239,7 @@ const Account: FC<any> = () => {
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
                 </div>
                 <Text className='text-[13px] font-[400] text-_gray-600'>
-                    Confirm your student status by providing your {me.uni} email address.
+                    Confirm that you are a student by providing your {me.uni} email address.
                 </Text>
             </Stack>
         </Stack>

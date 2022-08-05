@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
-import { Indicator, Stack, Text, useMantineTheme } from '@mantine/core';
+import { Indicator, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { MdTimeline as IconHome } from 'react-icons/md';
 import { FaUserFriends as IconMatches } from 'react-icons/fa';
-import { BsPersonBadge as IconPerson } from 'react-icons/bs';
+// import { BsPersonBadge as IconPerson } from 'react-icons/bs';
 
 import { useAppStore } from '../../state';
 import PanelAction from '../PanelAction';
@@ -33,12 +33,14 @@ const BaseRight: FC<any> = () => {
                 ? chats.map(user => (
                     <Stack className='w-full items-center' key={user.id} spacing={4}>
                         {/* <PanelAction> */}
-                        <UserAvatar
+                        <UnstyledButton aria-label='Friend Chat'>
+                            <UserAvatar
                             // className='rounded-full w-full h-full cursor-pointer hover:opacity-75'
-                            className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
-                            url={avatarUrl(user)}
-                            onClick={() => setView('chat', null, user)}
-                        />
+                                className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
+                                url={avatarUrl(user)}
+                                onClick={() => setView('chat', null, user)}
+                            />
+                        </UnstyledButton>
                         {/* </PanelAction> */}
                         <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer' px={6} onClick={() => setView('user', null, user.id)}>
                             @{user.username}
