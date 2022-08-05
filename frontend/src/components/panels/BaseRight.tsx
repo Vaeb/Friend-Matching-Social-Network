@@ -38,7 +38,7 @@ const BaseRight: FC<any> = () => {
                             // className='rounded-full w-full h-full cursor-pointer hover:opacity-75'
                                 className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
                                 url={avatarUrl(user)}
-                                onClick={() => setView('chat', null, user)}
+                                onClick={() => setView('chat', null, user.id)}
                             />
                         </UnstyledButton>
                         {/* </PanelAction> */}

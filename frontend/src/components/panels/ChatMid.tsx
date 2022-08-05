@@ -2,44 +2,55 @@ import {
     Avatar, Box, Group, ScrollArea, Space, Stack, Text, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
+import shallow from 'zustand/shallow';
 
-import { GetUserQuery, useGetMessagesQuery, useMeQuery, User, useSendMessageMutation } from '../../generated/graphql';
+import {
+    GetUserQuery, Me, useGetMessagesQuery, useGetUserQuery, useMeQuery, User, useSendMessageMutation, 
+} from '../../generated/graphql';
 import { useAppStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
 import CustomScroll from '../CustomScroll';
+import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
 
 const ChatMid: FC = () => {
     const theme = useMantineTheme();
-    const user: GetUserQuery['getUser'] = useAppStore(state => state.mid.viewValue);
+    const { userId, setView } = useAppStore(
+        state => ({ userId: state.mid.viewValue, setView: state.setView }),
+        shallow
+    );
+
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
+    const [{ data: userData, fetching: userFetching }] = useGetUserQuery({ variables: { userId } });
+    const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: userId } });
+    const [, doSendMessage] = useSendMessageMutation();
+
+    const me = meData?.me;
+    const user = !userFetching ? userData?.getUser : null;
+
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLInputElement>(null);
-    const setView = useAppStore(state => state.setView);
 
-    const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: user.id } });
-    const [, doSendMessage] = useSendMessageMutation();
 
     // console.log('resData', res.data);
 
     const messages = !messagesFetching ? messagesData?.getMessages : [];
 
-    const me = meData?.me;
     const isMe = u => u.id == me.id;
 
-    const users: Record<any, Partial<User>> = {
-        [me.id]: me,
-        [user.id]: user,
+    const users: Record<any, Partial<User | Me>> = {
+        [me?.id ?? -1]: me,
+        [userId]: user,
     };
 
     const scrollToBottom = () => {
-        console.log(11, scrollRef, scrollRef.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
+        // console.log(11, scrollRef, scrollRef.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-        console.log(22, scrollRef, scrollRef.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
+        // console.log(22, scrollRef, scrollRef.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
     };
 
     useEffect(() => {
@@ -47,14 +58,14 @@ const ChatMid: FC = () => {
         if (inputRef.current) {
             inputRef.current.focus();
         }
-    }, [user.id, messages.length]);
+    }, [userId, messages.length]);
 
     const onKeyDown = (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
         const { key } = props;
         if (key === 'Enter') {
             const msg = inputRef.current.value;
             doSendMessage({
-                to: user.id,
+                to: userId,
                 text: msg,
             });
             inputRef.current.value = '';
@@ -66,7 +77,7 @@ const ChatMid: FC = () => {
     };
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
-    return (
+    return (user ?
         <PaddedArea full y className='pt-[0px]'>
             <Stack className='h-full' spacing={0}>
                 <Stack spacing={0}>
@@ -106,7 +117,7 @@ const ChatMid: FC = () => {
                 </PaddedArea>
             </Stack>
         </PaddedArea>
-    );
+        : <FullLoader />);
 };
 
 export default ChatMid;

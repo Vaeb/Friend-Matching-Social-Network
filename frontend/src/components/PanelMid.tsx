@@ -32,7 +32,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
 
     const gotPosts = postsData?.getPostsWeighted?.posts;
 
-    console.log('postsFetching', postsFetching);
+    // console.log('postsFetching', postsFetching);
 
     useEffect(() => {
         console.log('Set initial posts');

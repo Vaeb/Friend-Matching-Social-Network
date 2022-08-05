@@ -23,6 +23,20 @@ const SearchModal = () => {
         setSetOpened((val) => { setValue(''); setHandle(''); setOpened(val); });
     }, [setSetOpened]);
 
+    useEffect(() => {
+        if (handle !== '') {
+            // setHandle('');
+            if (user === null && !knownBad[handle]) {
+                console.log('setting known bad...');
+                setKnownBad({ ...knownBad, [handle]: true });
+            } else if (user != null && value !== '') {
+                setHandle('');
+                setView('user', null, user.id);
+                setOpened(false);
+            }
+        }
+    }, [handle, knownBad, setView, user, value]);
+
     useHotkeys([
         ['ctrl+K', () => {
             if (!opened) {
@@ -32,18 +46,6 @@ const SearchModal = () => {
             setOpened(!opened);
         }],
     ]);
-
-    if (handle !== '') {
-        // setHandle('');
-        if (user === null && !knownBad[handle]) {
-            console.log('setting known bad...');
-            setKnownBad({ ...knownBad, [handle]: true });
-        } else if (user != null && value !== '') {
-            setHandle('');
-            setView('user', null, user.id);
-            setOpened(false);
-        }
-    }
 
     const valueToView = {
         t: ['timeline', undefined],

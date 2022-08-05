@@ -95,7 +95,7 @@ export const authenticateTokens = async (reqOrig: ExpressRequest, res: Context['
     console.log('Checking access token...');
     try {
         const userCore = getUserCoreFromTokens(req.cookies);
-        req.userCore = userCore;
+        req.userCore = userCore as UserCore;
     } catch (err) {
         console.log('Access expired, refreshing tokens...');
         const newTokens = await refreshTokens(tokenAccess, tokenRefresh);
