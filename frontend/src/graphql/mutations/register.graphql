@@ -8,5 +8,8 @@ mutation Register($username: String!, $email: String!, $password: String!, $name
         user {
             ...MeXsFields
         }
+        user2 {
+            ...UserXsFields
+        }
     }
 }

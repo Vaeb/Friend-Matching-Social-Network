@@ -147,6 +147,7 @@ export const login = async (handle: string, password: string, res: Context['res'
     return {
         ok: true,
         user,
+        user2: user,
     } as const;
 };
 
@@ -162,5 +163,6 @@ export const logout = async (userCore: Context['userCore'], res: Context['res'])
     return {
         ok: true,
         user,
+        user2: user,
     } as const;
 };

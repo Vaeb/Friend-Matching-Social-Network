@@ -76,6 +76,14 @@ export type Me = {
   visInterests: Scalars['Int'];
 };
 
+export type MeMultiResponse = {
+  __typename?: 'MeMultiResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  user?: Maybe<Me>;
+  user2?: Maybe<User>;
+};
+
 export type MeResponse = {
   __typename?: 'MeResponse';
   errors?: Maybe<Array<Error>>;
@@ -112,14 +120,15 @@ export type Mutation = {
   addFriend: UserResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
-  deleteUser: MeResponse;
-  login: MeResponse;
-  logout: MeResponse;
-  register: MeResponse;
+  deleteUser: MeMultiResponse;
+  login: MeMultiResponse;
+  logout: MeMultiResponse;
+  register: MeMultiResponse;
   sendMessage: MessageResponse;
   sendPost: SendPostResponse;
   singleUpload: File;
-  updateMe: MeResponse;
+  updateMatchSettings: MeMultiResponse;
+  updateMe: MeMultiResponse;
 };
 
 
@@ -169,6 +178,14 @@ export type MutationSendPostArgs = {
 
 export type MutationSingleUploadArgs = {
   file: Scalars['Upload'];
+};
+
+
+export type MutationUpdateMatchSettingsArgs = {
+  autoFreq?: InputMaybe<Scalars['Int']>;
+  manualEnabled?: InputMaybe<Scalars['Boolean']>;
+  matchStudents?: InputMaybe<Scalars['Boolean']>;
+  snoozedUntil?: InputMaybe<Scalars['Date']>;
 };
 
 
@@ -401,12 +418,12 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'MeResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null, user2?: { __typename?: 'User', id: number, username: string } | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'MeResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null } };
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null, user2?: { __typename?: 'User', id: number, username: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -417,7 +434,7 @@ export type RegisterMutationVariables = Exact<{
 }>;
 
 
-export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'MeResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null } };
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null, user2?: { __typename?: 'User', id: number, username: string } | null } };
 
 export type SendMessageMutationVariables = Exact<{
   to: Scalars['Int'];
@@ -454,7 +471,7 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
+export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
 
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -929,6 +946,57 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "MeMultiResponse",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Me",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "user2",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "MeResponse",
         "fields": [
           {
@@ -1226,7 +1294,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "MeResponse",
+                "name": "MeMultiResponse",
                 "ofType": null
               }
             },
@@ -1238,7 +1306,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "MeResponse",
+                "name": "MeMultiResponse",
                 "ofType": null
               }
             },
@@ -1271,7 +1339,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "MeResponse",
+                "name": "MeMultiResponse",
                 "ofType": null
               }
             },
@@ -1283,7 +1351,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "MeResponse",
+                "name": "MeMultiResponse",
                 "ofType": null
               }
             },
@@ -1430,12 +1498,53 @@ export default {
             ]
           },
           {
+            "name": "updateMatchSettings",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "MeMultiResponse",
+                "ofType": null
+              }
+            },
+            "args": [
+              {
+                "name": "autoFreq",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "manualEnabled",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "matchStudents",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "snoozedUntil",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
+            ]
+          },
+          {
             "name": "updateMe",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "MeResponse",
+                "name": "MeMultiResponse",
                 "ofType": null
               }
             },
@@ -2668,9 +2777,13 @@ export const LoginDocument = gql`
     user {
       ...MeXsFields
     }
+    user2 {
+      ...UserXsFields
+    }
   }
 }
-    ${MeXsFieldsFragmentDoc}`;
+    ${MeXsFieldsFragmentDoc}
+${UserXsFieldsFragmentDoc}`;
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
@@ -2686,9 +2799,13 @@ export const LogoutDocument = gql`
     user {
       ...MeXsFields
     }
+    user2 {
+      ...UserXsFields
+    }
   }
 }
-    ${MeXsFieldsFragmentDoc}`;
+    ${MeXsFieldsFragmentDoc}
+${UserXsFieldsFragmentDoc}`;
 
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
@@ -2710,9 +2827,13 @@ export const RegisterDocument = gql`
     user {
       ...MeXsFields
     }
+    user2 {
+      ...UserXsFields
+    }
   }
 }
-    ${MeXsFieldsFragmentDoc}`;
+    ${MeXsFieldsFragmentDoc}
+${UserXsFieldsFragmentDoc}`;
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
@@ -2797,9 +2918,13 @@ export const UpdateMeDocument = gql`
     user {
       ...MeMdFields
     }
+    user2 {
+      ...UserMdFields
+    }
   }
 }
-    ${MeMdFieldsFragmentDoc}`;
+    ${MeMdFieldsFragmentDoc}
+${UserMdFieldsFragmentDoc}`;
 
 export function useUpdateMeMutation() {
   return Urql.useMutation<UpdateMeMutation, UpdateMeMutationVariables>(UpdateMeDocument);

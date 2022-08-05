@@ -26,5 +26,8 @@ mutation UpdateMe(
         user {
             ...MeMdFields
         }
+        user2 {
+            ...UserMdFields
+        }
     }
 }

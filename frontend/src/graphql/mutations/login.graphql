@@ -8,5 +8,8 @@ mutation Login($handle: String!, $password: String!) {
         user {
             ...MeXsFields
         }
+        user2 {
+            ...UserXsFields
+        }
     }
 }

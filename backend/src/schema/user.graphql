@@ -72,6 +72,13 @@ type MeResponse {
     user: Me
 }
 
+type MeMultiResponse {
+    ok: Boolean!
+    errors: [Error!]
+    user: Me
+    user2: User
+}
+
 type UserCoreResponse {
     ok: Boolean!
     errors: [Error!]
@@ -115,12 +122,12 @@ type Query {
 }
 
 type Mutation {
-    register(username: String!, email: String!, password: String!, name: String!, universityId: Int!): MeResponse!
-    login(handle: String!, password: String!): MeResponse!
-    logout: MeResponse!
-    deleteUser: MeResponse!
-    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): MeResponse!
-    updateMatchSettings(manualEnabled: Boolean, autoFreq: Int, matchStudents: Boolean, snoozedUntil: Date): MeResponse!
+    register(username: String!, email: String!, password: String!, name: String!, universityId: Int!): MeMultiResponse!
+    login(handle: String!, password: String!): MeMultiResponse!
+    logout: MeMultiResponse!
+    deleteUser: MeMultiResponse!
+    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): MeMultiResponse!
+    updateMatchSettings(manualEnabled: Boolean, autoFreq: Int, matchStudents: Boolean, snoozedUntil: Date): MeMultiResponse!
     addFriend(userId: Int!, remove: Boolean): UserResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!

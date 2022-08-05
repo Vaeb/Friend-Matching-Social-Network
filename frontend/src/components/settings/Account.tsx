@@ -42,6 +42,7 @@ const Account: FC<any> = () => {
     const passwordRef1 = useRef<HTMLInputElement>(null);
     const passwordRef2 = useRef<HTMLInputElement>(null);
     const passwordRef3 = useRef<HTMLInputElement>(null);
+    const confirmUniRef = useRef<HTMLInputElement>(null);
     const [universityId, setUniversityId] = useState(me?.universityId ? String(me.universityId) : '');
     const [birthDate, setBirthDate] = useState(me?.birthDate ? new Date(me.birthDate) : null);
     const [colorValue, setColorValue] = useState(me?.color || theme.colors._gray[8]);
@@ -235,7 +236,7 @@ const Account: FC<any> = () => {
             <Stack spacing={2}>
                 <Text className='text-[14px] font-[500] text-_label'>Confirm university membership</Text>
                 <div className='flex gap-1'>
-                    <TextInput ref={nameRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder='student@university.ac.uk' />
+                    <TextInput ref={confirmUniRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder='student@university.ac.uk' />
                     <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
                 </div>
                 <Text className='text-[13px] font-[400] text-_gray-600'>

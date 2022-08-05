@@ -135,6 +135,7 @@ const resolvers: Resolvers = {
                 return {
                     ok: true,
                     user,
+                    user2: user,
                 };
             } catch (err) {
                 consoleError('REGISTER', err);
@@ -163,6 +164,7 @@ const resolvers: Resolvers = {
                 return {
                     ok: true,
                     user,
+                    user2: user,
                 };
             } catch (err) {
                 consoleError('DELETE_USER', err);
@@ -385,7 +387,7 @@ const resolvers: Resolvers = {
 
                 const bigUser = await getBigUser(user.id, user.id);
 
-                return { ok: true, user: bigUser };
+                return { ok: true, user: bigUser, user2: bigUser };
             } catch (err) {
                 consoleError('UPDATE_ME', err);
                 return {

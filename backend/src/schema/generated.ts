@@ -73,6 +73,14 @@ export type Me = {
   visInterests: Scalars['Int'];
 };
 
+export type MeMultiResponse = {
+  __typename?: 'MeMultiResponse';
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  user?: Maybe<Me>;
+  user2?: Maybe<User>;
+};
+
 export type MeResponse = {
   __typename?: 'MeResponse';
   errors?: Maybe<Array<Error>>;
@@ -109,15 +117,15 @@ export type Mutation = {
   addFriend: UserResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
-  deleteUser: MeResponse;
-  login: MeResponse;
-  logout: MeResponse;
-  register: MeResponse;
+  deleteUser: MeMultiResponse;
+  login: MeMultiResponse;
+  logout: MeMultiResponse;
+  register: MeMultiResponse;
   sendMessage: MessageResponse;
   sendPost: SendPostResponse;
   singleUpload: File;
-  updateMatchSettings: MeResponse;
-  updateMe: MeResponse;
+  updateMatchSettings: MeMultiResponse;
+  updateMe: MeMultiResponse;
 };
 
 
@@ -449,6 +457,7 @@ export type ResolversTypes = {
   Interest: ResolverTypeWrapper<Interest>;
   Match: ResolverTypeWrapper<Match>;
   Me: ResolverTypeWrapper<Me>;
+  MeMultiResponse: ResolverTypeWrapper<MeMultiResponse>;
   MeResponse: ResolverTypeWrapper<MeResponse>;
   Message: ResolverTypeWrapper<Message>;
   MessageResponse: ResolverTypeWrapper<MessageResponse>;
@@ -483,6 +492,7 @@ export type ResolversParentTypes = {
   Interest: Interest;
   Match: Match;
   Me: Me;
+  MeMultiResponse: MeMultiResponse;
   MeResponse: MeResponse;
   Message: Message;
   MessageResponse: MessageResponse;
@@ -567,6 +577,14 @@ export type MeResolvers<ContextType = any, ParentType extends ResolversParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MeMultiResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MeMultiResponse'] = ResolversParentTypes['MeMultiResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
+  user2?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MeResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MeResponse'] = ResolversParentTypes['MeResponse']> = {
   errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -602,15 +620,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addFriend?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
-  deleteUser?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType>;
-  login?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
-  logout?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType>;
-  register?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
+  deleteUser?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
+  login?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
+  logout?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
+  register?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
   sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
   sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
   singleUpload?: Resolver<ResolversTypes['File'], ParentType, ContextType, RequireFields<MutationSingleUploadArgs, 'file'>>;
-  updateMatchSettings?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, Partial<MutationUpdateMatchSettingsArgs>>;
-  updateMe?: Resolver<ResolversTypes['MeResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
+  updateMatchSettings?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, Partial<MutationUpdateMatchSettingsArgs>>;
+  updateMe?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
 };
 
 export type PostResolvers<ContextType = any, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
@@ -748,6 +766,7 @@ export type Resolvers<ContextType = any> = {
   Interest?: InterestResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
   Me?: MeResolvers<ContextType>;
+  MeMultiResponse?: MeMultiResponseResolvers<ContextType>;
   MeResponse?: MeResponseResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   MessageResponse?: MessageResponseResolvers<ContextType>;
