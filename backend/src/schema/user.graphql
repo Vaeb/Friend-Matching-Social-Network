@@ -45,6 +45,8 @@ type User {
     matchDate: Date
     compatibility: Int
     updatedCompatibility: Date
+    sentFrTo: Boolean
+    receivedFrFrom: Boolean
 }
 
 type UserCore {
@@ -83,6 +85,28 @@ type UserCoreResponse {
     ok: Boolean!
     errors: [Error!]
     user: UserCore
+}
+
+enum FriendRequestType {
+    REMOVE
+    ACCEPT
+    REQUEST
+}
+
+type FriendResponse {
+    ok: Boolean!
+    errors: [Error!]
+    user: User
+    me: Me
+    type: FriendRequestType
+}
+
+type FriendStatus {
+    sender: User
+    receiver: User
+    initiator: User
+    consumer: User
+    type: FriendRequestType
 }
 
 type UserInterest {
@@ -128,7 +152,11 @@ type Mutation {
     deleteUser: MeMultiResponse!
     updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): MeMultiResponse!
     updateMatchSettings(manualEnabled: Boolean, autoFreq: Int, matchStudents: Boolean, snoozedUntil: Date): MeMultiResponse!
-    addFriend(userId: Int!, remove: Boolean): UserResponse!
+    addFriend(userId: Int!, remove: Boolean): FriendResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
+}
+
+type Subscription {
+    friendRequest: User!
 }

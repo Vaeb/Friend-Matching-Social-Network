@@ -6,4 +6,6 @@ fragment UserLgFields on User {
     friendDate
     haveMatched
     matchDate
+    sentFrTo
+    receivedFrFrom
 }

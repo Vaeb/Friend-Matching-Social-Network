@@ -32,6 +32,30 @@ export type File = {
   mimetype: Scalars['String'];
 };
 
+export enum FriendRequestType {
+  Accept = 'ACCEPT',
+  Remove = 'REMOVE',
+  Request = 'REQUEST'
+}
+
+export type FriendResponse = {
+  __typename?: 'FriendResponse';
+  errors?: Maybe<Array<Error>>;
+  me?: Maybe<Me>;
+  ok: Scalars['Boolean'];
+  type?: Maybe<FriendRequestType>;
+  user?: Maybe<User>;
+};
+
+export type FriendStatus = {
+  __typename?: 'FriendStatus';
+  consumer?: Maybe<User>;
+  initiator?: Maybe<User>;
+  receiver?: Maybe<User>;
+  sender?: Maybe<User>;
+  type?: Maybe<FriendRequestType>;
+};
+
 export type GenResponse = {
   __typename?: 'GenResponse';
   errors?: Maybe<Array<Error>>;
@@ -117,7 +141,7 @@ export type MessageSubResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addFriend: UserResponse;
+  addFriend: FriendResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
   deleteUser: MeMultiResponse;
@@ -292,6 +316,7 @@ export type SendPostResponse = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  friendRequest: User;
   heartbeat: Scalars['String'];
   newMessage: Message;
   newPost: Post;
@@ -319,6 +344,8 @@ export type User = {
   id: Scalars['Int'];
   matchDate?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
+  receivedFrFrom?: Maybe<Scalars['Boolean']>;
+  sentFrTo?: Maybe<Scalars['Boolean']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
@@ -388,7 +415,7 @@ export type MeSmFieldsFragment = { __typename?: 'Me', name: string, universityId
 
 export type MeXsFieldsFragment = { __typename?: 'Me', id: number, username: string };
 
-export type UserLgFieldsFragment = { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string };
+export type UserLgFieldsFragment = { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string };
 
 export type UserMdFieldsFragment = { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string };
 
@@ -402,7 +429,7 @@ export type AddFriendMutationVariables = Exact<{
 }>;
 
 
-export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'UserResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
+export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendResponse', ok: boolean, type?: FriendRequestType | null, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
 
 export type AddUserInterestMutationVariables = Exact<{
   userInterest: UserInterestInput;
@@ -518,7 +545,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null };
+export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null };
 
 export type GetUserByHandleQueryVariables = Exact<{
   handle: Scalars['String'];
@@ -536,6 +563,11 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null };
+
+export type FriendRequestSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type FriendRequestSubscription = { __typename?: 'Subscription', friendRequest: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } };
 
 export type HeartbeatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -633,6 +665,116 @@ export default {
                 "kind": "SCALAR",
                 "name": "Any"
               }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "FriendResponse",
+        "fields": [
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "me",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Me",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "type",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "FriendStatus",
+        "fields": [
+          {
+            "name": "consumer",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "initiator",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "receiver",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "sender",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "type",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           }
@@ -1205,7 +1347,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "UserResponse",
+                "name": "FriendResponse",
                 "ofType": null
               }
             },
@@ -2094,6 +2236,18 @@ export default {
         "name": "Subscription",
         "fields": [
           {
+            "name": "friendRequest",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "heartbeat",
             "type": {
               "kind": "NON_NULL",
@@ -2295,6 +2449,22 @@ export default {
                 "kind": "SCALAR",
                 "name": "Any"
               }
+            },
+            "args": []
+          },
+          {
+            "name": "receivedFrFrom",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "sentFrTo",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           },
@@ -2724,6 +2894,8 @@ export const UserLgFieldsFragmentDoc = gql`
   friendDate
   haveMatched
   matchDate
+  sentFrTo
+  receivedFrFrom
 }
     ${UserMdFieldsFragmentDoc}`;
 export const AddFriendDocument = gql`
@@ -2737,6 +2909,7 @@ export const AddFriendDocument = gql`
     user {
       ...UserLgFields
     }
+    type
   }
 }
     ${UserLgFieldsFragmentDoc}`;
@@ -3085,6 +3258,17 @@ export const MeDocument = gql`
 
 export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'>) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const FriendRequestDocument = gql`
+    subscription FriendRequest {
+  friendRequest {
+    ...UserLgFields
+  }
+}
+    ${UserLgFieldsFragmentDoc}`;
+
+export function useFriendRequestSubscription<TData = FriendRequestSubscription>(options: Omit<Urql.UseSubscriptionArgs<FriendRequestSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<FriendRequestSubscription, TData>) {
+  return Urql.useSubscription<FriendRequestSubscription, TData, FriendRequestSubscriptionVariables>({ query: FriendRequestDocument, ...options }, handler);
 };
 export const HeartbeatDocument = gql`
     subscription Heartbeat {

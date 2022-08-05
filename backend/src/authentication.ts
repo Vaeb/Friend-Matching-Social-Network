@@ -56,6 +56,10 @@ const refreshTokens = async (tokenAccessOld: string, tokenRefreshOld: string): P
 };
 
 export const getUserCoreFromTokens = (tokens: any) => {
+    if (!tokens || typeof tokens !== 'object') {
+        console.log('Auth\'d with invalid tokens (probably via ws):', tokens);
+        return {};
+    }
     const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
     return userCore;
 };

@@ -1,14 +1,31 @@
 import bcrypt from 'bcrypt';
+import { withFilter } from 'graphql-subscriptions';
 
 import { login, logout, updateTokens } from '../authentication';
 import { prisma } from '../server';
 import { consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings } from '../utils';
-import { Context } from '../types';
+import { Context, Context2 } from '../types';
+import { FriendRequestType, FriendStatus } from '../schema/generated';
 import type { Error, Resolvers } from '../schema/generated';
+import { User } from '@prisma/client';
+import { FRIEND_REQUEST, pubsub } from '../pubsub';
+import { relevantFriendRequest } from '../permissions';
 
 const hashPassword = (rawPassword: string) => bcrypt.hash(rawPassword, 5);
 
 const resolvers: Resolvers = {
+    Subscription: {
+        friendRequest: {
+            resolve: (async (payload: FriendStatus, _, context: Context2) => {
+                const bigUser = await getBigUser(context.userCore.id, payload.initiator.id);
+                return bigUser;
+            }) as any,
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(FRIEND_REQUEST),
+                relevantFriendRequest
+            ) as any,
+        },
+    },
     Query: {
         getUser: async (_parent, { userId }, { userCore }: Context) => {
             console.log('Received request for getUser:', userId);
@@ -178,27 +195,68 @@ const resolvers: Resolvers = {
             try {
                 console.log('Received request for addFriend', userId, remove);
                 const meId = userCore.id;
+                let type: FriendRequestType;
+                let bigUser: User;
+                let sender;
+                let receiver;
 
-                // await prisma.userRelation.updateMany({
-                //     where: { AND: [{ OR: [{ user1Id: meId }, { user1Id: userId }] }, { OR: [{ user2Id: meId }, { user2Id: userId }] }] },
-                //     data: { areFriends: !remove, friendDate: !remove ? new Date() : null, ...(remove ? { haveMatched: false, matchDate: null } : {}) },
-                // });
-                const isFirst = meId < userId;
+                const me = await prisma.user.findUnique({ where: { id: meId } });
 
-                const upsertResult = await prisma.$executeRaw`
-                    INSERT INTO user_relations
-                        ("user1Id", "user2Id", "areFriends", "friendDate", "updatedAt")
-                    VALUES
-                        (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, timezone('utc', now()), timezone('utc', now()))
-                    ON CONFLICT ("user1Id", "user2Id") DO UPDATE
-                        SET "areFriends" = excluded."areFriends", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
-                `;
-                console.log('Upsert success:', upsertResult);
-                const bigUser = await getBigUser(meId, userId);
+                const meReceiver = await prisma.friendRequests.findUnique({
+                    where: {
+                        senderId_receiverId: { senderId: userId, receiverId: meId },
+                    },
+                });
+
+                if (meReceiver || remove) {
+                    if (remove) {
+                        type = FriendRequestType.Remove;
+                    } else {
+                        type = FriendRequestType.Accept;
+                    }
+                    const isFirst = meId < userId;
+                    const upsertResult = await prisma.$executeRaw`
+                        INSERT INTO user_relations
+                            ("user1Id", "user2Id", "areFriends", "friendDate", "updatedAt")
+                        VALUES
+                            (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, timezone('utc', now()), timezone('utc', now()))
+                        ON CONFLICT ("user1Id", "user2Id") DO UPDATE
+                            SET "areFriends" = excluded."areFriends", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
+                    `;
+                    console.log('Upsert success:', upsertResult);
+                    if (type === FriendRequestType.Accept) {
+                        await prisma.friendRequests.delete({
+                            where: { senderId_receiverId: { senderId: userId, receiverId: meId } },
+                        });
+                    }
+                    bigUser = await getBigUser(meId, userId);
+                    sender = bigUser;
+                    receiver = me;
+                } else {
+                    type = FriendRequestType.Request;
+                    await prisma.friendRequests.create({
+                        data: {
+                            senderId: meId,
+                            receiverId: userId,
+                        },
+                    });
+                    bigUser = await getBigUser(meId, userId);
+                    sender = me;
+                    receiver = bigUser;
+                }
+
+                pubsub.publish(FRIEND_REQUEST, {
+                    sender,
+                    receiver,
+                    initiator: me,
+                    consumer: bigUser,
+                    type,
+                });
 
                 return {
                     ok: true,
                     user: bigUser,
+                    type,
                 };
             } catch (err) {
                 consoleError('ADD_FRIEND', err);

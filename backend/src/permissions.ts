@@ -1,4 +1,5 @@
 import { Post, User } from '@prisma/client';
+import { FriendRequestType, FriendStatus } from './schema/generated';
 import { Context, Context2 } from './types';
 
 type EitherContext = Context | Context2;
@@ -42,4 +43,15 @@ export const permPostNotAuthor = chainResolver((payload, _, { userCore: { id: me
     // console.log('PASSES:', post.creatorId !== meId);
 
     return post.creatorId !== meId;
+});
+
+export const relevantFriendRequest = chainResolver((payload: FriendStatus, _, { userCore: { id: meId } }) => {
+    console.log('GOT FRIEND REQUEST SUBSCR...', payload.initiator.id);
+    const { consumer } = payload;
+
+    if (consumer.id === meId) {
+        return true;
+    }
+
+    return false;
 });

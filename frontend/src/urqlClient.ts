@@ -5,6 +5,8 @@ import { devtoolsExchange } from '@urql/devtools';
 import { createClient as createWSClient } from 'graphql-ws';
 
 import {
+    AddFriendMutation,
+    FriendRequestType,
     GetChatsDocument,
     GetMatchesDocument,
     GetMessagesDocument,
@@ -142,9 +144,11 @@ const exchanges = [
                 //     }
                 // },
                 addFriend: (_result, _args, cache, _info) => {
-                    const result = _result as any;
+                    const rawResult = _result as any;
                     const args = _args as any;
-                    if (result?.addFriend?.ok) {
+                    const resultData = rawResult?.addFriend as AddFriendMutation['addFriend'];
+                    if (resultData?.ok) {
+                        const { type } = resultData;
                         cache.updateQuery(
                             {
                                 query: GetUserDocument,
@@ -152,41 +156,43 @@ const exchanges = [
                             },
                             (_data) => {
                                 const data = _data as any;
-                                const { user } = result.addFriend;
+                                const { user } = resultData;
                                 data.getUser = user;
                                 return data;
                             }
                         );
-                        if (!args.remove) {
-                            cache.updateQuery(
+                        if (type === FriendRequestType.Accept) {
+                            cache.updateQuery( // DELETE FROM MATCHES
                                 {
                                     query: GetMatchesDocument,
                                 },
                                 (_data) => {
                                     const data = _data as any;
-                                    const { user } = result.addFriend;
+                                    const { user } = resultData;
                                     const oldIndex = data.getMatches.findIndex(({ user: { id } }: any) => id == user.id);
                                     data.getMatches.splice(oldIndex, 1);
                                     return data;
                                 }
                             );
                         }
-                        cache.updateQuery(
-                            {
-                                query: GetChatsDocument,
-                            },
-                            (_data) => {
-                                const data = _data as any;
-                                const { user } = result.addFriend;
-                                if (args.remove) {
-                                    const oldIndex = data.getChats.findIndex(({ id }: any) => id == user.id);
-                                    data.getChats.splice(oldIndex, 1);
-                                } else {
-                                    data.getChats.unshift(user);
+                        if (type === FriendRequestType.Accept || type === FriendRequestType.Remove) {
+                            cache.updateQuery( // ADD/REMOVE FROM FRIENDS LIST
+                                {
+                                    query: GetChatsDocument,
+                                },
+                                (_data) => {
+                                    const data = _data as any;
+                                    const { user } = resultData;
+                                    if (type === FriendRequestType.Remove) {
+                                        const oldIndex = data.getChats.findIndex(({ id }: any) => id == user.id);
+                                        data.getChats.splice(oldIndex, 1);
+                                    } else {
+                                        data.getChats.unshift(user);
+                                    }
+                                    return data;
                                 }
-                                return data;
-                            }
-                        );
+                            );
+                        }
                     }
                 },
                 updateMe: (_result, _args, cache, _info) => {

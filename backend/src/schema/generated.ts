@@ -29,6 +29,30 @@ export type File = {
   mimetype: Scalars['String'];
 };
 
+export enum FriendRequestType {
+  Accept = 'ACCEPT',
+  Remove = 'REMOVE',
+  Request = 'REQUEST'
+}
+
+export type FriendResponse = {
+  __typename?: 'FriendResponse';
+  errors?: Maybe<Array<Error>>;
+  me?: Maybe<Me>;
+  ok: Scalars['Boolean'];
+  type?: Maybe<FriendRequestType>;
+  user?: Maybe<User>;
+};
+
+export type FriendStatus = {
+  __typename?: 'FriendStatus';
+  consumer?: Maybe<User>;
+  initiator?: Maybe<User>;
+  receiver?: Maybe<User>;
+  sender?: Maybe<User>;
+  type?: Maybe<FriendRequestType>;
+};
+
 export type GenResponse = {
   __typename?: 'GenResponse';
   errors?: Maybe<Array<Error>>;
@@ -114,7 +138,7 @@ export type MessageSubResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addFriend: UserResponse;
+  addFriend: FriendResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
   deleteUser: MeMultiResponse;
@@ -289,6 +313,7 @@ export type SendPostResponse = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  friendRequest: User;
   heartbeat: Scalars['String'];
   newMessage: Message;
   newPost: Post;
@@ -316,6 +341,8 @@ export type User = {
   id: Scalars['Int'];
   matchDate?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
+  receivedFrFrom?: Maybe<Scalars['Boolean']>;
+  sentFrTo?: Maybe<Scalars['Boolean']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
@@ -452,6 +479,9 @@ export type ResolversTypes = {
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Error: ResolverTypeWrapper<Error>;
   File: ResolverTypeWrapper<File>;
+  FriendRequestType: FriendRequestType;
+  FriendResponse: ResolverTypeWrapper<FriendResponse>;
+  FriendStatus: ResolverTypeWrapper<FriendStatus>;
   GenResponse: ResolverTypeWrapper<GenResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Interest: ResolverTypeWrapper<Interest>;
@@ -487,6 +517,8 @@ export type ResolversParentTypes = {
   Date: Scalars['Date'];
   Error: Error;
   File: File;
+  FriendResponse: FriendResponse;
+  FriendStatus: FriendStatus;
   GenResponse: GenResponse;
   Int: Scalars['Int'];
   Interest: Interest;
@@ -530,6 +562,24 @@ export type FileResolvers<ContextType = any, ParentType extends ResolversParentT
   encoding?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   filename?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mimetype?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FriendResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendResponse'] = ResolversParentTypes['FriendResponse']> = {
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['FriendRequestType']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FriendStatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendStatus'] = ResolversParentTypes['FriendStatus']> = {
+  consumer?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  initiator?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  receiver?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  sender?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['FriendRequestType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -617,7 +667,7 @@ export type MessageSubResponseResolvers<ContextType = any, ParentType extends Re
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addFriend?: Resolver<ResolversTypes['UserResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
+  addFriend?: Resolver<ResolversTypes['FriendResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
   deleteUser?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
@@ -669,6 +719,7 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
 };
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  friendRequest?: SubscriptionResolver<ResolversTypes['User'], "friendRequest", ParentType, ContextType>;
   heartbeat?: SubscriptionResolver<ResolversTypes['String'], "heartbeat", ParentType, ContextType>;
   newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
   newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
@@ -699,6 +750,8 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  receivedFrFrom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  sentFrTo?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedCompatibility?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -762,6 +815,8 @@ export type Resolvers<ContextType = any> = {
   Date?: GraphQLScalarType;
   Error?: ErrorResolvers<ContextType>;
   File?: FileResolvers<ContextType>;
+  FriendResponse?: FriendResponseResolvers<ContextType>;
+  FriendStatus?: FriendStatusResolvers<ContextType>;
   GenResponse?: GenResponseResolvers<ContextType>;
   Interest?: InterestResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;

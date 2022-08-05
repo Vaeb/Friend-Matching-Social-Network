@@ -178,10 +178,16 @@ export const getBigUser = async (meId, userId?: any) => {
             select: {
                 university: { select: { name: true } },
                 matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
+                sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
+                receivedFriendRequests: { select: { createdAt: true }, where: { senderId: meId } },
             },
         });
 
-        const fullUser = { ...bigUser, uni: extraDetails.university.name, ...extraDetails.matchSettings[0] };
+        const { university, matchSettings } = extraDetails;
+        const receivedFrFrom = extraDetails.sentFriendRequests.length > 0;
+        const sentFrTo = extraDetails.receivedFriendRequests.length > 0;
+
+        const fullUser = { ...bigUser, uni: university.name, ...matchSettings[0], receivedFrFrom, sentFrTo };
 
         return fullUser;
     } else {
@@ -190,10 +196,27 @@ export const getBigUser = async (meId, userId?: any) => {
             include: {
                 university: { select: { name: true } },
                 matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
+                sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
+                receivedFriendRequests: { select: { createdAt: true }, where: { senderId: meId } },
             },
         });
+
+        const receivedFrFrom = user.sentFriendRequests.length > 0;
+        const sentFrTo = user.receivedFriendRequests.length > 0;
         
-        const { university: _, matchSettings: __, ...fullUser } = { ...user, uni: user.university.name, ...user.matchSettings[0] };
+        const {
+            university: _1,
+            matchSettings: _2,
+            sentFriendRequests: _3,
+            receivedFriendRequests: _4,
+            ...fullUser
+        } = {
+            ...user,
+            uni: user.university.name,
+            ...user.matchSettings[0],
+            receivedFrFrom,
+            sentFrTo,
+        };
 
         return fullUser;
     }

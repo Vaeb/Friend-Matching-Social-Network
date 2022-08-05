@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import { useMantineTheme, Box, ScrollArea } from '@mantine/core';
 
-import { useGetPostsWeightedQuery, useMeQuery, useNewMessageSubscription, useNewPostsSubscription } from '../generated/graphql';
+import { useFriendRequestSubscription, useGetPostsWeightedQuery, useMeQuery, useNewMessageSubscription, useNewPostsSubscription } from '../generated/graphql';
 import { useAppStore, useTimelineStore } from '../state';
 import SettingsMid from './panels/SettingsMid';
 import ChatMid from './panels/ChatMid';
@@ -27,7 +27,8 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
 
     const [{ data: postsData, fetching: postsFetching, stale }] = useGetPostsWeightedQuery();
     useNewMessageSubscription();
-    const [res] = useNewPostsSubscription();
+    useFriendRequestSubscription();
+    const [postsRes] = useNewPostsSubscription();
 
     const gotPosts = postsData?.getPostsWeighted?.posts;
 
@@ -40,11 +41,11 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     }, [gotPosts, postsFetching, setPosts]);
 
     useEffect(() => {
-        if (res?.data?.newPosts && !res.fetching && !res.stale && !res.error) {
-            setPosts(res.data.newPosts);
+        if (postsRes?.data?.newPosts && !postsRes.fetching && !postsRes.stale && !postsRes.error) {
+            setPosts(postsRes.data.newPosts);
         }
-        console.log('useNewPostsSubscription', res);
-    }, [res, setPosts]);
+        console.log('useNewPostsSubscription', postsRes);
+    }, [postsRes, setPosts]);
 
     return (
         <Box className='bg-_black-300 h-full grow'>

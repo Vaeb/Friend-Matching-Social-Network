@@ -8,5 +8,6 @@ mutation AddFriend($userId: Int!, $remove: Boolean) {
         user {
             ...UserLgFields
         }
+        type
     }
 }

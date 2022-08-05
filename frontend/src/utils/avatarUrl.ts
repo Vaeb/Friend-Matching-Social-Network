@@ -1,3 +1,3 @@
-import { baseApiUrl } from '../defaults';
+import { baseApiUrl, defaultAvatarUrl } from '../defaults';
 
-export const avatarUrl = user => `${baseApiUrl}/img/avatar-${user.id}.png`;
+export const avatarUrl = (user, fallback = false) => user ? `${baseApiUrl}/img/avatar-${user.id}.png` : defaultAvatarUrl;

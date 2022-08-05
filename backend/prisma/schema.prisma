@@ -10,36 +10,38 @@ datasource db {
 }
 
 model User {
-    id                    Int             @id @default(autoincrement())
-    username              String          @unique
-    email                 String          @unique
-    password              String
-    name                  String
-    university            University?     @relation(name: "SelectedUni", fields: [universityId], references: [id])
-    universityId          Int?
-    universities          University[]    @relation(name: "ConfirmedUnis")
-    color                 String?
-    birthDate             DateTime?
-    matchPrecision        Int             @default(0)
-    visEmail              Int             @default(0)
-    visInterests          Int             @default(0)
-    relations1            UserRelation[]  @relation(name: "UserRel1")
-    relations2            UserRelation[]  @relation(name: "UserRel2")
-    interests             UserInterest[]
-    matchingEnabled       Boolean         @default(true)
-    matchSettings         MatchSettings[] @relation(name: "UserMatchSettings")
-    nextUserMatchSettings MatchSettings[] @relation(name: "NextManualMatch")
-    channels              Channel[]
-    sentMessages          Message[]       @relation(name: "MessageFrom")
-    receivedMessages      Message[]       @relation(name: "MessageTo")
-    createdChannels       Channel[]       @relation(name: "CreatedChannels")
-    posts                 Post[]          @relation(name: "CreatedPosts")
-    comments              Comment[]       @relation(name: "CreatedComments")
-    reactions             Reaction[]      @relation(name: "CreatedReactions")
-    savedPosts            Post[]          @relation(name: "SavedPosts")
-    updatedInterests      DateTime?
-    createdAt             DateTime        @default(now())
-    updatedAt             DateTime        @updatedAt
+    id                     Int              @id @default(autoincrement())
+    username               String           @unique
+    email                  String           @unique
+    password               String
+    name                   String
+    university             University?      @relation(name: "SelectedUni", fields: [universityId], references: [id])
+    universityId           Int?
+    universities           University[]     @relation(name: "ConfirmedUnis")
+    color                  String?
+    birthDate              DateTime?
+    matchPrecision         Int              @default(0)
+    visEmail               Int              @default(0)
+    visInterests           Int              @default(0)
+    relations1             UserRelation[]   @relation(name: "UserRel1")
+    relations2             UserRelation[]   @relation(name: "UserRel2")
+    sentFriendRequests     FriendRequests[] @relation(name: "FriendSender")
+    receivedFriendRequests FriendRequests[] @relation(name: "FriendReceiver")
+    interests              UserInterest[]
+    matchingEnabled        Boolean          @default(true)
+    matchSettings          MatchSettings[]  @relation(name: "UserMatchSettings")
+    nextUserMatchSettings  MatchSettings[]  @relation(name: "NextManualMatch")
+    channels               Channel[]
+    sentMessages           Message[]        @relation(name: "MessageFrom")
+    receivedMessages       Message[]        @relation(name: "MessageTo")
+    createdChannels        Channel[]        @relation(name: "CreatedChannels")
+    posts                  Post[]           @relation(name: "CreatedPosts")
+    comments               Comment[]        @relation(name: "CreatedComments")
+    reactions              Reaction[]       @relation(name: "CreatedReactions")
+    savedPosts             Post[]           @relation(name: "SavedPosts")
+    updatedInterests       DateTime?
+    createdAt              DateTime         @default(now())
+    updatedAt              DateTime         @updatedAt
 
     @@map("users")
 }
@@ -62,6 +64,18 @@ model MatchSettings {
 
     @@id([userId, universityId])
     @@map("match_settings")
+}
+
+model FriendRequests {
+    sender     User @relation(name: "FriendSender", fields: [senderId], references: [id])
+    senderId   Int
+    receiver   User @relation(name: "FriendReceiver", fields: [receiverId], references: [id])
+    receiverId Int
+    createdAt         DateTime   @default(now())
+    updatedAt         DateTime   @updatedAt
+
+    @@id([senderId, receiverId])
+    @@map("friend_requests")
 }
 
 model UserRelation {
@@ -191,9 +205,9 @@ model University {
     posts            Post[]
     activeUsers      User[]          @relation(name: "SelectedUni")
     confirmedUsers   User[]          @relation(name: "ConfirmedUnis")
+    MatchSettings    MatchSettings[]
     createdAt        DateTime        @default(now())
     updatedAt        DateTime        @updatedAt
-    MatchSettings    MatchSettings[]
 
     @@map("universities")
 }
