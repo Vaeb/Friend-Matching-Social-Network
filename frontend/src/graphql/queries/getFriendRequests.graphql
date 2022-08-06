@@ -1,5 +1,5 @@
-query GetChats {
-    getChats {
+query GetFriendRequests {
+    getFriendRequests {
         id
         users {
             ...UserSmFields

@@ -5,6 +5,7 @@ fragment MeMdFields on Me {
     manualEnabled
     lastAutoMatched
     autoFreq
-    snoozedUntil
+    nextManualMatchId
     matchStudents
+    snoozedUntil
 }

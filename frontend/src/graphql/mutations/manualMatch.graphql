@@ -1,0 +1,18 @@
+mutation ManualMatch {
+    manualMatch {
+        success
+        matchesStore {
+            id
+            matches {
+                id
+                user {
+                    ...UserSmFields
+                }
+                matchDate
+            }
+        }
+        me {
+            ...MeMdFields
+        }
+    }
+}

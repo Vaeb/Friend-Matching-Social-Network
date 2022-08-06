@@ -8,17 +8,58 @@ import { Context, Context2 } from '../types';
 import { FriendRequestType, FriendStatus } from '../schema/generated';
 import type { Error, Resolvers } from '../schema/generated';
 import { User } from '@prisma/client';
-import { FRIEND_REQUEST, pubsub } from '../pubsub';
+import { FRIEND_MATCH, FRIEND_REQUEST, pubsub } from '../pubsub';
 import { relevantFriendRequest } from '../permissions';
 
 const hashPassword = (rawPassword: string) => bcrypt.hash(rawPassword, 5);
+
+const getMatches = async (meId: number) =>
+    (await getUserRelations(meId, '"haveMatched" = true AND "areFriends" = false'))
+        .map(match => ({ id: match.user.id, ...match }));
+
+const getFriendRequests = async (meId: number) =>
+    (await prisma.friendRequests.findMany({
+        select: {
+            sender: true,
+        },
+        where: {
+            receiverId: meId,
+        },
+    })).map(fr => fr.sender);
+
+const getChats = async (meId: number) => {
+    const messages = await prisma.message.groupBy({
+        by: ['fromId', 'toId'],
+        where: { OR: [{ fromId: meId }, { toId: meId }] },
+        _max: { createdAt: true },
+        orderBy: { _max: { createdAt: 'desc' } },
+    });
+    const chatters = [...new Set(messages.map(({ fromId, toId, _max: { createdAt } }) => ({ userId: fromId !== meId ? fromId : toId, createdAt })))];
+    const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
+    // console.log(chattersMap);
+    const friends = await getUserRelations(meId, '"areFriends" = true');
+    const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
+    // console.log(friendsUpdatedMap);
+    const users = friends.map(relation => relation.user).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
+    return users;
+};
 
 const resolvers: Resolvers = {
     Subscription: {
         friendRequest: {
             resolve: (async (payload: FriendStatus, _, context: Context2) => {
-                const bigUser = await getBigUser(context.userCore.id, payload.initiator.id);
-                return bigUser;
+                const { id: meId } = context.userCore;
+                const bigUser = await getBigUser(meId, payload.initiator.id);
+                const usersSendingFr = await getFriendRequests(meId);
+                const chatUsers = await getChats(meId);
+                const matches = await getMatches(meId);
+
+                return {
+                    fr: { id: meId, users: usersSendingFr },
+                    chats: { id: meId, users: chatUsers },
+                    matches: { id: meId, matches },
+                    user: bigUser,
+                };
             }) as any,
             subscribe: withFilter(
                 () => pubsub.asyncIterator(FRIEND_REQUEST),
@@ -56,7 +97,8 @@ const resolvers: Resolvers = {
             // for (const user of await prisma.user.findMany()) {
             //     setupUserRelations(user.id, user.universityId);
             // }
-            const me = await getBigUser(userCore.id, userCore.id);
+            const me = await getBigUser(userCore.id, userCore.id, userCore.universityId);
+            console.log('qqme', me?.nextManualMatchId);
             return me;
         },
         getUserInterests: async (_parent, _, { userCore }: Context) => {
@@ -72,30 +114,26 @@ const resolvers: Resolvers = {
         },
         getMatches: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getMatches');
-            const userId = userCore.id;
+            const meId = userCore.id;
 
-            const matches = (await getUserRelations(userId, '"haveMatched" = true AND "areFriends" = false'))
-                .map(match => ({ id: match.user.id, ...match }));
+            const matches = await getMatches(meId);
 
-            return matches as any;
+            return { id: meId, matches };
+        },
+        getFriendRequests: async (_parent, _, { userCore }: Context) => {
+            console.log('Received request for getFriendRequests');
+            const meId = userCore.id;
+
+            const usersSendingFr = await getFriendRequests(meId);
+            console.log('usersSendingFr', usersSendingFr);
+
+            return { id: meId, users: usersSendingFr };
         },
         getChats: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getChats');
             const meId = userCore.id;
-            const messages = await prisma.message.groupBy({
-                by: ['fromId', 'toId'],
-                where: { OR: [{ fromId: meId }, { toId: meId }] },
-                _max: { createdAt: true },
-                orderBy: { _max: { createdAt: 'desc' } },
-            });
-            const chatters = [...new Set(messages.map(({ fromId, toId, _max: { createdAt } }) => ({ userId: fromId !== meId ? fromId : toId, createdAt })))];
-            const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
-            // console.log(chattersMap);
-            const friends = await getUserRelations(meId, '"areFriends" = true');
-            const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
-            // console.log(friendsUpdatedMap);
-            const users = friends.map(relation => relation.user).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
-            return users;
+            const users = await getChats(meId);
+            return { id: meId, users };
         },
     },
     Mutation: {
@@ -253,9 +291,16 @@ const resolvers: Resolvers = {
                     type,
                 });
 
+                const usersSendingFr = await getFriendRequests(meId);
+                const chatUsers = await getChats(meId);
+                const matches = await getMatches(meId);
+
                 return {
                     ok: true,
                     user: bigUser,
+                    fr: { id: meId, users: usersSendingFr },
+                    chats: { id: meId, users: chatUsers },
+                    matches: { id: meId, matches },
                     type,
                 };
             } catch (err) {
@@ -430,20 +475,20 @@ const resolvers: Resolvers = {
                     args.password = await hashPassword(args.password);
                 }
 
-                const user = await prisma.user.update({
+                const me = await prisma.user.update({
                     where: { id: meId },
                     data: args,
                 });
 
                 if (args.universityId) {
-                    setupMatchSettings(user.id, user.universityId);
+                    setupMatchSettings(me.id, me.universityId);
                 }
 
                 if (args.username || args.universityId) {
                     await updateTokens(req, res, userCore);
                 }
 
-                const bigUser = await getBigUser(user.id, user.id);
+                const bigUser = await getBigUser(me.id, me.id, me.universityId);
 
                 return { ok: true, user: bigUser, user2: bigUser };
             } catch (err) {
@@ -452,6 +497,56 @@ const resolvers: Resolvers = {
                     ok: false,
                     errors: formatErrors(err),
                 };
+            }
+        },
+        manualMatch: async (_parent, _args, { userCore }: Context) => {
+            try {
+                const { id: meId, universityId } = userCore;
+                console.log('Received request for manualMatch:', meId);
+                
+                const userId = (await prisma.matchSettings.findUnique({
+                    select: { nextManualMatchId: true },
+                    where: { userId_universityId: { userId: meId, universityId } },
+                }))?.nextManualMatchId;
+
+                if (!userId) return { success: false };
+
+                const addMatchQuery = `
+                    INSERT INTO user_relations
+                        ("user1Id", "user2Id", "haveMatched", "matchDate", "updatedAt")
+                    VALUES
+                        (${meId < userId ? meId : userId}, ${meId < userId ? userId : meId}, true, timezone('utc', now()), timezone('utc', now()))
+                    ON CONFLICT ("user1Id", "user2Id") DO UPDATE
+                        SET "haveMatched" = excluded."haveMatched", "matchDate" = excluded."matchDate", "updatedAt" = excluded."updatedAt";
+                `;
+
+                console.log(addMatchQuery);
+                const numUpdated = await prisma.$executeRawUnsafe(addMatchQuery);
+                console.log('Updated', numUpdated, 'match!');
+
+                await prisma.matchSettings.update({
+                    where: { userId_universityId: { userId: meId, universityId } },
+                    data: { nextManualMatchId: null },
+                });
+
+                await prisma.matchSettings.update({
+                    where: { userId_universityId: { userId, universityId } },
+                    data: { nextManualMatchId: null },
+                });
+
+                const matches = await getMatches(meId);
+
+                pubsub.publish(FRIEND_MATCH, {
+                    consumerMatchMap: { [userId]: meId },
+                    type: 'MANUAL',
+                });
+
+                const me = await getBigUser(meId, meId, universityId);
+
+                return { success: true, matchesStore: { id: meId, matches }, me };
+            } catch (err) {
+                consoleError('MANUAL_MATCH', err);
+                return { success: false };
             }
         },
     },

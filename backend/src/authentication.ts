@@ -60,8 +60,15 @@ export const getUserCoreFromTokens = (tokens: any) => {
         console.log('Auth\'d with invalid tokens (probably via ws):', tokens);
         return {};
     }
-    const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
-    return userCore;
+    try {
+        // console.log('Verifying token and getting userCore:', tokens);
+        const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
+        return userCore;
+    } catch (err) {
+        console.log('Failed to verify tokens in getUserCoreFromTokens:', err);
+        console.log('Had tokens:', tokens);
+        return {};
+    }
 };
 
 export const updateTokens = async (req: Context['req'], res: Context['res'], userCoreOld: UserCore) => {

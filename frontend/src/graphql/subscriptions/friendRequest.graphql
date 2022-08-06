@@ -1,5 +1,29 @@
 subscription FriendRequest {
     friendRequest {
-        ...UserLgFields
+        fr {
+            id
+            users {
+                ...UserSmFields
+            }
+        }
+        chats {
+            id
+            users {
+                ...UserSmFields
+            }
+        }
+        matches {
+            id
+            matches {
+                id
+                user {
+                    ...UserSmFields
+                }
+                matchDate
+            }
+        }
+        user {
+            ...UserLgFields
+        }
     }
 }

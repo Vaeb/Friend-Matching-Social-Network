@@ -2,24 +2,45 @@ import React, { FC } from 'react';
 import { Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { IoMdArrowBack as IconBack } from 'react-icons/io';
 // import { BsPersonBadge as IconPerson } from 'react-icons/bs';
+import { TbRefreshDot as IconRefresh } from 'react-icons/tb';
 
 import { useAppStore } from '../../state';
 import PanelAction from '../PanelAction';
-import { useGetMatchesQuery } from '../../generated/graphql';
+import { useGetMatchesQuery, useManualMatchMutation, useMeQuery } from '../../generated/graphql';
 import UserAvatar from '../UserAvatar';
 import { avatarUrl } from '../../utils/avatarUrl';
 
 const MatchesRight: FC<any> = () => {
     const theme = useMantineTheme();
     const setView = useAppStore(state => state.setView);
-    const [{ data: matchesData, fetching: matchesFetching }] = useGetMatchesQuery();
 
-    const matches = matchesData?.getMatches;
+    const [{ data: meData, fetching: meFetching }] = useMeQuery();
+    const [{ data: matchesData, fetching: matchesFetching }] = useGetMatchesQuery();
+    const [, doManualMatch] = useManualMatchMutation();
+
+    const me = !meFetching ? meData?.me : null;
+    const matches = matchesData?.getMatches.matches;
+
+    const hasMatch = me?.nextManualMatchId != null;
+
+    const manualMatch = async () => {
+        console.log('Getting manual match...');
+        await doManualMatch();
+        console.log('Done!');
+    };
 
     return (
         <Stack className='w-[80px] overflow-hidden' align='center' spacing={20}>
             <PanelAction onClick={() => setView('base', 'right')}>
                 <IconBack style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
+            </PanelAction>
+            <PanelAction
+                onClick={() => manualMatch()}
+                color={hasMatch ? 'green' : 'dark'}
+                className={hasMatch ? 'border-2 border-green-400 border-opacity-30' : ''}
+                disabled={!hasMatch ? true : false}
+            >
+                <IconRefresh style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
             </PanelAction>
             <Text className='text-sm font-bold w-full text-center' color='dimmed'>Friend<br/>Matches</Text>
             {!matchesFetching

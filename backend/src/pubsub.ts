@@ -15,6 +15,7 @@ export const NEW_MESSAGE = 'NEW_MESSAGE';
 export const NEW_POST = 'NEW_POST';
 export const NEW_POSTS = 'NEW_POSTS';
 export const FRIEND_REQUEST = 'FRIEND_REQUEST';
+export const FRIEND_MATCH = 'FRIEND_MATCH';
 
 setInterval(() => {
     pubsub.publish(HEARTBEAT, String(+new Date()));

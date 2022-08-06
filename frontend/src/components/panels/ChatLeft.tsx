@@ -4,17 +4,12 @@ import {
 import React, { FC } from 'react';
 import shallow from 'zustand/shallow';
 
-import { GetMatchesQuery, GetUserQuery, useAddFriendMutation, useGetUserQuery } from '../../generated/graphql';
+import { useAddFriendMutation, useGetUserQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
 import { FriendButton } from '../FriendButton';
 
-// import { GetMatchesQuery } from '../../generated/graphql';
-// import { useAppStore } from '../../state';
-
 const ChatLeft: FC = () => {
     // const theme = useMantineTheme();
-    // const match: GetMatchesQuery['getMatches'][0]['user'] = useAppStore(state => state.mid.viewValue);
-    // const [{ data: meData, fetching: meFetching }] = useMeQuery();
     const { userId, setView } = useAppStore(
         state => ({ userId: state.mid.viewValue, setView: state.setView }),
         shallow

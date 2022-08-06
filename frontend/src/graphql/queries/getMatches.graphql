@@ -1,9 +1,12 @@
 query GetMatches {
     getMatches {
         id
-        user {
-            ...UserSmFields
+        matches {
+            id
+            user {
+                ...UserSmFields
+            }
+            matchDate
         }
-        matchDate
     }
 }

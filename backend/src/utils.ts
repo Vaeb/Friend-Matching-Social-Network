@@ -168,55 +168,41 @@ export const getUserRelations = async (userId: number, bonusWhere?: string, othe
     return relations;
 };
 
-export const getBigUser = async (meId, userId?: any) => {
+export const getBigUser = async (meId, userId: number, universityId?: number) => {
     const [userRelation] = meId != userId ? await getUserRelations(meId, undefined, userId) : [];
-    if (userRelation) {
+
+    const userDetails = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+            university: { select: { name: true } },
+            matchSettings: {
+                select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, nextManualMatchId: true, matchStudents: true, snoozedUntil: true },
+                where: { universityId },
+            },
+            sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
+            receivedFriendRequests: { select: { createdAt: true }, where: { senderId: meId } },
+        },
+    });
+
+    const { university } = userDetails;
+    const matchSettings: Partial<typeof userDetails.matchSettings[0]> = userDetails.matchSettings?.[0] ?? {};
+    const receivedFrFrom = userDetails.sentFriendRequests.length > 0;
+    const sentFrTo = userDetails.receivedFriendRequests.length > 0;
+
+    if (userRelation) { // Other User
         const { user: baseUser, ...bigUser } = { ...userRelation, ...userRelation.user };
 
-        const extraDetails = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                university: { select: { name: true } },
-                matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
-                sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
-                receivedFriendRequests: { select: { createdAt: true }, where: { senderId: meId } },
-            },
-        });
-
-        const { university, matchSettings } = extraDetails;
-        const receivedFrFrom = extraDetails.sentFriendRequests.length > 0;
-        const sentFrTo = extraDetails.receivedFriendRequests.length > 0;
-
-        const fullUser = { ...bigUser, uni: university.name, ...matchSettings[0], receivedFrFrom, sentFrTo };
+        const fullUser = { ...bigUser, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
 
         return fullUser;
-    } else {
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            include: {
-                university: { select: { name: true } },
-                matchSettings: { select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, snoozedUntil: true, matchStudents: true } },
-                sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
-                receivedFriendRequests: { select: { createdAt: true }, where: { senderId: meId } },
-            },
-        });
-
-        const receivedFrFrom = user.sentFriendRequests.length > 0;
-        const sentFrTo = user.receivedFriendRequests.length > 0;
-        
+    } else { // Me or Other User
         const {
             university: _1,
             matchSettings: _2,
             sentFriendRequests: _3,
             receivedFriendRequests: _4,
             ...fullUser
-        } = {
-            ...user,
-            uni: user.university.name,
-            ...user.matchSettings[0],
-            receivedFrFrom,
-            sentFrTo,
-        };
+        } = { ...userDetails, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
 
         return fullUser;
     }

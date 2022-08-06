@@ -2,10 +2,8 @@ import {
     Button, Stack, 
 } from '@mantine/core';
 import React, { FC } from 'react';
-import { useTimelineStore } from '../../state';
 
-// import { GetMatchesQuery } from '../../generated/graphql';
-// import { useAppStore } from '../../state';
+import { useTimelineStore } from '../../state';
 
 const TimelineLeft: FC = () => {
     // const theme = useMantineTheme();

@@ -8,11 +8,14 @@ import {
     AddFriendMutation,
     FriendRequestType,
     GetChatsDocument,
+    GetChatsQuery,
     GetMatchesDocument,
+    GetMatchesQuery,
     GetMessagesDocument,
     GetPostsWeightedDocument,
     GetUserDocument,
     GetUserInterestsDocument,
+    GetUserQuery,
     MeDocument,
 } from './generated/graphql';
 import { graphqlUrl, wsUrl } from './defaults';
@@ -149,50 +152,51 @@ const exchanges = [
                     const resultData = rawResult?.addFriend as AddFriendMutation['addFriend'];
                     if (resultData?.ok) {
                         const { type } = resultData;
-                        cache.updateQuery(
+                        cache.updateQuery( // Even necessary...?
                             {
                                 query: GetUserDocument,
                                 variables: { userId: args.userId },
                             },
                             (_data) => {
-                                const data = _data as any;
+                                const data = _data as GetUserQuery;
                                 const { user } = resultData;
                                 data.getUser = user;
-                                return data;
+                                return data as any;
                             }
                         );
-                        if (type === FriendRequestType.Accept) {
-                            cache.updateQuery( // DELETE FROM MATCHES
-                                {
-                                    query: GetMatchesDocument,
-                                },
-                                (_data) => {
-                                    const data = _data as any;
-                                    const { user } = resultData;
-                                    const oldIndex = data.getMatches.findIndex(({ user: { id } }: any) => id == user.id);
-                                    data.getMatches.splice(oldIndex, 1);
-                                    return data;
-                                }
-                            );
-                        }
-                        if (type === FriendRequestType.Accept || type === FriendRequestType.Remove) {
-                            cache.updateQuery( // ADD/REMOVE FROM FRIENDS LIST
-                                {
-                                    query: GetChatsDocument,
-                                },
-                                (_data) => {
-                                    const data = _data as any;
-                                    const { user } = resultData;
-                                    if (type === FriendRequestType.Remove) {
-                                        const oldIndex = data.getChats.findIndex(({ id }: any) => id == user.id);
-                                        data.getChats.splice(oldIndex, 1);
-                                    } else {
-                                        data.getChats.unshift(user);
-                                    }
-                                    return data;
-                                }
-                            );
-                        }
+                        // if (type === FriendRequestType.Accept) {
+                        //     cache.updateQuery( // DELETE FROM MATCHES
+                        //         {
+                        //             query: GetMatchesDocument,
+                        //         },
+                        //         (_data) => {
+                        //             const data = _data as GetMatchesQuery;
+                        //             console.log('QQQ', data);
+                        //             const { user } = resultData;
+                        //             const oldIndex = data.getMatches.matches.findIndex(({ user: { id } }: any) => id == user.id);
+                        //             data.getMatches.matches.splice(oldIndex, 1);
+                        //             return data as any;
+                        //         }
+                        //     );
+                        // }
+                        // if (type === FriendRequestType.Accept || type === FriendRequestType.Remove) {
+                        //     cache.updateQuery( // ADD/REMOVE FROM FRIENDS LIST
+                        //         {
+                        //             query: GetChatsDocument,
+                        //         },
+                        //         (_data) => {
+                        //             const data = _data as GetChatsQuery;
+                        //             const { user } = resultData;
+                        //             if (type === FriendRequestType.Remove) {
+                        //                 const oldIndex = data.getChats.findIndex(({ id }: any) => id == user.id);
+                        //                 data.getChats.splice(oldIndex, 1);
+                        //             } else {
+                        //                 data.getChats.unshift(user);
+                        //             }
+                        //             return data as any;
+                        //         }
+                        //     );
+                        // }
                     }
                 },
                 updateMe: (_result, _args, cache, _info) => {

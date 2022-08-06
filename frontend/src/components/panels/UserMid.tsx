@@ -1,6 +1,7 @@
 import {
     Card, Group, ScrollArea, SimpleGrid, Stack, Text, Title, Tooltip, 
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import React from 'react';
 
 import { useGetPostsFromUserQuery, useGetUserQuery } from '../../generated/graphql';
@@ -17,6 +18,10 @@ const UserMid = () => {
     const user = !userFetching ? userData?.getUser : null;
     const posts = !postsFetching ? postsData?.getPostsFromUser : null;
 
+    const cols4 = useMediaQuery('(min-width: 1580px)'); // Will not work with SSR
+    const cols3 = useMediaQuery('(min-width: 1280px)'); // Will not work with SSR
+    const cols2 = useMediaQuery('(min-width: 1000px)'); // Will not work with SSR
+
     return (
         user ?
             <Stack className='h-full'>
@@ -32,7 +37,7 @@ const UserMid = () => {
                 </Stack>
 
                 <CustomScroll scrollPadded>
-                    <SimpleGrid cols={4}>
+                    <SimpleGrid cols={cols4 ? 4 : cols3 ? 3 : cols2 ? 2 : 1}>
                         {posts ? posts.map(post => (
                             <Card key={post.id} shadow='sm' p='lg' radius='md' withBorder>
                                 <Card.Section />

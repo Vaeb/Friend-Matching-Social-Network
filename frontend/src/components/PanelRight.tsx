@@ -8,6 +8,7 @@ import { useAppStore, useMiscStore } from '../state';
 import BaseRight from './panels/BaseRight';
 import MatchesRight from './panels/MatchesRight';
 import PanelAction from './PanelAction';
+import FrRight from './panels/FrRight';
 
 interface PanelRProps {}
 
@@ -30,6 +31,7 @@ const PanelR: FC<PanelRProps> = () => {
                 >
                     {{
                         matches: <MatchesRight />,
+                        fr: <FrRight />,
                     }[view] ?? <BaseRight />}
 
                     <Stack spacing={20}>

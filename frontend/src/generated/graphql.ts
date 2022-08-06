@@ -19,6 +19,12 @@ export type Scalars = {
   Upload: any;
 };
 
+export type ChatsStore = {
+  __typename?: 'ChatsStore';
+  id: Scalars['Int'];
+  users: Array<User>;
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -32,6 +38,20 @@ export type File = {
   mimetype: Scalars['String'];
 };
 
+export type FrStore = {
+  __typename?: 'FrStore';
+  id: Scalars['Int'];
+  users: Array<User>;
+};
+
+export type FriendRequestPubsub = {
+  __typename?: 'FriendRequestPubsub';
+  chats: ChatsStore;
+  fr: FrStore;
+  matches: MatchesStore;
+  user: User;
+};
+
 export enum FriendRequestType {
   Accept = 'ACCEPT',
   Remove = 'REMOVE',
@@ -40,7 +60,10 @@ export enum FriendRequestType {
 
 export type FriendResponse = {
   __typename?: 'FriendResponse';
+  chats?: Maybe<ChatsStore>;
   errors?: Maybe<Array<Error>>;
+  fr?: Maybe<FrStore>;
+  matches?: Maybe<MatchesStore>;
   me?: Maybe<Me>;
   ok: Scalars['Boolean'];
   type?: Maybe<FriendRequestType>;
@@ -69,11 +92,24 @@ export type Interest = {
   name: Scalars['String'];
 };
 
+export type ManualMatchResponse = {
+  __typename?: 'ManualMatchResponse';
+  matchesStore?: Maybe<MatchesStore>;
+  me?: Maybe<Me>;
+  success: Scalars['Boolean'];
+};
+
 export type Match = {
   __typename?: 'Match';
   id: Scalars['Int'];
   matchDate: Scalars['Date'];
   user: User;
+};
+
+export type MatchesStore = {
+  __typename?: 'MatchesStore';
+  id: Scalars['Int'];
+  matches: Array<Match>;
 };
 
 export type Me = {
@@ -90,6 +126,7 @@ export type Me = {
   matchPrecision: Scalars['Int'];
   matchStudents?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
+  nextManualMatchId?: Maybe<Scalars['Int']>;
   snoozedUntil?: Maybe<Scalars['Date']>;
   uni?: Maybe<Scalars['String']>;
   universityId?: Maybe<Scalars['Int']>;
@@ -147,6 +184,7 @@ export type Mutation = {
   deleteUser: MeMultiResponse;
   login: MeMultiResponse;
   logout: MeMultiResponse;
+  manualMatch: ManualMatchResponse;
   register: MeMultiResponse;
   sendMessage: MessageResponse;
   sendPost: SendPostResponse;
@@ -236,9 +274,10 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  getChats: Array<User>;
+  getChats: ChatsStore;
+  getFriendRequests: FrStore;
   getInterests: Array<Interest>;
-  getMatches: Array<Match>;
+  getMatches: MatchesStore;
   getMessages: Array<Message>;
   getPost?: Maybe<Post>;
   getPosts: Array<Post>;
@@ -316,7 +355,7 @@ export type SendPostResponse = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  friendRequest: User;
+  friendRequest: FriendRequestPubsub;
   heartbeat: Scalars['String'];
   newMessage: Message;
   newPost: Post;
@@ -409,7 +448,7 @@ export type WeightedPosts = {
   posts: Array<Post>;
 };
 
-export type MeMdFieldsFragment = { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string };
+export type MeMdFieldsFragment = { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
 export type MeSmFieldsFragment = { __typename?: 'Me', name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
@@ -429,7 +468,7 @@ export type AddFriendMutationVariables = Exact<{
 }>;
 
 
-export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendResponse', ok: boolean, type?: FriendRequestType | null, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
+export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendResponse', ok: boolean, type?: FriendRequestType | null, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null, fr?: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, chats?: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, matches?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null } };
 
 export type AddUserInterestMutationVariables = Exact<{
   userInterest: UserInterestInput;
@@ -451,6 +490,11 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', id: number, username: string } | null, user2?: { __typename?: 'User', id: number, username: string } | null } };
+
+export type ManualMatchMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ManualMatchMutation = { __typename?: 'Mutation', manualMatch: { __typename?: 'ManualMatchResponse', success: boolean, matchesStore?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -498,12 +542,17 @@ export type UpdateMeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
+export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
 
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChatsQuery = { __typename?: 'Query', getChats: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> };
+export type GetChatsQuery = { __typename?: 'Query', getChats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } };
+
+export type GetFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFriendRequestsQuery = { __typename?: 'Query', getFriendRequests: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } };
 
 export type GetInterestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -513,7 +562,7 @@ export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> };
+export type GetMatchesQuery = { __typename?: 'Query', getMatches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } };
 
 export type GetMessagesQueryVariables = Exact<{
   target: Scalars['Int'];
@@ -562,12 +611,12 @@ export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Ar
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, snoozedUntil?: any | null, matchStudents?: boolean | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null };
 
 export type FriendRequestSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FriendRequestSubscription = { __typename?: 'Subscription', friendRequest: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } };
+export type FriendRequestSubscription = { __typename?: 'Subscription', friendRequest: { __typename?: 'FriendRequestPubsub', fr: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, chats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, matches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> }, user: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } } };
 
 export type HeartbeatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -602,6 +651,42 @@ export default {
       "name": "Subscription"
     },
     "types": [
+      {
+        "kind": "OBJECT",
+        "name": "ChatsStore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "users",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
       {
         "kind": "OBJECT",
         "name": "Error",
@@ -673,8 +758,108 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "FrStore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "users",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "User",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "FriendRequestPubsub",
+        "fields": [
+          {
+            "name": "chats",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ChatsStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "fr",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "FrStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "MatchesStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "user",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "FriendResponse",
         "fields": [
+          {
+            "name": "chats",
+            "type": {
+              "kind": "OBJECT",
+              "name": "ChatsStore",
+              "ofType": null
+            },
+            "args": []
+          },
           {
             "name": "errors",
             "type": {
@@ -687,6 +872,24 @@ export default {
                   "ofType": null
                 }
               }
+            },
+            "args": []
+          },
+          {
+            "name": "fr",
+            "type": {
+              "kind": "OBJECT",
+              "name": "FrStore",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "OBJECT",
+              "name": "MatchesStore",
+              "ofType": null
             },
             "args": []
           },
@@ -853,6 +1056,42 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "ManualMatchResponse",
+        "fields": [
+          {
+            "name": "matchesStore",
+            "type": {
+              "kind": "OBJECT",
+              "name": "MatchesStore",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "me",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Me",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "success",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "Match",
         "fields": [
           {
@@ -885,6 +1124,42 @@ export default {
                 "kind": "OBJECT",
                 "name": "User",
                 "ofType": null
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "MatchesStore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "matches",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Match",
+                    "ofType": null
+                  }
+                }
               }
             },
             "args": []
@@ -1007,6 +1282,14 @@ export default {
                 "kind": "SCALAR",
                 "name": "Any"
               }
+            },
+            "args": []
+          },
+          {
+            "name": "nextManualMatchId",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           },
@@ -1488,6 +1771,18 @@ export default {
             "args": []
           },
           {
+            "name": "manualMatch",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ManualMatchResponse",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "register",
             "type": {
               "kind": "NON_NULL",
@@ -1835,15 +2130,21 @@ export default {
             "type": {
               "kind": "NON_NULL",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "User",
-                    "ofType": null
-                  }
-                }
+                "kind": "OBJECT",
+                "name": "ChatsStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "getFriendRequests",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "FrStore",
+                "ofType": null
               }
             },
             "args": []
@@ -1879,15 +2180,9 @@ export default {
             "type": {
               "kind": "NON_NULL",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Match",
-                    "ofType": null
-                  }
-                }
+                "kind": "OBJECT",
+                "name": "MatchesStore",
+                "ofType": null
               }
             },
             "args": []
@@ -2241,7 +2536,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "User",
+                "name": "FriendRequestPubsub",
                 "ofType": null
               }
             },
@@ -2862,8 +3157,9 @@ export const MeMdFieldsFragmentDoc = gql`
   manualEnabled
   lastAutoMatched
   autoFreq
-  snoozedUntil
+  nextManualMatchId
   matchStudents
+  snoozedUntil
 }
     ${MeSmFieldsFragmentDoc}`;
 export const UserXsFieldsFragmentDoc = gql`
@@ -2909,10 +3205,33 @@ export const AddFriendDocument = gql`
     user {
       ...UserLgFields
     }
+    fr {
+      id
+      users {
+        ...UserSmFields
+      }
+    }
+    chats {
+      id
+      users {
+        ...UserSmFields
+      }
+    }
+    matches {
+      id
+      matches {
+        id
+        user {
+          ...UserSmFields
+        }
+        matchDate
+      }
+    }
     type
   }
 }
-    ${UserLgFieldsFragmentDoc}`;
+    ${UserLgFieldsFragmentDoc}
+${UserSmFieldsFragmentDoc}`;
 
 export function useAddFriendMutation() {
   return Urql.useMutation<AddFriendMutation, AddFriendMutationVariables>(AddFriendDocument);
@@ -2982,6 +3301,31 @@ ${UserXsFieldsFragmentDoc}`;
 
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
+export const ManualMatchDocument = gql`
+    mutation ManualMatch {
+  manualMatch {
+    success
+    matchesStore {
+      id
+      matches {
+        id
+        user {
+          ...UserSmFields
+        }
+        matchDate
+      }
+    }
+    me {
+      ...MeMdFields
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}
+${MeMdFieldsFragmentDoc}`;
+
+export function useManualMatchMutation() {
+  return Urql.useMutation<ManualMatchMutation, ManualMatchMutationVariables>(ManualMatchDocument);
 };
 export const RegisterDocument = gql`
     mutation Register($username: String!, $email: String!, $password: String!, $name: String!, $universityId: Int!) {
@@ -3105,13 +3449,30 @@ export function useUpdateMeMutation() {
 export const GetChatsDocument = gql`
     query GetChats {
   getChats {
-    ...UserSmFields
+    id
+    users {
+      ...UserSmFields
+    }
   }
 }
     ${UserSmFieldsFragmentDoc}`;
 
 export function useGetChatsQuery(options?: Omit<Urql.UseQueryArgs<GetChatsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetChatsQuery>({ query: GetChatsDocument, ...options });
+};
+export const GetFriendRequestsDocument = gql`
+    query GetFriendRequests {
+  getFriendRequests {
+    id
+    users {
+      ...UserSmFields
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}`;
+
+export function useGetFriendRequestsQuery(options?: Omit<Urql.UseQueryArgs<GetFriendRequestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetFriendRequestsQuery>({ query: GetFriendRequestsDocument, ...options });
 };
 export const GetInterestsDocument = gql`
     query GetInterests {
@@ -3129,10 +3490,13 @@ export const GetMatchesDocument = gql`
     query GetMatches {
   getMatches {
     id
-    user {
-      ...UserSmFields
+    matches {
+      id
+      user {
+        ...UserSmFields
+      }
+      matchDate
     }
-    matchDate
   }
 }
     ${UserSmFieldsFragmentDoc}`;
@@ -3262,10 +3626,35 @@ export function useMeQuery(options?: Omit<Urql.UseQueryArgs<MeQueryVariables>, '
 export const FriendRequestDocument = gql`
     subscription FriendRequest {
   friendRequest {
-    ...UserLgFields
+    fr {
+      id
+      users {
+        ...UserSmFields
+      }
+    }
+    chats {
+      id
+      users {
+        ...UserSmFields
+      }
+    }
+    matches {
+      id
+      matches {
+        id
+        user {
+          ...UserSmFields
+        }
+        matchDate
+      }
+    }
+    user {
+      ...UserLgFields
+    }
   }
 }
-    ${UserLgFieldsFragmentDoc}`;
+    ${UserSmFieldsFragmentDoc}
+${UserLgFieldsFragmentDoc}`;
 
 export function useFriendRequestSubscription<TData = FriendRequestSubscription>(options: Omit<Urql.UseSubscriptionArgs<FriendRequestSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<FriendRequestSubscription, TData>) {
   return Urql.useSubscription<FriendRequestSubscription, TData, FriendRequestSubscriptionVariables>({ query: FriendRequestDocument, ...options }, handler);

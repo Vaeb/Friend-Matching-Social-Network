@@ -16,6 +16,12 @@ export type Scalars = {
   Upload: any;
 };
 
+export type ChatsStore = {
+  __typename?: 'ChatsStore';
+  id: Scalars['Int'];
+  users: Array<User>;
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -29,6 +35,20 @@ export type File = {
   mimetype: Scalars['String'];
 };
 
+export type FrStore = {
+  __typename?: 'FrStore';
+  id: Scalars['Int'];
+  users: Array<User>;
+};
+
+export type FriendRequestPubsub = {
+  __typename?: 'FriendRequestPubsub';
+  chats: ChatsStore;
+  fr: FrStore;
+  matches: MatchesStore;
+  user: User;
+};
+
 export enum FriendRequestType {
   Accept = 'ACCEPT',
   Remove = 'REMOVE',
@@ -37,7 +57,10 @@ export enum FriendRequestType {
 
 export type FriendResponse = {
   __typename?: 'FriendResponse';
+  chats?: Maybe<ChatsStore>;
   errors?: Maybe<Array<Error>>;
+  fr?: Maybe<FrStore>;
+  matches?: Maybe<MatchesStore>;
   me?: Maybe<Me>;
   ok: Scalars['Boolean'];
   type?: Maybe<FriendRequestType>;
@@ -66,11 +89,24 @@ export type Interest = {
   name: Scalars['String'];
 };
 
+export type ManualMatchResponse = {
+  __typename?: 'ManualMatchResponse';
+  matchesStore?: Maybe<MatchesStore>;
+  me?: Maybe<Me>;
+  success: Scalars['Boolean'];
+};
+
 export type Match = {
   __typename?: 'Match';
   id: Scalars['Int'];
   matchDate: Scalars['Date'];
   user: User;
+};
+
+export type MatchesStore = {
+  __typename?: 'MatchesStore';
+  id: Scalars['Int'];
+  matches: Array<Match>;
 };
 
 export type Me = {
@@ -87,6 +123,7 @@ export type Me = {
   matchPrecision: Scalars['Int'];
   matchStudents?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
+  nextManualMatchId?: Maybe<Scalars['Int']>;
   snoozedUntil?: Maybe<Scalars['Date']>;
   uni?: Maybe<Scalars['String']>;
   universityId?: Maybe<Scalars['Int']>;
@@ -144,6 +181,7 @@ export type Mutation = {
   deleteUser: MeMultiResponse;
   login: MeMultiResponse;
   logout: MeMultiResponse;
+  manualMatch: ManualMatchResponse;
   register: MeMultiResponse;
   sendMessage: MessageResponse;
   sendPost: SendPostResponse;
@@ -233,9 +271,10 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  getChats: Array<User>;
+  getChats: ChatsStore;
+  getFriendRequests: FrStore;
   getInterests: Array<Interest>;
-  getMatches: Array<Match>;
+  getMatches: MatchesStore;
   getMessages: Array<Message>;
   getPost?: Maybe<Post>;
   getPosts: Array<Post>;
@@ -313,7 +352,7 @@ export type SendPostResponse = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  friendRequest: User;
+  friendRequest: FriendRequestPubsub;
   heartbeat: Scalars['String'];
   newMessage: Message;
   newPost: Post;
@@ -476,16 +515,21 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  ChatsStore: ResolverTypeWrapper<ChatsStore>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Error: ResolverTypeWrapper<Error>;
   File: ResolverTypeWrapper<File>;
+  FrStore: ResolverTypeWrapper<FrStore>;
+  FriendRequestPubsub: ResolverTypeWrapper<FriendRequestPubsub>;
   FriendRequestType: FriendRequestType;
   FriendResponse: ResolverTypeWrapper<FriendResponse>;
   FriendStatus: ResolverTypeWrapper<FriendStatus>;
   GenResponse: ResolverTypeWrapper<GenResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Interest: ResolverTypeWrapper<Interest>;
+  ManualMatchResponse: ResolverTypeWrapper<ManualMatchResponse>;
   Match: ResolverTypeWrapper<Match>;
+  MatchesStore: ResolverTypeWrapper<MatchesStore>;
   Me: ResolverTypeWrapper<Me>;
   MeMultiResponse: ResolverTypeWrapper<MeMultiResponse>;
   MeResponse: ResolverTypeWrapper<MeResponse>;
@@ -514,15 +558,20 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
+  ChatsStore: ChatsStore;
   Date: Scalars['Date'];
   Error: Error;
   File: File;
+  FrStore: FrStore;
+  FriendRequestPubsub: FriendRequestPubsub;
   FriendResponse: FriendResponse;
   FriendStatus: FriendStatus;
   GenResponse: GenResponse;
   Int: Scalars['Int'];
   Interest: Interest;
+  ManualMatchResponse: ManualMatchResponse;
   Match: Match;
+  MatchesStore: MatchesStore;
   Me: Me;
   MeMultiResponse: MeMultiResponse;
   MeResponse: MeResponse;
@@ -548,6 +597,12 @@ export type ResolversParentTypes = {
   WeightedPosts: WeightedPosts;
 };
 
+export type ChatsStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatsStore'] = ResolversParentTypes['ChatsStore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
@@ -565,8 +620,25 @@ export type FileResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FrStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['FrStore'] = ResolversParentTypes['FrStore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FriendRequestPubsubResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendRequestPubsub'] = ResolversParentTypes['FriendRequestPubsub']> = {
+  chats?: Resolver<ResolversTypes['ChatsStore'], ParentType, ContextType>;
+  fr?: Resolver<ResolversTypes['FrStore'], ParentType, ContextType>;
+  matches?: Resolver<ResolversTypes['MatchesStore'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FriendResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendResponse'] = ResolversParentTypes['FriendResponse']> = {
+  chats?: Resolver<Maybe<ResolversTypes['ChatsStore']>, ParentType, ContextType>;
   errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  fr?: Resolver<Maybe<ResolversTypes['FrStore']>, ParentType, ContextType>;
+  matches?: Resolver<Maybe<ResolversTypes['MatchesStore']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
   ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   type?: Resolver<Maybe<ResolversTypes['FriendRequestType']>, ParentType, ContextType>;
@@ -596,10 +668,23 @@ export type InterestResolvers<ContextType = any, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ManualMatchResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ManualMatchResponse'] = ResolversParentTypes['ManualMatchResponse']> = {
+  matchesStore?: Resolver<Maybe<ResolversTypes['MatchesStore']>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MatchResolvers<ContextType = any, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchDate?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MatchesStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['MatchesStore'] = ResolversParentTypes['MatchesStore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  matches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -616,6 +701,7 @@ export type MeResolvers<ContextType = any, ParentType extends ResolversParentTyp
   matchPrecision?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchStudents?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nextManualMatchId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   snoozedUntil?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uni?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   universityId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -673,6 +759,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteUser?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
   login?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
   logout?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
+  manualMatch?: Resolver<ResolversTypes['ManualMatchResponse'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
   sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
   sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
@@ -692,9 +779,10 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getChats?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  getChats?: Resolver<ResolversTypes['ChatsStore'], ParentType, ContextType>;
+  getFriendRequests?: Resolver<ResolversTypes['FrStore'], ParentType, ContextType>;
   getInterests?: Resolver<Array<ResolversTypes['Interest']>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
-  getMatches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
+  getMatches?: Resolver<ResolversTypes['MatchesStore'], ParentType, ContextType>;
   getMessages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'target'>>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
@@ -719,7 +807,7 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
 };
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
-  friendRequest?: SubscriptionResolver<ResolversTypes['User'], "friendRequest", ParentType, ContextType>;
+  friendRequest?: SubscriptionResolver<ResolversTypes['FriendRequestPubsub'], "friendRequest", ParentType, ContextType>;
   heartbeat?: SubscriptionResolver<ResolversTypes['String'], "heartbeat", ParentType, ContextType>;
   newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
   newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
@@ -812,14 +900,19 @@ export type WeightedPostsResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type Resolvers<ContextType = any> = {
+  ChatsStore?: ChatsStoreResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Error?: ErrorResolvers<ContextType>;
   File?: FileResolvers<ContextType>;
+  FrStore?: FrStoreResolvers<ContextType>;
+  FriendRequestPubsub?: FriendRequestPubsubResolvers<ContextType>;
   FriendResponse?: FriendResponseResolvers<ContextType>;
   FriendStatus?: FriendStatusResolvers<ContextType>;
   GenResponse?: GenResponseResolvers<ContextType>;
   Interest?: InterestResolvers<ContextType>;
+  ManualMatchResponse?: ManualMatchResponseResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
+  MatchesStore?: MatchesStoreResolvers<ContextType>;
   Me?: MeResolvers<ContextType>;
   MeMultiResponse?: MeMultiResponseResolvers<ContextType>;
   MeResponse?: MeResponseResolvers<ContextType>;

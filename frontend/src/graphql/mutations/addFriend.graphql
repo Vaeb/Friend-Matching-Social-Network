@@ -8,6 +8,28 @@ mutation AddFriend($userId: Int!, $remove: Boolean) {
         user {
             ...UserLgFields
         }
+        fr {
+            id
+            users {
+                ...UserSmFields
+            }
+        }
+        chats {
+            id
+            users {
+                ...UserSmFields
+            }
+        }
+        matches {
+            id
+            matches {
+                id
+                user {
+                    ...UserSmFields
+                }
+                matchDate
+            }
+        }
         type
     }
 }

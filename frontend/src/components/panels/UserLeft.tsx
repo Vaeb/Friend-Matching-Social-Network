@@ -23,11 +23,12 @@ const UserLeft = () => {
 
     const isMe = userId === me.id;
 
-    const addFriend = (remove = false) => {
-        doAddFriend({
+    const addFriend = async (remove = false) => {
+        const result = await doAddFriend({
             userId,
             remove,
         });
+        console.log('qq', result);
     };
 
     return (user ? (

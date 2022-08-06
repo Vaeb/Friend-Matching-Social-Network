@@ -23,6 +23,7 @@ type Me {
     manualEnabled: Boolean
     lastAutoMatched: Date
     autoFreq: Int
+    nextManualMatchId: Int
     matchStudents: Boolean
     snoozedUntil: Date
 }
@@ -87,28 +88,6 @@ type UserCoreResponse {
     user: UserCore
 }
 
-enum FriendRequestType {
-    REMOVE
-    ACCEPT
-    REQUEST
-}
-
-type FriendResponse {
-    ok: Boolean!
-    errors: [Error!]
-    user: User
-    me: Me
-    type: FriendRequestType
-}
-
-type FriendStatus {
-    sender: User
-    receiver: User
-    initiator: User
-    consumer: User
-    type: FriendRequestType
-}
-
 type UserInterest {
     id: String!
     userId: Int!
@@ -135,13 +114,67 @@ type Match {
     matchDate: Date!
 }
 
+type MatchesStore {
+    id: Int!
+    matches: [Match!]!
+}
+
+type ManualMatchResponse {
+    success: Boolean!
+    matchesStore: MatchesStore
+    me: Me
+}
+
+type FrStore {
+    id: Int!
+    users: [User!]!
+}
+
+enum FriendRequestType {
+    REMOVE
+    ACCEPT
+    REQUEST
+}
+
+type FriendResponse {
+    ok: Boolean!
+    errors: [Error!]
+    user: User
+    me: Me
+    fr: FrStore
+    chats: ChatsStore
+    matches: MatchesStore
+    type: FriendRequestType
+}
+
+type FriendRequestPubsub {
+    user: User!
+    fr: FrStore!
+    chats: ChatsStore!
+    matches: MatchesStore!
+}
+
+type FriendStatus {
+    sender: User
+    receiver: User
+    initiator: User
+    consumer: User
+    type: FriendRequestType
+}
+
+type ChatsStore {
+    id: Int!
+    users: [User!]!
+}
+
 type Query {
     getUser(userId: Int!): User
     getUserByHandle(handle: String!): User
     getUsers(limit: Int): [User!]!
     getUserInterests: [UserInterest!]!
-    getMatches: [Match!]!
-    getChats: [User!]!
+    getMatches: MatchesStore!
+    getFriendRequests: FrStore!
+    getChats: ChatsStore!
     me: Me
 }
 
@@ -155,8 +188,9 @@ type Mutation {
     addFriend(userId: Int!, remove: Boolean): FriendResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!
+    manualMatch: ManualMatchResponse!
 }
 
 type Subscription {
-    friendRequest: User!
+    friendRequest: FriendRequestPubsub!
 }
