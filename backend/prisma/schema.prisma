@@ -20,7 +20,7 @@ model User {
     universities           University[]     @relation(name: "ConfirmedUnis")
     color                  String?
     birthDate              DateTime?
-    matchPrecision         Int              @default(0)
+    matchQuality           Int              @default(0)
     visEmail               Int              @default(0)
     visInterests           Int              @default(0)
     relations1             UserRelation[]   @relation(name: "UserRel1")
@@ -67,12 +67,12 @@ model MatchSettings {
 }
 
 model FriendRequests {
-    sender     User @relation(name: "FriendSender", fields: [senderId], references: [id])
+    sender     User     @relation(name: "FriendSender", fields: [senderId], references: [id])
     senderId   Int
-    receiver   User @relation(name: "FriendReceiver", fields: [receiverId], references: [id])
+    receiver   User     @relation(name: "FriendReceiver", fields: [receiverId], references: [id])
     receiverId Int
-    createdAt         DateTime   @default(now())
-    updatedAt         DateTime   @updatedAt
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
     @@id([senderId, receiverId])
     @@map("friend_requests")

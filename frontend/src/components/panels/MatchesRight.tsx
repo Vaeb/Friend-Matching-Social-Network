@@ -21,7 +21,7 @@ const MatchesRight: FC<any> = () => {
     const me = !meFetching ? meData?.me : null;
     const matches = matchesData?.getMatches.matches;
 
-    const hasMatch = me?.nextManualMatchId != null;
+    const hasMatch = me.manualEnabled && me?.nextManualMatchId != null;
 
     const manualMatch = async () => {
         console.log('Getting manual match...');

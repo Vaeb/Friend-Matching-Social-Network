@@ -62,7 +62,7 @@ export function badStatus<T extends boolean>(field: string, message: string, sou
 //         'username',
 //         'email',
 //         'name',
-//         'matchPrecision',
+//         'matchQuality',
 //         'visEmail',
 //         'visInterests',
 //         'createdAt',

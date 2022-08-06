@@ -120,8 +120,9 @@ export type Me = {
   id: Scalars['Int'];
   lastAutoMatched?: Maybe<Scalars['Date']>;
   manualEnabled?: Maybe<Scalars['Boolean']>;
-  matchPrecision: Scalars['Int'];
+  matchQuality: Scalars['Int'];
   matchStudents?: Maybe<Scalars['Boolean']>;
+  matchingEnabled: Scalars['Boolean'];
   name: Scalars['String'];
   nextManualMatchId?: Maybe<Scalars['Int']>;
   snoozedUntil?: Maybe<Scalars['Date']>;
@@ -252,6 +253,8 @@ export type MutationUpdateMeArgs = {
   birthDate?: InputMaybe<Scalars['Date']>;
   color?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
+  matchQuality?: InputMaybe<Scalars['Int']>;
+  matchingEnabled?: InputMaybe<Scalars['Boolean']>;
   name?: InputMaybe<Scalars['String']>;
   oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
@@ -698,8 +701,9 @@ export type MeResolvers<ContextType = any, ParentType extends ResolversParentTyp
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastAutoMatched?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   manualEnabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  matchPrecision?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  matchQuality?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matchStudents?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  matchingEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   nextManualMatchId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   snoozedUntil?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;

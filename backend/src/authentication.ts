@@ -62,7 +62,7 @@ export const getUserCoreFromTokens = (tokens: any) => {
     }
     try {
         // console.log('Verifying token and getting userCore:', tokens);
-        const userCore = jwt.verify(tokens.tokenAccess, auth.SECRET1) as UserCore;
+        const userCore = jwt.decode(tokens.tokenAccess) as UserCore;
         return userCore;
     } catch (err) {
         console.log('Failed to verify tokens in getUserCoreFromTokens:', err);

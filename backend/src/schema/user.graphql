@@ -7,7 +7,8 @@ type Me {
     universityId: Int
     confirmedUniversityIds: [Int!]
     birthDate: Date
-    matchPrecision: Int!
+    matchingEnabled: Boolean!
+    matchQuality: Int!
     visEmail: Int!
     visInterests: Int!
     # relations: [UserRelation]
@@ -183,8 +184,24 @@ type Mutation {
     login(handle: String!, password: String!): MeMultiResponse!
     logout: MeMultiResponse!
     deleteUser: MeMultiResponse!
-    updateMe(username: String, email: String, oldPassword: String, password: String, name: String, color: String, birthDate: Date, universityId: Int): MeMultiResponse!
-    updateMatchSettings(manualEnabled: Boolean, autoFreq: Int, matchStudents: Boolean, snoozedUntil: Date): MeMultiResponse!
+    updateMe(
+        username: String
+        email: String
+        oldPassword: String
+        password: String
+        name: String
+        color: String
+        birthDate: Date
+        universityId: Int
+        matchingEnabled: Boolean
+        matchQuality: Int
+    ): MeMultiResponse!
+    updateMatchSettings(
+        manualEnabled: Boolean
+        autoFreq: Int
+        matchStudents: Boolean
+        snoozedUntil: Date
+    ): MeMultiResponse!
     addFriend(userId: Int!, remove: Boolean): FriendResponse!
     addUserInterests(userInterests: [UserInterestInput!]!): GenResponse!
     addUserInterest(userInterest: UserInterestInput!, override: Boolean): UserInterestResponse!

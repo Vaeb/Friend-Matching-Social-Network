@@ -1,0 +1,25 @@
+mutation UpdateMatchSettings(
+    $manualEnabled: Boolean
+    $autoFreq: Int
+    $matchStudents: Boolean
+    $snoozedUntil: Date
+) {
+    updateMatchSettings(
+        manualEnabled: $manualEnabled
+        autoFreq: $autoFreq
+        matchStudents: $matchStudents
+        snoozedUntil: $snoozedUntil
+    ) {
+        ok
+        errors {
+            field
+            message
+        }
+        user {
+            ...MeMdFields
+        }
+        user2 {
+            ...UserMdFields
+        }
+    }
+}

@@ -123,8 +123,9 @@ export type Me = {
   id: Scalars['Int'];
   lastAutoMatched?: Maybe<Scalars['Date']>;
   manualEnabled?: Maybe<Scalars['Boolean']>;
-  matchPrecision: Scalars['Int'];
+  matchQuality: Scalars['Int'];
   matchStudents?: Maybe<Scalars['Boolean']>;
+  matchingEnabled: Scalars['Boolean'];
   name: Scalars['String'];
   nextManualMatchId?: Maybe<Scalars['Int']>;
   snoozedUntil?: Maybe<Scalars['Date']>;
@@ -255,6 +256,8 @@ export type MutationUpdateMeArgs = {
   birthDate?: InputMaybe<Scalars['Date']>;
   color?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
+  matchQuality?: InputMaybe<Scalars['Int']>;
+  matchingEnabled?: InputMaybe<Scalars['Boolean']>;
   name?: InputMaybe<Scalars['String']>;
   oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
@@ -448,7 +451,7 @@ export type WeightedPosts = {
   posts: Array<Post>;
 };
 
-export type MeMdFieldsFragment = { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string };
+export type MeMdFieldsFragment = { __typename?: 'Me', birthDate?: any | null, uni?: string | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
 export type MeSmFieldsFragment = { __typename?: 'Me', name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
@@ -494,7 +497,7 @@ export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: '
 export type ManualMatchMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ManualMatchMutation = { __typename?: 'Mutation', manualMatch: { __typename?: 'ManualMatchResponse', success: boolean, matchesStore?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
+export type ManualMatchMutation = { __typename?: 'Mutation', manualMatch: { __typename?: 'ManualMatchResponse', success: boolean, matchesStore?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -530,6 +533,16 @@ export type SingleUploadMutationVariables = Exact<{
 
 export type SingleUploadMutation = { __typename?: 'Mutation', singleUpload: { __typename?: 'File', filename: string } };
 
+export type UpdateMatchSettingsMutationVariables = Exact<{
+  manualEnabled?: InputMaybe<Scalars['Boolean']>;
+  autoFreq?: InputMaybe<Scalars['Int']>;
+  matchStudents?: InputMaybe<Scalars['Boolean']>;
+  snoozedUntil?: InputMaybe<Scalars['Date']>;
+}>;
+
+
+export type UpdateMatchSettingsMutation = { __typename?: 'Mutation', updateMatchSettings: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
+
 export type UpdateMeMutationVariables = Exact<{
   username?: InputMaybe<Scalars['String']>;
   email?: InputMaybe<Scalars['String']>;
@@ -539,10 +552,12 @@ export type UpdateMeMutationVariables = Exact<{
   color?: InputMaybe<Scalars['String']>;
   birthDate?: InputMaybe<Scalars['Date']>;
   universityId?: InputMaybe<Scalars['Int']>;
+  matchingEnabled?: InputMaybe<Scalars['Boolean']>;
+  matchQuality?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
+export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename?: 'MeMultiResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null, user2?: { __typename?: 'User', birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null } };
 
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -611,7 +626,7 @@ export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Ar
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, matchStudents?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null };
 
 export type FriendRequestSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -1256,7 +1271,7 @@ export default {
             "args": []
           },
           {
-            "name": "matchPrecision",
+            "name": "matchQuality",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -1271,6 +1286,17 @@ export default {
             "type": {
               "kind": "SCALAR",
               "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "matchingEnabled",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
             },
             "args": []
           },
@@ -2002,6 +2028,20 @@ export default {
               },
               {
                 "name": "email",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "matchQuality",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "matchingEnabled",
                 "type": {
                   "kind": "SCALAR",
                   "name": "Any"
@@ -3154,6 +3194,8 @@ export const MeMdFieldsFragmentDoc = gql`
   ...MeSmFields
   birthDate
   uni
+  matchingEnabled
+  matchQuality
   manualEnabled
   lastAutoMatched
   autoFreq
@@ -3415,8 +3457,35 @@ export const SingleUploadDocument = gql`
 export function useSingleUploadMutation() {
   return Urql.useMutation<SingleUploadMutation, SingleUploadMutationVariables>(SingleUploadDocument);
 };
+export const UpdateMatchSettingsDocument = gql`
+    mutation UpdateMatchSettings($manualEnabled: Boolean, $autoFreq: Int, $matchStudents: Boolean, $snoozedUntil: Date) {
+  updateMatchSettings(
+    manualEnabled: $manualEnabled
+    autoFreq: $autoFreq
+    matchStudents: $matchStudents
+    snoozedUntil: $snoozedUntil
+  ) {
+    ok
+    errors {
+      field
+      message
+    }
+    user {
+      ...MeMdFields
+    }
+    user2 {
+      ...UserMdFields
+    }
+  }
+}
+    ${MeMdFieldsFragmentDoc}
+${UserMdFieldsFragmentDoc}`;
+
+export function useUpdateMatchSettingsMutation() {
+  return Urql.useMutation<UpdateMatchSettingsMutation, UpdateMatchSettingsMutationVariables>(UpdateMatchSettingsDocument);
+};
 export const UpdateMeDocument = gql`
-    mutation UpdateMe($username: String, $email: String, $oldPassword: String, $password: String, $name: String, $color: String, $birthDate: Date, $universityId: Int) {
+    mutation UpdateMe($username: String, $email: String, $oldPassword: String, $password: String, $name: String, $color: String, $birthDate: Date, $universityId: Int, $matchingEnabled: Boolean, $matchQuality: Int) {
   updateMe(
     username: $username
     email: $email
@@ -3426,6 +3495,8 @@ export const UpdateMeDocument = gql`
     color: $color
     birthDate: $birthDate
     universityId: $universityId
+    matchingEnabled: $matchingEnabled
+    matchQuality: $matchQuality
   ) {
     ok
     errors {

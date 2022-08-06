@@ -114,7 +114,7 @@ const resolvers: Resolvers = {
         },
         getMatches: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getMatches');
-            const meId = userCore.id;
+            const { id: meId } = userCore;
 
             const matches = await getMatches(meId);
 
@@ -122,7 +122,7 @@ const resolvers: Resolvers = {
         },
         getFriendRequests: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getFriendRequests');
-            const meId = userCore.id;
+            const { id: meId } = userCore;
 
             const usersSendingFr = await getFriendRequests(meId);
             console.log('usersSendingFr', usersSendingFr);
@@ -131,7 +131,7 @@ const resolvers: Resolvers = {
         },
         getChats: async (_parent, _, { userCore }: Context) => {
             console.log('Received request for getChats');
-            const meId = userCore.id;
+            const { id: meId } = userCore;
             const users = await getChats(meId);
             return { id: meId, users };
         },
@@ -232,7 +232,7 @@ const resolvers: Resolvers = {
         addFriend: async (_parent, { userId, remove }, { userCore }: Context) => {
             try {
                 console.log('Received request for addFriend', userId, remove);
-                const meId = userCore.id;
+                const { id: meId } = userCore;
                 let type: FriendRequestType;
                 let bigUser: User;
                 let sender;
@@ -339,7 +339,7 @@ const resolvers: Resolvers = {
         },
         addUserInterest: async (_parent, { userInterest, override }, { userCore }: Context) => {
             try {
-                const meId = userCore.id;
+                const { id: meId } = userCore;
                 console.log('Received request for addUserInterest:', meId, userInterest);
                 const nowDate = new Date();
 
@@ -462,7 +462,7 @@ const resolvers: Resolvers = {
         updateMe: async (_parent, rawArgs, { req, res, userCore }: Context) => {
             try {
                 console.log(userCore);
-                const meId = userCore.id;
+                const { id: meId } = userCore;
                 console.log('Received request for updateMe:', meId, rawArgs);
                 const { oldPassword, ...args } = rawArgs;
 
@@ -493,6 +493,28 @@ const resolvers: Resolvers = {
                 return { ok: true, user: bigUser, user2: bigUser };
             } catch (err) {
                 consoleError('UPDATE_ME', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        updateMatchSettings: async (_parent, args, { userCore }: Context) => {
+            try {
+                console.log(userCore);
+                const { id: meId, universityId } = userCore;
+                console.log('Received request for updateMatchSettings:', meId, args);
+
+                await prisma.matchSettings.update({
+                    where: { userId_universityId: { userId: meId, universityId } },
+                    data: args,
+                });
+
+                const bigUser = await getBigUser(meId, meId, universityId);
+
+                return { ok: true, user: bigUser, user2: bigUser };
+            } catch (err) {
+                consoleError('UPDATE_MATCH_SETTINGS', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

@@ -2,6 +2,8 @@ fragment MeMdFields on Me {
     ...MeSmFields
     birthDate
     uni
+    matchingEnabled
+    matchQuality
     manualEnabled
     lastAutoMatched
     autoFreq
