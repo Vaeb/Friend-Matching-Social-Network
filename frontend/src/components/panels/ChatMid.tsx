@@ -36,7 +36,7 @@ const ChatMid: FC = () => {
 
     // console.log('resData', res.data);
 
-    const messages = !messagesFetching ? messagesData?.getMessages : [];
+    const messages = (!messagesFetching && messagesData?.getMessages) || [];
 
     const isMe = u => u.id == me.id;
 

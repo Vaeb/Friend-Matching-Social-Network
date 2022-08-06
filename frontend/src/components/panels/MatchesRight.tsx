@@ -29,7 +29,7 @@ const MatchesRight: FC<any> = () => {
                             <UserAvatar
                                 className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
                                 url={avatarUrl(match.user)}
-                                onClick={() => setView('match', null, match.user)}
+                                onClick={() => setView('match', null, match.user.id)}
                             />
                         </UnstyledButton>
                         <Text className='text-sm text-_gray-800 truncate text-center w-full max-w-full cursor-pointer px-[6px]' onClick={() => setView('user', null, match.user.id)}>
