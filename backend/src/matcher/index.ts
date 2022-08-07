@@ -424,11 +424,11 @@ const doMatch = async () => {
                 ON "user2Id" = ms2."userId" AND ms2."universityId" = ${university.id}
                     AND ((ms2."manualEnabled" = true AND ms2."nextManualMatchId" IS NULL) OR (ms2."autoFreq" <> 0 AND CURRENT_DATE >= ms2."lastAutoMatched"::DATE + ms2."autoFreq"))
             JOIN users u1
-                ON "user1Id" = u1."id"
+                ON "user1Id" = u1."id" AND u1."matchingEnabled" = true
             LEFT JOIN university_students us1
                 ON "user1Id" = us1."userId" AND us1."universityId" = ${university.id}
             JOIN users u2
-                ON "user2Id" = u2."id"
+                ON "user2Id" = u2."id" AND u2."matchingEnabled" = true
             LEFT JOIN university_students us2
                 ON "user2Id" = us2."userId" AND us2."universityId" = ${university.id}
             WHERE compatibility > 0 AND "haveMatched" = false AND "areFriends" = false

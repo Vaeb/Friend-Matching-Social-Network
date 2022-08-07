@@ -25,9 +25,10 @@ const PanelR: FC<PanelRProps> = () => {
             <Stack className={`h-full ${midView === 'settings' ? 'md:w-[26vw] w-[initial]' : ''}`} align='flex-start'>
                 <Stack
                     className={`h-full w-[80px] ${midView === 'settings' ? 'min-w-fit' : ''}`}
-                    justify='space-between'
+                    // justify='space-between'
                     align='center'
                     py={20}
+                    spacing={20}
                 >
                     {{
                         matches: <MatchesRight />,
