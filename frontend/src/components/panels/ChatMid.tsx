@@ -98,9 +98,9 @@ const ChatMid: FC = () => {
                                     <div className='flex gap-[5px] items-center'>
                                         <Text
                                             className='font-medium cursor-pointer text-_gray-800'
-                                            style={{ color: users[message.from.id].color }}
+                                            style={{ color: users[message.from.id]?.color }}
                                             onClick={() => onUserClick(message)}
-                                        >{`${users[message.from.id].name}`}</Text>
+                                        >{`${users[message.from.id]?.name ?? 'Name'}`}</Text>
                                         <Text className='text-xs text-_gray-800'>·</Text>
                                         <Tooltip className='opacity-50' label={getDateString(new Date(message.createdAt))} withArrow openDelay={400}>
                                             <Text className='text-xs text-_gray-400'>{formatTime(+new Date() - +new Date(message.createdAt))}</Text>
