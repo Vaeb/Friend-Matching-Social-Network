@@ -2,7 +2,8 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
-import { GetUniversitiesQuery, Post, User } from './generated/graphql';
+import { GetPostsWeightedQuery, GetUniversitiesQuery, Post, User } from './generated/graphql';
+import { splitPosts, SplitPosts } from './utils/splitPosts';
 
 type Panel = 'left' | 'mid' | 'right';
 
@@ -21,30 +22,33 @@ interface AppState {
 const translateViews = {
     left : {
         base: 'timeline',
+        viewValue: null,
     },
     mid: {
         base: 'timeline',
+        viewValue: null,
     },
     right: {
         base: 'base',
+        viewValue: null,
     },
 };
 
 export const useAppStore = create<AppState>()(persist((set, get) => ({
     left: {
         view: translateViews.left.base,
-        viewValue: null,
+        viewValue: translateViews.left.viewValue,
     },
     mid: {
         view: translateViews.mid.base,
-        viewValue: null,
+        viewValue: translateViews.mid.viewValue,
     },
     right: {
         view: translateViews.right.base,
-        viewValue: null,
+        viewValue: translateViews.right.viewValue,
     },
     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
-        set(produce((state) => {
+        set(produce((state: AppState) => {
             if (!panels) panels = ['left', 'mid'];
             else if (panels === 'all') panels = ['left', 'mid', 'right'];
             else if (typeof panels === 'string') panels = [panels];
@@ -55,6 +59,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => ({
             }
 
             if (view === 'settings' && viewValue1 === undefined) viewValue1 = 'account';
+            // if (['timeline', 'base'].includes(view) && viewValue1 === undefined) viewValue1 = 'public';
 
             if (softViewValues === false) {
                 if (viewValue1 === undefined) viewValue1 = null; 
@@ -80,33 +85,44 @@ interface ConvoState {
 export const useConvoStore = create<ConvoState>(set => ({
     messages: {},
     addMessage: (userId, message) =>
-        set(produce((state) => {
+        set(produce((state: ConvoState) => {
             if (!state.messages[userId]) state.messages[userId] = [];
             state.messages[userId].push(message);
         })),
 }));
 
-type PostUser = Omit<Post, 'creator'> & { creator: Partial<User> };
+// type PostUser = Omit<Post, 'author'> & { author: Partial<User> };
+type FullPost = GetPostsWeightedQuery['getPostsWeighted']['posts'][0];
 
-interface TimelineState {
+export interface TimelineState {
     scrollToTop: (() => void) | null;
-    posts: PostUser[];
+    room: 'public' | 'student';
+    posts: FullPost[];
+    postGroups: SplitPosts;
     refreshedPosts: Date;
     setScrollToTop: (scrollToTop: () => void) => void;
-    setPosts: (posts: PostUser[]) => void;
+    setRoom: (room: TimelineState['room']) => void;
+    setPosts: (posts: FullPost[]) => void;
 }
 
 export const useTimelineStore = create<TimelineState>(set => ({
     scrollToTop: null,
+    room: 'public',
     posts: [],
+    postGroups: { pPosts: [], sPosts: [] },
     refreshedPosts: new Date(),
+    setRoom: room =>
+        set(produce((state: TimelineState) => {
+            state.room = room;
+        })),
     setScrollToTop: scrollToTop =>
-        set(produce((state) => {
+        set(produce((state: TimelineState) => {
             state.scrollToTop = scrollToTop;
         })),
     setPosts: posts =>
-        set(produce((state) => {
+        set(produce((state: TimelineState) => {
             state.posts = posts;
+            state.postGroups = splitPosts(posts);
             state.refreshedPosts = new Date();
         })),
 
@@ -126,15 +142,15 @@ export const useMiscStore = create<MiscState>(set => ({
     setSearchOpened: null,
     universityMap: {},
     setResetClient: resetClient =>
-        set(produce((state) => {
+        set(produce((state: MiscState) => {
             state.resetClient = resetClient;
         })),
     setSetSearchOpened: setSearchOpened =>
-        set(produce((state) => {
+        set(produce((state: MiscState) => {
             state.setSearchOpened = setSearchOpened;
         })),
     setUniversityMap: universityMap =>
-        set(produce((state) => {
+        set(produce((state: MiscState) => {
             state.universityMap = universityMap;
         })),
 }));

@@ -1,0 +1,14 @@
+fragment CommentMdParent on Comment {
+    parent {
+        ...CommentMdFields
+        parent {
+            ...CommentMdFields
+            parent {
+                ...CommentMdFields
+                parent {
+                    ...CommentMdFields
+                }
+            }
+        }
+    }
+}

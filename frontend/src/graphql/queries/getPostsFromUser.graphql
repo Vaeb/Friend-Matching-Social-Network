@@ -1,10 +1,5 @@
 query GetPostsFromUser($userId: Int!, $limit: Int) {
     getPostsFromUser(userId: $userId, limit: $limit) {
-        id
-        text
-        creator {
-            ...UserSmFields
-        }
-        createdAt
+        ...PostSmFields
     }
 }

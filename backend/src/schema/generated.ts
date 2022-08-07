@@ -281,7 +281,7 @@ export type MutationUpdateMeArgs = {
 export type Post = {
   __typename?: 'Post';
   author: User;
-  comments: Array<Comment>;
+  comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Date'];
   id: Scalars['Int'];
   numLikes: Scalars['Int'];
@@ -823,7 +823,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type PostResolvers<ContextType = any, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
+  comments?: Resolver<Maybe<Array<ResolversTypes['Comment']>>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   numLikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

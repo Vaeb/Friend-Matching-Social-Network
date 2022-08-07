@@ -1,0 +1,6 @@
+fragment PostMdFields on Post {
+    ...PostSmFields
+    author {
+        ...UserSmFields
+    }
+}

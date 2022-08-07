@@ -1,7 +1,10 @@
 import nodeUtils from 'util';
-import { User, UserRelation } from '@prisma/client';
+import {
+    Comment, Post, Reaction, User, UserRelation, 
+} from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { prisma } from './server';
+import { Post as GPost, Comment as GComment } from './schema/generated';
 
 // type Modify<O, R> = Omit<O, keyof R> & R;
 
@@ -178,7 +181,9 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
             university: { select: { name: true } },
             universities: { select: { universityId: true } },
             matchSettings: {
-                select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, nextManualMatchId: true, studentsOnly: true, snoozedUntil: true },
+                select: {
+                    manualEnabled: true, lastAutoMatched: true, autoFreq: true, nextManualMatchId: true, studentsOnly: true, snoozedUntil: true, 
+                },
                 where: { universityId },
             },
             sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
@@ -195,7 +200,9 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
     if (userRelation) { // Other User
         const { user: baseUser, ...bigUser } = { ...userRelation, ...userRelation.user };
 
-        const fullUser = { ...bigUser, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
+        const fullUser = {
+            ...bigUser, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo, 
+        };
 
         return fullUser;
     } else { // Me or Other User
@@ -206,7 +213,9 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
             receivedFriendRequests: _4,
             universities: _5,
             ...fullUser
-        } = { ...userDetails, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
+        } = {
+            ...userDetails, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo, 
+        };
 
         return fullUser;
     }
@@ -241,5 +250,49 @@ export const setupMatchSettings = async (meId, universityId, onRegister = false)
 //             user2Id: user.userId < meId ? meId : user.userId,
 //         })),
 //         skipDuplicates: true,
+//     });
+// };
+
+type FullComment = Comment & {
+    author: User;
+    reactions: Reaction[];
+    // comments: Comment[];
+};
+
+export const fixComments = (comments: FullComment[]) => {
+    return comments.map((rawComment) => {
+        // const { author, comments, reactions, ...post } = rawPost;
+        const numLikes = rawComment.reactions.filter(reaction => reaction.type === 'like').length;
+        const comment: GComment = { ...rawComment, numLikes };
+        return comment;
+    });
+};
+
+type FullPost = Post & {
+    author: User;
+    reactions: Reaction[];
+    comments: FullComment[];
+};
+
+export const fixPosts = <T extends (FullPost | FullPost[])>(posts: T): T extends FullPost ? GPost : GPost[] => {
+    const wasArray = Array.isArray(posts);
+    const postsArr = wasArray ? posts : [posts];
+    const newPosts = postsArr.map((rawPost) => {
+        // const { author, comments, reactions, ...post } = rawPost;
+        const numLikes = rawPost.reactions.filter(reaction => reaction.type === 'like').length;
+        const post: GPost = { ...rawPost, numLikes, comments: fixComments(rawPost.comments) };
+        return post;
+    });
+    return (wasArray ? newPosts : newPosts[0]) as T extends FullPost ? GPost : GPost[];
+};
+
+// export const fixPost = (posts: FullPost[] | FullPost) => {
+//     const wasArray = Array.isArray(posts);
+//     if (!Array.isArray(posts)) posts = [posts];
+//     return posts.map((rawPost) => {
+//         // const { author, comments, reactions, ...post } = rawPost;
+//         const numLikes = rawPost.reactions.filter(reaction => reaction.type === 'like').length;
+//         const post: GPost = { ...rawPost, numLikes, comments: fixComments(rawPost.comments) };
+//         return post;
 //     });
 // };

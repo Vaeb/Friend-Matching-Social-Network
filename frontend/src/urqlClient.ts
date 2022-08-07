@@ -7,13 +7,9 @@ import { createClient as createWSClient } from 'graphql-ws';
 import {
     AddFriendMutation,
     NewAutoMatchSubscription,
-    FriendRequestType,
-    GetChatsDocument,
-    GetChatsQuery,
     GetMatchesDocument,
     GetMatchesQuery,
     GetMessagesDocument,
-    GetPostsWeightedDocument,
     GetUserDocument,
     GetUserInterestsDocument,
     GetUserQuery,

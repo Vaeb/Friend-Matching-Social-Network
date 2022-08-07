@@ -640,7 +640,7 @@ const resolvers: Resolvers = {
     User: {
         // relations: async ({ id: userId }) => {
         //     // const relations = await prisma.userRelations.findMany({
-        //     //     // Could improve as prisma.posts.findMany where creatorId=userId
+        //     //     // Could improve as prisma.posts.findMany where authorId=userId
         //     //     where: { OR: [{ user1Id: userId }, { user2Id: userId }] },
         //     //     include: { user1: true, user2: true },
         //     // });
@@ -656,10 +656,10 @@ const resolvers: Resolvers = {
         //     const { universityId } = userCore;
 
         //     const posts = await prisma.post.findMany({
-        //         // Could improve as prisma.posts.findMany where creatorId=userId
-        //         where: { creatorId: userId, universityId },
+        //         // Could improve as prisma.posts.findMany where authorId=userId
+        //         where: { authorId: userId, universityId },
         //         take: limit ?? undefined,
-        //         include: { creator: true },
+        //         include: { author: true },
         //     });
 
         //     return posts;
@@ -669,7 +669,7 @@ const resolvers: Resolvers = {
         //         // Possible equivalent for many-to-many?
         //         where: { id: userId },
         //         select: {
-        //             savedPosts: { take: limit ?? undefined, include: { creator: true } },
+        //             savedPosts: { take: limit ?? undefined, include: { author: true } },
         //         },
         //     });
 

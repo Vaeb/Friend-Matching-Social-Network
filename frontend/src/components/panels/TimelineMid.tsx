@@ -5,7 +5,7 @@ import React, { FC, useEffect, useRef } from 'react';
 import shallow from 'zustand/shallow';
 
 import { useMeQuery, useSendPostMutation } from '../../generated/graphql';
-import { useAppStore, useTimelineStore } from '../../state';
+import { TimelineState, useAppStore, useTimelineStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
 import CustomScroll from '../CustomScroll';
@@ -17,14 +17,27 @@ const getPostTime = (postDateRaw: Date | number, nowDate = new Date()) => {
     return formatTime(+nowDate - +postDate);
 };
 
+const roomToFull = {
+    public: 'Public Lounge',
+    student: 'Student Lounge',
+};
+
+const roomToPosts = {
+    public: 'pPosts',
+    student: 'sPosts',
+};
+
 const TimelineMid: FC = () => {
     const theme = useMantineTheme();
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
-
-    const { posts, refreshedPosts } = useTimelineStore(state => ({ posts: state.posts, refreshedPosts: state.refreshedPosts }), shallow);
-    const [, doSendPost] = useSendPostMutation();
-    const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
+    
     const setView = useAppStore(state => state.setView);
+    const { room, posts, refreshedPosts }: Partial<TimelineState> = useTimelineStore(
+        state => ({ room: state.room, posts: state.postGroups[roomToPosts[state.room]], refreshedPosts: state.refreshedPosts }),
+        shallow
+    );
+    const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
+    const [, doSendPost] = useSendPostMutation();
     const inputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     // const divtextRef = useRef<HTMLDivElement>(null);
@@ -58,13 +71,13 @@ const TimelineMid: FC = () => {
         const msg = textareaRef.current.value;
         doSendPost({
             text: msg,
-            studentsOnly: false,
+            studentsOnly: room === 'student',
         });
         textareaRef.current.value = '';
     };
 
     const onUserClick = (post: typeof posts[0]) => {
-        setView('user', null, post.creator.id);
+        setView('user', null, post.author.id);
     };
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
@@ -74,7 +87,7 @@ const TimelineMid: FC = () => {
             {/* Should have timeline 'For You' (Weighted 'Friends' 'Recent', 'Likes', 'Interest Compatibility' (if allowed)): Can tick individual boxes for algorithm */}
             <Stack spacing={0}>
                 <PaddedArea x className='h-[50px] flex flex-col justify-center'>
-                    <Text className='text-[22px] font-[700] text-_gray-800'>Timeline</Text>
+                    <Text className='mt-[2px] text-[22px] font-[700] text-_gray-800'>{roomToFull[room ?? 'public']}</Text>
                 </PaddedArea>
                 <div className='h-[1px] shadow-_box6' />
             </Stack>
@@ -130,21 +143,21 @@ const TimelineMid: FC = () => {
                         </Box> */}
                 </Box>
                 <Stack className='mt-[23px] mb-[18px]' spacing={23}>
-                    {posts.map(post => ( // style={{ color: post.creator.color, opacity: 0.7 }}
+                    {posts.map(post => ( // style={{ color: post.author.color, opacity: 0.7 }}
                         // <>
                         <Box className='flex w-full text-_gray-800 px-[10px]' key={post.id}>
                             <Box>
                                 {/* <IconPerson className='h-10 w-10 mt-[5px] cursor-pointer' onClick={() => onUserClick(post)} /> */}
                                 <UserAvatar
                                     className='rounded-full w-10 h-10 mt-[2px] cursor-pointer'
-                                    url={avatarUrl(post.creator)}
+                                    url={avatarUrl(post.author)}
                                     onClick={() => onUserClick(post)}
                                 />
                             </Box>
                             <Stack ml={16} spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
-                                    <Text className='font-[500] cursor-pointer' style={{ color: post.creator.color }} onClick={() => onUserClick(post)}>{post.creator.name}</Text>
-                                    <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.creator.username})</Text>
+                                    <Text className='font-[500] cursor-pointer' style={{ color: post.author.color }} onClick={() => onUserClick(post)}>{post.author.name}</Text>
+                                    <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.author.username})</Text>
                                     <Text className='text-xs'>·</Text>
                                     <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>
                                         <Text className='text-xs text-_gray-400'>{getPostTime(post.createdAt, refreshedPosts)}</Text>

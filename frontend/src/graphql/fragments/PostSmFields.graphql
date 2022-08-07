@@ -1,0 +1,8 @@
+fragment PostSmFields on Post {
+    id
+    universityId
+    studentsOnly
+    text
+    numLikes
+    createdAt
+}

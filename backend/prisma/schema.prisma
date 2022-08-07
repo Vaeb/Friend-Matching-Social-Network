@@ -37,7 +37,7 @@ model User {
     createdChannels        Channel[]           @relation("CreatedChannels")
     posts                  Post[]              @relation("CreatedPosts")
     comments               Comment[]           @relation("CreatedComments")
-    reactions              Reaction[]          @relation("CreatedReactions")
+    reactions              ReactionSender[]    @relation("CreatedReactions")
     savedPosts             Post[]              @relation("SavedPosts")
     updatedInterests       DateTime?
     createdAt              DateTime            @default(now())
@@ -194,18 +194,30 @@ model Comment {
 }
 
 model Reaction {
-    id        Int      @id @default(autoincrement())
-    post      Post     @relation(fields: [postId], references: [id])
+    id        Int              @id @default(autoincrement())
+    post      Post             @relation(fields: [postId], references: [id])
     postId    Int
-    comment   Comment? @relation(fields: [commentId], references: [id])
+    comment   Comment?         @relation(fields: [commentId], references: [id])
     commentId Int?
     type      String
-    user      User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
-    userId    Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    num       Int              @default(0)
+    users     ReactionSender[]
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
 
     @@map("reactions")
+}
+
+model ReactionSender {
+    id         Int      @id @default(autoincrement())
+    reaction   Reaction @relation(fields: [reactionId], references: [id])
+    reactionId Int
+    user       User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
+    userId     Int
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@map("reaction_users")
 }
 
 model University {

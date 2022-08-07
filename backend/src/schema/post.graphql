@@ -10,9 +10,9 @@ type Post {
     studentsOnly: Boolean!
     author: User!
     text: String!
-    reactions: [Reaction!]
     numLikes: Int!
-    comments: [Comment!]!
+    reactions: [Reaction!]
+    comments: [Comment!]
     # savedBy(limit: Int): [User!]!
     createdAt: Date!
 }
@@ -21,12 +21,12 @@ type Comment {
     id: Int!
     text: String!
     author: User!
-    reactions: [Reaction!]
     numLikes: Int!
-    createdAt: Date!
+    reactions: [Reaction!]
     children: [Comment!]
     parent: Comment
     post: Post
+    createdAt: Date!
 }
 
 type SendPostResponse {

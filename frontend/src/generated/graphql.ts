@@ -25,6 +25,19 @@ export type ChatsStore = {
   users: Array<User>;
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  author: User;
+  children?: Maybe<Array<Comment>>;
+  createdAt: Scalars['Date'];
+  id: Scalars['Int'];
+  numLikes: Scalars['Int'];
+  parent?: Maybe<Comment>;
+  post?: Maybe<Post>;
+  reactions?: Maybe<Array<Reaction>>;
+  text: Scalars['String'];
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -270,12 +283,21 @@ export type MutationUpdateMeArgs = {
 
 export type Post = {
   __typename?: 'Post';
+  author: User;
+  comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Date'];
-  creator: User;
   id: Scalars['Int'];
+  numLikes: Scalars['Int'];
+  reactions?: Maybe<Array<Reaction>>;
   studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
   universityId: Scalars['Int'];
+};
+
+export type PostsStore = {
+  __typename?: 'PostsStore';
+  id: Scalars['Int'];
+  posts: Array<Post>;
 };
 
 export type Query = {
@@ -289,7 +311,7 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
-  getPostsWeighted: WeightedPosts;
+  getPostsWeighted: PostsStore;
   getUniversities: Array<University>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
@@ -335,6 +357,7 @@ export type QueryGetPostsFromUserArgs = {
 
 export type QueryGetPostsWeightedArgs = {
   cursor?: InputMaybe<Scalars['Int']>;
+  view: Scalars['String'];
 };
 
 
@@ -350,6 +373,13 @@ export type QueryGetUserByHandleArgs = {
 
 export type QueryGetUsersArgs = {
   limit?: InputMaybe<Scalars['Int']>;
+};
+
+export type Reaction = {
+  __typename?: 'Reaction';
+  num: Scalars['Int'];
+  type: Scalars['String'];
+  userIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 export type SendPostResponse = {
@@ -451,17 +481,23 @@ export type UserResponse = {
   user?: Maybe<User>;
 };
 
-export type WeightedPosts = {
-  __typename?: 'WeightedPosts';
-  id: Scalars['Int'];
-  posts: Array<Post>;
-};
+export type CommentMdChildrenFragment = { __typename?: 'Comment', children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null };
+
+export type CommentMdFieldsFragment = { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null };
+
+export type CommentMdParentFragment = { __typename?: 'Comment', parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null };
 
 export type MeMdFieldsFragment = { __typename?: 'Me', birthDate?: any | null, uni?: string | null, uniConfirmed?: boolean | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, studentsOnly?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
 export type MeSmFieldsFragment = { __typename?: 'Me', name: string, universityId?: number | null, color?: string | null, id: number, username: string };
 
 export type MeXsFieldsFragment = { __typename?: 'Me', id: number, username: string };
+
+export type PostLgFieldsFragment = { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, comments?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } };
+
+export type PostMdFieldsFragment = { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } };
+
+export type PostSmFieldsFragment = { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any };
 
 export type UserLgFieldsFragment = { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string };
 
@@ -530,7 +566,7 @@ export type SendPostMutationVariables = Exact<{
 }>;
 
 
-export type SendPostMutation = { __typename?: 'Mutation', sendPost: { __typename?: 'SendPostResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, post?: { __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } };
+export type SendPostMutation = { __typename?: 'Mutation', sendPost: { __typename?: 'SendPostResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, comments?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } };
 
 export type SingleUploadMutationVariables = Exact<{
   file: Scalars['Upload'];
@@ -599,12 +635,14 @@ export type GetPostsFromUserQueryVariables = Exact<{
 }>;
 
 
-export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, text: string, createdAt: any, creator: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> };
+export type GetPostsFromUserQuery = { __typename?: 'Query', getPostsFromUser: Array<{ __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any }> };
 
-export type GetPostsWeightedQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetPostsWeightedQueryVariables = Exact<{
+  view: Scalars['String'];
+}>;
 
 
-export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'WeightedPosts', id: number, posts: Array<{ __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } };
+export type GetPostsWeightedQuery = { __typename?: 'Query', getPostsWeighted: { __typename?: 'PostsStore', id: number, posts: Array<{ __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, comments?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } };
 
 export type GetUniversitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -668,12 +706,12 @@ export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: 
 export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } };
+export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, comments?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } };
 
 export type NewPostsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, text: string, universityId: number, studentsOnly: boolean, createdAt: any, creator: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> | null };
+export type NewPostsSubscription = { __typename?: 'Subscription', newPosts?: Array<{ __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, comments?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, parent?: { __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null } | null, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, children?: Array<{ __typename?: 'Comment', id: number, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string }, post?: { __typename?: 'Post', id: number, universityId: number, studentsOnly: boolean, text: string, numLikes: number, createdAt: any, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } | null }> | null }> | null, author: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> | null };
 
 import { IntrospectionQuery } from 'graphql';
 export default {
@@ -717,6 +755,117 @@ export default {
                     "ofType": null
                   }
                 }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Comment",
+        "fields": [
+          {
+            "name": "author",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "children",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Comment",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "createdAt",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "numLikes",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "parent",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Comment",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "post",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Post",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "reactions",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Reaction",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "text",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
               }
             },
             "args": []
@@ -2135,18 +2284,7 @@ export default {
         "name": "Post",
         "fields": [
           {
-            "name": "createdAt",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
-            },
-            "args": []
-          },
-          {
-            "name": "creator",
+            "name": "author",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
@@ -2158,12 +2296,64 @@ export default {
             "args": []
           },
           {
+            "name": "comments",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Comment",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "createdAt",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
             "name": "id",
             "type": {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "numLikes",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "reactions",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Reaction",
+                  "ofType": null
+                }
               }
             },
             "args": []
@@ -2197,6 +2387,42 @@ export default {
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Any"
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "PostsStore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "posts",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Post",
+                    "ofType": null
+                  }
+                }
               }
             },
             "args": []
@@ -2420,7 +2646,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "WeightedPosts",
+                "name": "PostsStore",
                 "ofType": null
               }
             },
@@ -2430,6 +2656,16 @@ export default {
                 "type": {
                   "kind": "SCALAR",
                   "name": "Any"
+                }
+              },
+              {
+                "name": "view",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
                 }
               }
             ]
@@ -2561,6 +2797,49 @@ export default {
             "type": {
               "kind": "SCALAR",
               "name": "Any"
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Reaction",
+        "fields": [
+          {
+            "name": "num",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "type",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "userIds",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
             },
             "args": []
           }
@@ -3210,42 +3489,6 @@ export default {
         "interfaces": []
       },
       {
-        "kind": "OBJECT",
-        "name": "WeightedPosts",
-        "fields": [
-          {
-            "name": "id",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
-            },
-            "args": []
-          },
-          {
-            "name": "posts",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Post",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "args": []
-          }
-        ],
-        "interfaces": []
-      },
-      {
         "kind": "SCALAR",
         "name": "Any"
       }
@@ -3283,6 +3526,16 @@ export const MeMdFieldsFragmentDoc = gql`
   snoozedUntil
 }
     ${MeSmFieldsFragmentDoc}`;
+export const PostSmFieldsFragmentDoc = gql`
+    fragment PostSmFields on Post {
+  id
+  universityId
+  studentsOnly
+  text
+  numLikes
+  createdAt
+}
+    `;
 export const UserXsFieldsFragmentDoc = gql`
     fragment UserXsFields on User {
   id
@@ -3296,6 +3549,75 @@ export const UserSmFieldsFragmentDoc = gql`
   color
 }
     ${UserXsFieldsFragmentDoc}`;
+export const PostMdFieldsFragmentDoc = gql`
+    fragment PostMdFields on Post {
+  ...PostSmFields
+  author {
+    ...UserSmFields
+  }
+}
+    ${PostSmFieldsFragmentDoc}
+${UserSmFieldsFragmentDoc}`;
+export const CommentMdFieldsFragmentDoc = gql`
+    fragment CommentMdFields on Comment {
+  id
+  text
+  author {
+    ...UserSmFields
+  }
+  numLikes
+  post {
+    ...PostMdFields
+  }
+  createdAt
+}
+    ${UserSmFieldsFragmentDoc}
+${PostMdFieldsFragmentDoc}`;
+export const CommentMdParentFragmentDoc = gql`
+    fragment CommentMdParent on Comment {
+  parent {
+    ...CommentMdFields
+    parent {
+      ...CommentMdFields
+      parent {
+        ...CommentMdFields
+        parent {
+          ...CommentMdFields
+        }
+      }
+    }
+  }
+}
+    ${CommentMdFieldsFragmentDoc}`;
+export const CommentMdChildrenFragmentDoc = gql`
+    fragment CommentMdChildren on Comment {
+  children {
+    ...CommentMdFields
+    children {
+      ...CommentMdFields
+      children {
+        ...CommentMdFields
+        children {
+          ...CommentMdFields
+        }
+      }
+    }
+  }
+}
+    ${CommentMdFieldsFragmentDoc}`;
+export const PostLgFieldsFragmentDoc = gql`
+    fragment PostLgFields on Post {
+  ...PostMdFields
+  comments {
+    ...CommentMdFields
+    ...CommentMdParent
+    ...CommentMdChildren
+  }
+}
+    ${PostMdFieldsFragmentDoc}
+${CommentMdFieldsFragmentDoc}
+${CommentMdParentFragmentDoc}
+${CommentMdChildrenFragmentDoc}`;
 export const UserMdFieldsFragmentDoc = gql`
     fragment UserMdFields on User {
   ...UserSmFields
@@ -3509,16 +3831,11 @@ export const SendPostDocument = gql`
       message
     }
     post {
-      id
-      text
-      creator {
-        ...UserSmFields
-      }
-      createdAt
+      ...PostLgFields
     }
   }
 }
-    ${UserSmFieldsFragmentDoc}`;
+    ${PostLgFieldsFragmentDoc}`;
 
 export function useSendPostMutation() {
   return Urql.useMutation<SendPostMutation, SendPostMutationVariables>(SendPostDocument);
@@ -3674,38 +3991,26 @@ export function useGetMessagesQuery(options: Omit<Urql.UseQueryArgs<GetMessagesQ
 export const GetPostsFromUserDocument = gql`
     query GetPostsFromUser($userId: Int!, $limit: Int) {
   getPostsFromUser(userId: $userId, limit: $limit) {
-    id
-    text
-    creator {
-      ...UserSmFields
-    }
-    createdAt
+    ...PostSmFields
   }
 }
-    ${UserSmFieldsFragmentDoc}`;
+    ${PostSmFieldsFragmentDoc}`;
 
 export function useGetPostsFromUserQuery(options: Omit<Urql.UseQueryArgs<GetPostsFromUserQueryVariables>, 'query'>) {
   return Urql.useQuery<GetPostsFromUserQuery>({ query: GetPostsFromUserDocument, ...options });
 };
 export const GetPostsWeightedDocument = gql`
-    query GetPostsWeighted {
-  getPostsWeighted {
+    query GetPostsWeighted($view: String!) {
+  getPostsWeighted(view: $view) {
     id
     posts {
-      id
-      text
-      universityId
-      studentsOnly
-      creator {
-        ...UserSmFields
-      }
-      createdAt
+      ...PostLgFields
     }
   }
 }
-    ${UserSmFieldsFragmentDoc}`;
+    ${PostLgFieldsFragmentDoc}`;
 
-export function useGetPostsWeightedQuery(options?: Omit<Urql.UseQueryArgs<GetPostsWeightedQueryVariables>, 'query'>) {
+export function useGetPostsWeightedQuery(options: Omit<Urql.UseQueryArgs<GetPostsWeightedQueryVariables>, 'query'>) {
   return Urql.useQuery<GetPostsWeightedQuery>({ query: GetPostsWeightedDocument, ...options });
 };
 export const GetUniversitiesDocument = gql`
@@ -3881,17 +4186,10 @@ export function useNewMessageSubscription<TData = NewMessageSubscription>(option
 export const NewPostDocument = gql`
     subscription NewPost {
   newPost {
-    id
-    text
-    universityId
-    studentsOnly
-    creator {
-      ...UserSmFields
-    }
-    createdAt
+    ...PostLgFields
   }
 }
-    ${UserSmFieldsFragmentDoc}`;
+    ${PostLgFieldsFragmentDoc}`;
 
 export function useNewPostSubscription<TData = NewPostSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewPostSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewPostSubscription, TData>) {
   return Urql.useSubscription<NewPostSubscription, TData, NewPostSubscriptionVariables>({ query: NewPostDocument, ...options }, handler);
@@ -3899,17 +4197,10 @@ export function useNewPostSubscription<TData = NewPostSubscription>(options: Omi
 export const NewPostsDocument = gql`
     subscription NewPosts {
   newPosts {
-    id
-    text
-    universityId
-    studentsOnly
-    creator {
-      ...UserSmFields
-    }
-    createdAt
+    ...PostLgFields
   }
 }
-    ${UserSmFieldsFragmentDoc}`;
+    ${PostLgFieldsFragmentDoc}`;
 
 export function useNewPostsSubscription<TData = NewPostsSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewPostsSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewPostsSubscription, TData>) {
   return Urql.useSubscription<NewPostsSubscription, TData, NewPostsSubscriptionVariables>({ query: NewPostsDocument, ...options }, handler);

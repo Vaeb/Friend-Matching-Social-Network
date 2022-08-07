@@ -1,12 +1,5 @@
 subscription NewPost {
     newPost {
-        id
-        text
-        universityId
-        studentsOnly
-        creator {
-            ...UserSmFields
-        }
-        createdAt
+        ...PostLgFields
     }
 }

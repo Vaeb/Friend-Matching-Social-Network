@@ -2,7 +2,7 @@ import { withFilter } from 'graphql-subscriptions';
 import { Post } from '@prisma/client';
 
 import { prisma } from '../server';
-import { consoleError, formatErrors, getUserRelations } from '../utils';
+import { consoleError, fixPosts, formatErrors, getUserRelations } from '../utils';
 import type { QueryGetPostsWeightedArgs, Resolvers } from '../schema/generated';
 import { Context, Context2 } from '../types';
 import { NEW_POST, NEW_POSTS, pubsub } from '../pubsub';
@@ -27,13 +27,13 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
     const { id: meId, universityId } = userCore;
 
     // const friendIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
-    const posts = await prisma.post.findMany({
+    const posts = fixPosts(await prisma.post.findMany({
         where: { universityId },
-        // where: { creatorId: { in: userIds } },
-        include: { creator: true },
+        // where: { authorId: { in: userIds } },
+        include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
         orderBy: { createdAt: 'desc' },
         take: 30,
-    });
+    }));
 
     return { id: 1, posts };
 };
@@ -93,54 +93,54 @@ const resolvers: Resolvers = {
         },
     },
     Query: {
-        getPost: async (_parent, { id }) => {
-            return prisma.post.findUnique({
-                where: { id },
-                include: { creator: true },
-            });
-        },
-        getPosts: async (_parent, { limit }, { userCore }: Context) => {
-            const { universityId } = userCore;
-            return prisma.post.findMany({
-                where: { universityId },
-                include: { creator: true },
-                orderBy: { createdAt: 'desc' },
-                take: limit ?? undefined,
-            });
-        },
+        // getPost: async (_parent, { id }) => {
+        //     return fixPosts(await prisma.post.findUnique({
+        //         where: { id },
+        //         include: { author: true },
+        //     }));
+        // },
+        // getPosts: async (_parent, { limit }, { userCore }: Context) => {
+        //     const { universityId } = userCore;
+        //     return prisma.post.findMany({
+        //         where: { universityId },
+        //         include: { author: true },
+        //         orderBy: { createdAt: 'desc' },
+        //         take: limit ?? undefined,
+        //     });
+        // },
         getPostsFromUser: async (_parent, { userId, limit }, { userCore }: Context) => {
             console.log('Received request for getPostsFromUser:', userId, limit);
             const { universityId } = userCore;
 
-            const posts = await prisma.post.findMany({
-                where: { creatorId: userId, universityId },
-                include: { creator: true },
+            const posts = fixPosts(await prisma.post.findMany({
+                where: { authorId: userId, universityId },
+                include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
                 orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
-            });
+            }));
 
             return posts;
         },
-        getPostsFromFriends: async (_parent, { cursor }, { userCore }: Context) => {
-            const { id: meId, universityId } = userCore;
+        // getPostsFromFriends: async (_parent, { cursor }, { userCore }: Context) => {
+        //     const { id: meId, universityId } = userCore;
 
-            const userIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
-            const posts = await prisma.post.findMany({
-                where: { creatorId: { in: userIds }, universityId },
-                include: { creator: true },
-                orderBy: { createdAt: 'desc' },
-                take: 50,
-            });
+        //     const userIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
+        //     const posts = await prisma.post.findMany({
+        //         where: { authorId: { in: userIds }, universityId },
+        //         include: { author: true },
+        //         orderBy: { createdAt: 'desc' },
+        //         take: 50,
+        //     });
 
-            return posts;
-        },
+        //     return posts;
+        // },
         getPostsWeighted: async (_parent, args, context: Context) => {
             console.log('Received request for getPostsWeighted:', args);
             return getPostsWeighted(_parent, args, context);
         },
     },
     Mutation: {
-        sendPost: async (_parent, { text }, { userCore }: Context) => {
+        sendPost: async (_parent, { text, studentsOnly }, { userCore }: Context) => {
             try {
                 const { id: userId, universityId } = userCore;
                 console.log('Received request for sendPost:', text);
@@ -149,10 +149,10 @@ const resolvers: Resolvers = {
                     throw new Error('Post must have text');
                 }
 
-                const post = await prisma.post.create({
-                    data: { creatorId: userId, text, universityId },
-                    include: { creator: true },
-                });
+                const post = fixPosts(await prisma.post.create({
+                    data: { authorId: userId, text, universityId, studentsOnly },
+                    include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
+                }));
 
                 const pubsubPost = { ...post, createdAt: +post.createdAt }; // May need updatedAt?
                 freshPosts.push(pubsubPost);
@@ -171,15 +171,15 @@ const resolvers: Resolvers = {
         },
     },
     Post: {
-        // creator: async ({ id: postId }, args) => {
+        // author: async ({ id: postId }, args) => {
         //     const thisPost = await prisma.post.findUnique({
         //         where: { id: postId },
         //         select: {
-        //             creator: true,
+        //             author: true,
         //         },
         //     });
 
-        //     return thisPost!.creator;
+        //     return thisPost!.author;
         // },
         // savedBy: async ({ id: postId }, { limit }) => {
         //     const thisPost = await prisma.post.findUnique({

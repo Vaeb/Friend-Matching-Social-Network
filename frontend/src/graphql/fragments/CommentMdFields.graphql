@@ -1,0 +1,12 @@
+fragment CommentMdFields on Comment {
+    id
+    text
+    author {
+        ...UserSmFields
+    }
+    numLikes
+    post {
+        ...PostMdFields # No comments
+    }
+    createdAt
+}

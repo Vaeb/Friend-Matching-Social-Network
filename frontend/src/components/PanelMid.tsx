@@ -34,7 +34,7 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     const view = useAppStore(state => state.left.view);
     const setPosts = useTimelineStore(state => state.setPosts);
 
-    const [{ data: postsData, fetching: postsFetching, stale }] = useGetPostsWeightedQuery();
+    const [{ data: postsData, fetching: postsFetching, stale }] = useGetPostsWeightedQuery({ variables: { view: 'all' } });
     useNewMessageSubscription();
     useFriendRequestSubscription();
     useNewAutoMatchSubscription();

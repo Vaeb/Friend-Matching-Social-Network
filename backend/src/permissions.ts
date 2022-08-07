@@ -35,14 +35,12 @@ export const permUser = chainResolver((_parent, args, context) => {
     return true;
 });
 
-type FullPost = Post & { creator: User };
-
 export const permPostNotAuthor = chainResolver((payload, _, { userCore: { id: meId } }) => {
     const { post } = payload;
 
-    // console.log('PASSES:', post.creatorId !== meId);
+    // console.log('PASSES:', post.authorId !== meId);
 
-    return post.creatorId !== meId;
+    return post.authorId !== meId;
 });
 
 export const relevantFriendRequest = chainResolver((payload: FriendStatus, _, { userCore: { id: meId } }) => {

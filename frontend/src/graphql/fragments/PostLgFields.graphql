@@ -1,0 +1,8 @@
+fragment PostLgFields on Post {
+    ...PostMdFields
+    comments {
+        ...CommentMdFields
+        ...CommentMdParent # No children (comments)
+        ...CommentMdChildren # No parent (comment)
+    }
+}
