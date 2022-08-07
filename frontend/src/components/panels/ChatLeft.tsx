@@ -30,7 +30,7 @@ const ChatLeft: FC = () => {
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
         <Stack className='w-full items-center mt-[25px]' spacing={22}>
-            <FriendButton user={user} isMe={false} addFriend={addFriend} />
+            <FriendButton user={user} isMe={false} addFriend={addFriend} fallback />
             <Button variant='outline' className='w-[80%]' onClick={() => setView('user', null, user.id)}>Open Profile</Button>
         </Stack>
     );

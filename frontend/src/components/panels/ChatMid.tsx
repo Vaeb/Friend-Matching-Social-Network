@@ -77,13 +77,13 @@ const ChatMid: FC = () => {
     };
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
-    return (user ?
+    return (
         <PaddedArea full y className='pt-[0px]'>
             <Stack className='h-full' spacing={0}>
                 <Stack spacing={0}>
                     <PaddedArea x className='h-[50px] flex flex-col justify-center'>
                         <Text className='text-[16px] font-[600] text-_gray-600'>
-                            Welcome to the @{me.username} @{user.username} channel.
+                            Welcome to the @{me?.username ?? 'me'} @{user?.username ?? 'username'} channel.
                         </Text>
                     </PaddedArea>
                     <div className='h-[1px] shadow-_box6' />
@@ -117,7 +117,7 @@ const ChatMid: FC = () => {
                 </PaddedArea>
             </Stack>
         </PaddedArea>
-        : <FullLoader />);
+    );
 };
 
 export default ChatMid;

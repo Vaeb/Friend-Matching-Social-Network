@@ -23,45 +23,44 @@ const UserMid = () => {
     const cols2 = useMediaQuery('(min-width: 1000px)'); // Will not work with SSR
 
     return (
-        user ?
-            <Stack className='h-full'>
-                <Stack spacing={0}>
-                    <PaddedArea x className='h-[50px] flex flex-col justify-center'>
-                        <div className='flex gap-[5px] items-center text-[22px]'>
-                            <p className='font-[700] text-_gray-800'>{user.name}</p>
-                            <p className=''>·</p>
-                            <p className='text-_gray-400'>@{user.username}</p>
-                        </div>
-                    </PaddedArea>
-                    <div className='h-[1px] shadow-_box6' />
-                </Stack>
+        <Stack className='h-full'>
+            <Stack spacing={0}>
+                <PaddedArea x className='h-[50px] flex flex-col justify-center'>
+                    <div className='flex gap-[5px] items-center text-[22px]'>
+                        <p className='font-[700] text-_gray-800'>{user?.name ?? 'Name'}</p>
+                        <p className=''>·</p>
+                        <p className='text-_gray-400'>@{user?.username ?? 'Username'}</p>
+                    </div>
+                </PaddedArea>
+                <div className='h-[1px] shadow-_box6' />
+            </Stack>
 
-                <CustomScroll scrollPadded>
-                    <SimpleGrid cols={cols4 ? 4 : cols3 ? 3 : cols2 ? 2 : 1}>
-                        {posts ? posts.map(post => (
-                            <Card key={post.id} shadow='sm' p='lg' radius='md' withBorder>
-                                <Card.Section />
+            <CustomScroll scrollPadded>
+                <SimpleGrid cols={cols4 ? 4 : cols3 ? 3 : cols2 ? 2 : 1}>
+                    {posts ? posts.map(post => (
+                        <Card key={post.id} shadow='sm' p='lg' radius='md' withBorder>
+                            <Card.Section />
 
-                                <Group position='apart' mt='md' mb='xs'>
-                                    <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>
-                                        <Text weight={500}>{formatTime(post.createdAt, true)}</Text>
-                                    </Tooltip>
-                                    {/* <Badge color='pink' variant='light'>
+                            <Group position='apart' mt='md' mb='xs'>
+                                <Tooltip label={getDateString(new Date(post.createdAt))} withArrow openDelay={400}>
+                                    <Text weight={500}>{formatTime(post.createdAt, true)}</Text>
+                                </Tooltip>
+                                {/* <Badge color='pink' variant='light'>
                             5 Likes
                         </Badge> */}
-                                </Group>
+                            </Group>
 
-                                <Text size='sm' color='dimmed'>{post.text}</Text>
+                            <Text size='sm' color='dimmed'>{post.text}</Text>
 
-                                {/* <Button variant='light' color='blue' fullWidth mt='md' radius='md'>
+                            {/* <Button variant='light' color='blue' fullWidth mt='md' radius='md'>
                         Go to post
                     </Button> */}
-                            </Card>
-                        )) : null}
-                    </SimpleGrid>
-                </CustomScroll>
-            </Stack>
-            : <FullLoader />
+                        </Card>
+                    )) : null}
+                </SimpleGrid>
+            </CustomScroll>
+            )
+        </Stack>
     );
 };
 

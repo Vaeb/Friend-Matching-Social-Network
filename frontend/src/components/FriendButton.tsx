@@ -6,10 +6,16 @@ type FriendButtonProps = {
     user: GetUserQuery['getUser'];
     isMe: boolean;
     addFriend: (remove?: boolean) => void;
+    fallback?: boolean;
 };
 
-export const FriendButton = ({ user, isMe, addFriend }: FriendButtonProps) => {
-    if (!user || isMe) return null;
+export const FriendButton = ({ user, isMe, addFriend, fallback }: FriendButtonProps) => {
+    if (isMe) return null;
+    if (!user) {
+        return fallback ? (
+            <Button variant='outline' className='w-[80%]' onClick={() => addFriend()}>Add Friend</Button>
+        ) : null;
+    }
     if (user.areFriends) {
         return (
             <Button variant='outline' className='w-[80%]' onClick={() => addFriend(true)}>Remove Friend</Button>
