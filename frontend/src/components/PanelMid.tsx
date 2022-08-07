@@ -1,7 +1,16 @@
 import React, { FC, useEffect } from 'react';
-import { useMantineTheme, Box, ScrollArea } from '@mantine/core';
+import { useMantineTheme, Box } from '@mantine/core';
 
-import { useFriendRequestSubscription, useGetPostsWeightedQuery, useMeQuery, useNewMessageSubscription, useNewPostsSubscription } from '../generated/graphql';
+import {
+    useFriendRequestSubscription,
+    useGetPostsWeightedQuery,
+    useManualMatchAvailableSubscription,
+    useMeQuery,
+    useNewAutoMatchSubscription,
+    useNewManualMatchSubscription,
+    useNewMessageSubscription,
+    useNewPostsSubscription,
+} from '../generated/graphql';
 import { useAppStore, useTimelineStore } from '../state';
 import SettingsMid from './panels/SettingsMid';
 import ChatMid from './panels/ChatMid';
@@ -28,6 +37,9 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     const [{ data: postsData, fetching: postsFetching, stale }] = useGetPostsWeightedQuery();
     useNewMessageSubscription();
     useFriendRequestSubscription();
+    useNewAutoMatchSubscription();
+    useNewManualMatchSubscription();
+    useManualMatchAvailableSubscription();
     const [postsRes] = useNewPostsSubscription();
 
     const gotPosts = postsData?.getPostsWeighted?.posts;

@@ -19,7 +19,6 @@ subscription FriendRequest {
                 user {
                     ...UserSmFields
                 }
-                matchDate
             }
         }
         user {

@@ -113,12 +113,13 @@ type UserInterestResponse {
 type Match {
     id: Int!
     user: User!
-    matchDate: Date!
+    matchDate: Date
 }
 
 type MatchesStore {
     id: Int!
     matches: [Match!]!
+    me: Me
 }
 
 type ManualMatchResponse {
@@ -212,4 +213,7 @@ type Mutation {
 
 type Subscription {
     friendRequest: FriendRequestPubsub!
+    newAutoMatch: Match!
+    newManualMatch: MatchesStore!
+    manualMatchAvailable: Int!
 }

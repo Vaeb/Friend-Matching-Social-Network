@@ -6,6 +6,7 @@ import { createClient as createWSClient } from 'graphql-ws';
 
 import {
     AddFriendMutation,
+    NewAutoMatchSubscription,
     FriendRequestType,
     GetChatsDocument,
     GetChatsQuery,
@@ -16,7 +17,9 @@ import {
     GetUserDocument,
     GetUserInterestsDocument,
     GetUserQuery,
+    ManualMatchAvailableSubscription,
     MeDocument,
+    MeQuery,
 } from './generated/graphql';
 import { graphqlUrl, wsUrl } from './defaults';
 
@@ -227,6 +230,43 @@ const exchanges = [
                                 data.getMessages.push(message);
                                 // console.log('added', data);
                                 return data;
+                            }
+                        );
+                    }
+                },
+                newAutoMatch: (_result, _args, cache, _info) => {
+                    const rawResult = _result as any;
+                    const args = _args as any;
+                    const resultData = rawResult?.newAutoMatch as NewAutoMatchSubscription['newAutoMatch'];
+                    if (resultData?.id) {
+                        const match = resultData;
+                        cache.updateQuery(
+                            {
+                                query: GetMatchesDocument,
+                            },
+                            (_data) => {
+                                const data = _data as GetMatchesQuery;
+                                console.log('AUTO_M_QQ', data);
+                                data.getMatches.matches.unshift(match);
+                                return data as any;
+                            }
+                        );
+                    }
+                },
+                manualMatchAvailable: (_result, _args, cache, _info) => {
+                    const rawResult = _result as any;
+                    const args = _args as any;
+                    const resultData = rawResult?.manualMatchAvailable as ManualMatchAvailableSubscription['manualMatchAvailable'];
+                    if (resultData != null) {
+                        cache.updateQuery(
+                            {
+                                query: MeDocument,
+                            },
+                            (_data) => {
+                                const data = _data as MeQuery;
+                                console.log('MANUAL_M_QQ', data);
+                                data.me.nextManualMatchId = resultData;
+                                return data as any;
                             }
                         );
                     }

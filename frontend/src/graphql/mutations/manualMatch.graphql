@@ -8,7 +8,6 @@ mutation ManualMatch {
                 user {
                     ...UserSmFields
                 }
-                matchDate
             }
         }
         me {

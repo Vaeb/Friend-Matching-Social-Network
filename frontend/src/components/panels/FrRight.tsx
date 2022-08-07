@@ -33,7 +33,7 @@ const FrRight: FC<any> = () => {
                             onClick={() => setView('user', null, user.id)}
                         />
                     </UnstyledButton>
-                    <Text className='text-sm text-_gray-800 truncate text-center w-[calc(100%_-_9px)] max-w-full cursor-pointer' onClick={() => setView('user', null, user.id)}>
+                    <Text className='text-sm text-_gray-800 truncate text-center w-[69px] cursor-pointer' onClick={() => setView('user', null, user.id)}>
                         @{user.username}
                     </Text>
                 </Stack>

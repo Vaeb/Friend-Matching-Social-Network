@@ -44,7 +44,7 @@ const UserLeft = () => {
             </Box>
             <Divider className='w-[85%]' size='xs' color={theme.colors._dividerT[0]} />
             <FriendButton user={user} isMe={isMe} addFriend={addFriend} />
-            {user.areFriends ?
+            {user.areFriends || user.haveMatched ?
                 <Button variant='outline' className='w-[80%]' onClick={() => setView('chat', null, user.id)}>Open Chat</Button>
                 : null}
         </Stack>

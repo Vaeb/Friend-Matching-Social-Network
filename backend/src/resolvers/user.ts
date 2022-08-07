@@ -7,11 +7,11 @@ import {
     consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings, 
 } from '../utils';
 import { Context, Context2 } from '../types';
-import { FriendRequestType, FriendStatus } from '../schema/generated';
+import { FriendRequestType, FriendStatus, Match, MatchesStore } from '../schema/generated';
 import type { Error, Resolvers } from '../schema/generated';
 import { User } from '@prisma/client';
-import { FRIEND_MATCH, FRIEND_REQUEST, pubsub } from '../pubsub';
-import { relevantFriendRequest } from '../permissions';
+import { MANUAL_MATCH, FRIEND_REQUEST, pubsub, AUTO_MATCH, MANUAL_MATCH_AVAILABLE } from '../pubsub';
+import { relevantAutoMatch, relevantFriendRequest, relevantManualMatch } from '../permissions';
 
 const hashPassword = (rawPassword: string) => bcrypt.hash(rawPassword, 5);
 
@@ -51,6 +51,7 @@ const resolvers: Resolvers = {
         friendRequest: {
             resolve: (async (payload: FriendStatus, _, context: Context2) => {
                 const { id: meId } = context.userCore;
+
                 const bigUser = await getBigUser(meId, payload.initiator.id);
                 const usersSendingFr = await getFriendRequests(meId);
                 const chatUsers = await getChats(meId);
@@ -66,6 +67,50 @@ const resolvers: Resolvers = {
             subscribe: withFilter(
                 () => pubsub.asyncIterator(FRIEND_REQUEST),
                 relevantFriendRequest
+            ) as any,
+        },
+        newAutoMatch: {
+            resolve: (async (payload, _, context: Context2) => {
+                const { id: meId } = context.userCore;
+                const { matchIdMap } = payload;
+                
+                const user = await prisma.user.findUnique({ where: { id: matchIdMap[meId] } });
+
+                const result: Match = { id: user.id, user };
+
+                return result;
+            }) as any,
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(AUTO_MATCH),
+                relevantAutoMatch
+            ) as any,
+        },
+        newManualMatch: {
+            resolve: (async (payload, _, context: Context2) => {
+                const { id: meId, universityId } = context.userCore;
+
+                console.log('Getting matches for manual match');
+                const me = await getBigUser(meId, meId, universityId);
+                const matches = await getMatches(meId);
+
+                const result: MatchesStore = { id: meId, me, matches };
+                return result;
+            }) as any,
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(MANUAL_MATCH),
+                relevantManualMatch
+            ) as any,
+        },
+        manualMatchAvailable: {
+            resolve: (async (payload, _, context: Context2) => {
+                const { id: meId } = context.userCore;
+                const { matchIdMap } = payload;
+
+                return matchIdMap[meId];
+            }) as any,
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(MANUAL_MATCH_AVAILABLE),
+                relevantAutoMatch
             ) as any,
         },
     },
@@ -126,7 +171,6 @@ const resolvers: Resolvers = {
             const { id: meId } = userCore;
 
             const usersSendingFr = await getFriendRequests(meId);
-            console.log('usersSendingFr', usersSendingFr);
 
             return { id: meId, users: usersSendingFr };
         },
@@ -256,11 +300,11 @@ const resolvers: Resolvers = {
                     const isFirst = meId < userId;
                     const upsertResult = await prisma.$executeRaw`
                         INSERT INTO user_relations
-                            ("user1Id", "user2Id", "areFriends", "friendDate", "updatedAt")
+                            ("user1Id", "user2Id", "areFriends", "haveMatched", "friendDate", "updatedAt")
                         VALUES
-                            (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, timezone('utc', now()), timezone('utc', now()))
+                            (${isFirst ? meId : userId}, ${isFirst ? userId : meId}, ${!remove}, false, timezone('utc', now()), timezone('utc', now()))
                         ON CONFLICT ("user1Id", "user2Id") DO UPDATE
-                            SET "areFriends" = excluded."areFriends", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
+                            SET "areFriends" = excluded."areFriends", "haveMatched" = excluded."haveMatched", "friendDate" = excluded."friendDate", "updatedAt" = excluded."updatedAt";
                     `;
                     console.log('Upsert success:', upsertResult);
                     if (type === FriendRequestType.Accept) {
@@ -579,9 +623,9 @@ const resolvers: Resolvers = {
 
                 const matches = await getMatches(meId);
 
-                pubsub.publish(FRIEND_MATCH, {
-                    consumerMatchMap: { [userId]: meId },
-                    type: 'MANUAL',
+                pubsub.publish(MANUAL_MATCH, {
+                    consumerId: userId,
+                    initiatorId: meId,
                 });
 
                 const me = await getBigUser(meId, meId, universityId);

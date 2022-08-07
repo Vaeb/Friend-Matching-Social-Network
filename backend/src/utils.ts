@@ -155,7 +155,8 @@ export const getUserRelations = async (userId: number, bonusWhere?: string, othe
         SELECT "areFriends", "friendDate", "compatibility", "updatedCompatibility", "haveMatched", "matchDate", u.*
         FROM user_relations rel
         JOIN users u ON (rel."user1Id" <> $1 AND rel."user1Id" = u.id) OR (rel."user2Id" <> $1 AND rel."user2Id" = u.id)
-        WHERE (rel."user1Id" = $1 OR rel."user2Id" = $1)${otherUserId != null ? ' AND (rel."user1Id" = $2 OR rel."user2Id" = $2)' : ''}${bonusWhere ? ` AND (${bonusWhere})` : ''};
+        WHERE (rel."user1Id" = $1 OR rel."user2Id" = $1)${otherUserId != null ? ' AND (rel."user1Id" = $2 OR rel."user2Id" = $2)' : ''}${bonusWhere ? ` AND (${bonusWhere})` : ''}
+        ORDER BY "updatedAt" DESC
     `, ...queryParams)) as (UserRelation & User)[];
 
     const relations = rawRelations.map((rawRelation) => {
@@ -203,6 +204,7 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
             matchSettings: _2,
             sentFriendRequests: _3,
             receivedFriendRequests: _4,
+            universities: _5,
             ...fullUser
         } = { ...userDetails, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
 

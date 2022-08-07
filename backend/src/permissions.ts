@@ -55,3 +55,25 @@ export const relevantFriendRequest = chainResolver((payload: FriendStatus, _, { 
 
     return false;
 });
+
+export const relevantAutoMatch = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
+    console.log('GOT AUTO/AVAILABLE MATCH SUBSCR...', meId);
+    const { matchIdMap } = payload;
+
+    if (matchIdMap[meId]) {
+        return true;
+    }
+
+    return false;
+});
+
+export const relevantManualMatch = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
+    console.log('GOT MANUAL MATCH SUBSCR...', meId);
+    const { consumerId } = payload;
+
+    if (consumerId === meId) {
+        return true;
+    }
+
+    return false;
+});

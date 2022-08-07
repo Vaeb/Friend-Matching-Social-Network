@@ -2,6 +2,7 @@
 import sourceMapSupport from 'source-map-support';
 
 import { prisma } from '../server';
+import { pubsub, AUTO_MATCH, MANUAL_MATCH_AVAILABLE } from '../pubsub';
 import { cloneObj } from '../utils';
 import findMinCover from './koenig';
 import { test1, test2, testNow } from './matchFixtures';
@@ -466,7 +467,7 @@ const doMatch = async () => {
         // const nowDateStr = new Date().toISOString();
         // const tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
         // const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
-        const autoMatches = await matchSubset('Auto', university, baseDateIso, autoUserScores, autoUserMap, async (matchedIds) => {
+        const autoMatches = await matchSubset('Auto', university, baseDateIso, autoUserScores, autoUserMap, async (matchedIds, updateRows: { user1Id: number, user2Id: number }[]) => {
             // console.log('Updating lastAutoMatched');
             const numUpdated = await prisma.matchSettings.updateMany({
                 where: {
@@ -479,6 +480,18 @@ const doMatch = async () => {
                 },
             });
             console.log(`[${university.name}] [Auto]: Updated ${numUpdated.count} match_settings rows (lastAutoMatched)`);
+
+            const matchIdMap = updateRows.reduce((acc, row) => {
+                acc[row.user1Id] = row.user2Id;
+                acc[row.user2Id] = row.user1Id;
+                return acc;
+            }, {});
+
+            console.log('[Auto] matchIdMap', matchIdMap);
+
+            pubsub.publish(AUTO_MATCH, {
+                matchIdMap,
+            });
         });
 
         for (const [tag1, tag2] of autoMatches) {
@@ -508,6 +521,18 @@ const doMatch = async () => {
             console.log(queryUpsertRows);
             const numUpdated = await prisma.$executeRawUnsafe(queryUpsertRows);
             console.log(`[${university.name}] [Manual]: Updated ${numUpdated} match_settings rows (nextManualMatchId)`);
+
+            const matchIdMap = updateRows.reduce((acc, row) => {
+                acc[row.user1Id] = row.user2Id;
+                acc[row.user2Id] = row.user1Id;
+                return acc;
+            }, {});
+
+            console.log('[Manual] matchIdMap', matchIdMap);
+
+            pubsub.publish(MANUAL_MATCH_AVAILABLE, {
+                matchIdMap,
+            });
         });
     }
 };

@@ -99,7 +99,7 @@ export type ManualMatchResponse = {
 export type Match = {
   __typename?: 'Match';
   id: Scalars['Int'];
-  matchDate: Scalars['Date'];
+  matchDate?: Maybe<Scalars['Date']>;
   user: User;
 };
 
@@ -107,6 +107,7 @@ export type MatchesStore = {
   __typename?: 'MatchesStore';
   id: Scalars['Int'];
   matches: Array<Match>;
+  me?: Maybe<Me>;
 };
 
 export type Me = {
@@ -359,6 +360,9 @@ export type Subscription = {
   __typename?: 'Subscription';
   friendRequest: FriendRequestPubsub;
   heartbeat: Scalars['String'];
+  manualMatchAvailable: Scalars['Int'];
+  newAutoMatch: Match;
+  newManualMatch: MatchesStore;
   newMessage: Message;
   newPost: Post;
   newPosts?: Maybe<Array<Post>>;
@@ -682,7 +686,7 @@ export type ManualMatchResponseResolvers<ContextType = any, ParentType extends R
 
 export type MatchResolvers<ContextType = any, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  matchDate?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  matchDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -690,6 +694,7 @@ export type MatchResolvers<ContextType = any, ParentType extends ResolversParent
 export type MatchesStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['MatchesStore'] = ResolversParentTypes['MatchesStore']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   matches?: Resolver<Array<ResolversTypes['Match']>, ParentType, ContextType>;
+  me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -816,6 +821,9 @@ export type SendPostResponseResolvers<ContextType = any, ParentType extends Reso
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   friendRequest?: SubscriptionResolver<ResolversTypes['FriendRequestPubsub'], "friendRequest", ParentType, ContextType>;
   heartbeat?: SubscriptionResolver<ResolversTypes['String'], "heartbeat", ParentType, ContextType>;
+  manualMatchAvailable?: SubscriptionResolver<ResolversTypes['Int'], "manualMatchAvailable", ParentType, ContextType>;
+  newAutoMatch?: SubscriptionResolver<ResolversTypes['Match'], "newAutoMatch", ParentType, ContextType>;
+  newManualMatch?: SubscriptionResolver<ResolversTypes['MatchesStore'], "newManualMatch", ParentType, ContextType>;
   newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
   newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
   newPosts?: SubscriptionResolver<Maybe<Array<ResolversTypes['Post']>>, "newPosts", ParentType, ContextType>;

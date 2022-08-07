@@ -53,7 +53,7 @@ const MatchesRight: FC<any> = () => {
                                 onClick={() => setView('match', null, match.user.id)}
                             />
                         </UnstyledButton>
-                        <Text className='text-sm text-_gray-800 truncate text-center w-[calc(100%_-_9px)] max-w-full cursor-pointer' onClick={() => setView('user', null, match.user.id)}>
+                        <Text className='text-sm text-_gray-800 truncate text-center w-[69px] cursor-pointer' onClick={() => setView('user', null, match.user.id)}>
                             @{match.user.username}
                         </Text>
                     </Stack>

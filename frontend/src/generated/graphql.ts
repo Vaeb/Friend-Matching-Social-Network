@@ -102,7 +102,7 @@ export type ManualMatchResponse = {
 export type Match = {
   __typename?: 'Match';
   id: Scalars['Int'];
-  matchDate: Scalars['Date'];
+  matchDate?: Maybe<Scalars['Date']>;
   user: User;
 };
 
@@ -110,6 +110,7 @@ export type MatchesStore = {
   __typename?: 'MatchesStore';
   id: Scalars['Int'];
   matches: Array<Match>;
+  me?: Maybe<Me>;
 };
 
 export type Me = {
@@ -362,6 +363,9 @@ export type Subscription = {
   __typename?: 'Subscription';
   friendRequest: FriendRequestPubsub;
   heartbeat: Scalars['String'];
+  manualMatchAvailable: Scalars['Int'];
+  newAutoMatch: Match;
+  newManualMatch: MatchesStore;
   newMessage: Message;
   newPost: Post;
   newPosts?: Maybe<Array<Post>>;
@@ -473,7 +477,7 @@ export type AddFriendMutationVariables = Exact<{
 }>;
 
 
-export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendResponse', ok: boolean, type?: FriendRequestType | null, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null, fr?: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, chats?: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, matches?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null } };
+export type AddFriendMutation = { __typename?: 'Mutation', addFriend: { __typename?: 'FriendResponse', ok: boolean, type?: FriendRequestType | null, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, user?: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } | null, fr?: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, chats?: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } | null, matches?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null } };
 
 export type AddUserInterestMutationVariables = Exact<{
   userInterest: UserInterestInput;
@@ -499,7 +503,7 @@ export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: '
 export type ManualMatchMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ManualMatchMutation = { __typename?: 'Mutation', manualMatch: { __typename?: 'ManualMatchResponse', success: boolean, matchesStore?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, uniConfirmed?: boolean | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, studentsOnly?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
+export type ManualMatchMutation = { __typename?: 'Mutation', manualMatch: { __typename?: 'ManualMatchResponse', success: boolean, matchesStore?: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } | null, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, uniConfirmed?: boolean | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, studentsOnly?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -580,7 +584,7 @@ export type GetInterestsQuery = { __typename?: 'Query', getInterests: Array<{ __
 export type GetMatchesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMatchesQuery = { __typename?: 'Query', getMatches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } };
+export type GetMatchesQuery = { __typename?: 'Query', getMatches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> } };
 
 export type GetMessagesQueryVariables = Exact<{
   target: Scalars['Int'];
@@ -634,12 +638,27 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Me', birthDat
 export type FriendRequestSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type FriendRequestSubscription = { __typename?: 'Subscription', friendRequest: { __typename?: 'FriendRequestPubsub', fr: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, chats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, matches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, matchDate: any, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> }, user: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } } };
+export type FriendRequestSubscription = { __typename?: 'Subscription', friendRequest: { __typename?: 'FriendRequestPubsub', fr: { __typename?: 'FrStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, chats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> }, matches: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }> }, user: { __typename?: 'User', visInterests: number, createdAt?: any | null, areFriends?: boolean | null, friendDate?: any | null, haveMatched?: boolean | null, matchDate?: any | null, sentFrTo?: boolean | null, receivedFrFrom?: boolean | null, birthDate?: any | null, name: string, color?: string | null, id: number, username: string } } };
 
 export type HeartbeatSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
 export type HeartbeatSubscription = { __typename?: 'Subscription', heartbeat: string };
+
+export type ManualMatchAvailableSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ManualMatchAvailableSubscription = { __typename?: 'Subscription', manualMatchAvailable: number };
+
+export type NewAutoMatchSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewAutoMatchSubscription = { __typename?: 'Subscription', newAutoMatch: { __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } };
+
+export type NewManualMatchSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewManualMatchSubscription = { __typename?: 'Subscription', newManualMatch: { __typename?: 'MatchesStore', id: number, matches: Array<{ __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } }>, me?: { __typename?: 'Me', birthDate?: any | null, uni?: string | null, uniConfirmed?: boolean | null, matchingEnabled: boolean, matchQuality: number, manualEnabled?: boolean | null, lastAutoMatched?: any | null, autoFreq?: number | null, nextManualMatchId?: number | null, studentsOnly?: boolean | null, snoozedUntil?: any | null, name: string, universityId?: number | null, color?: string | null, id: number, username: string } | null } };
 
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -1126,11 +1145,8 @@ export default {
           {
             "name": "matchDate",
             "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Any"
-              }
+              "kind": "SCALAR",
+              "name": "Any"
             },
             "args": []
           },
@@ -1179,6 +1195,15 @@ export default {
                   }
                 }
               }
+            },
+            "args": []
+          },
+          {
+            "name": "me",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Me",
+              "ofType": null
             },
             "args": []
           }
@@ -2612,6 +2637,41 @@ export default {
             "args": []
           },
           {
+            "name": "manualMatchAvailable",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "newAutoMatch",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Match",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "newManualMatch",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "MatchesStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "newMessage",
             "type": {
               "kind": "NON_NULL",
@@ -3285,7 +3345,6 @@ export const AddFriendDocument = gql`
         user {
           ...UserSmFields
         }
-        matchDate
       }
     }
     type
@@ -3374,7 +3433,6 @@ export const ManualMatchDocument = gql`
         user {
           ...UserSmFields
         }
-        matchDate
       }
     }
     me {
@@ -3586,7 +3644,6 @@ export const GetMatchesDocument = gql`
       user {
         ...UserSmFields
       }
-      matchDate
     }
   }
 }
@@ -3736,7 +3793,6 @@ export const FriendRequestDocument = gql`
         user {
           ...UserSmFields
         }
-        matchDate
       }
     }
     user {
@@ -3758,6 +3814,50 @@ export const HeartbeatDocument = gql`
 
 export function useHeartbeatSubscription<TData = HeartbeatSubscription>(options: Omit<Urql.UseSubscriptionArgs<HeartbeatSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<HeartbeatSubscription, TData>) {
   return Urql.useSubscription<HeartbeatSubscription, TData, HeartbeatSubscriptionVariables>({ query: HeartbeatDocument, ...options }, handler);
+};
+export const ManualMatchAvailableDocument = gql`
+    subscription ManualMatchAvailable {
+  manualMatchAvailable
+}
+    `;
+
+export function useManualMatchAvailableSubscription<TData = ManualMatchAvailableSubscription>(options: Omit<Urql.UseSubscriptionArgs<ManualMatchAvailableSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<ManualMatchAvailableSubscription, TData>) {
+  return Urql.useSubscription<ManualMatchAvailableSubscription, TData, ManualMatchAvailableSubscriptionVariables>({ query: ManualMatchAvailableDocument, ...options }, handler);
+};
+export const NewAutoMatchDocument = gql`
+    subscription NewAutoMatch {
+  newAutoMatch {
+    id
+    user {
+      ...UserSmFields
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}`;
+
+export function useNewAutoMatchSubscription<TData = NewAutoMatchSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewAutoMatchSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewAutoMatchSubscription, TData>) {
+  return Urql.useSubscription<NewAutoMatchSubscription, TData, NewAutoMatchSubscriptionVariables>({ query: NewAutoMatchDocument, ...options }, handler);
+};
+export const NewManualMatchDocument = gql`
+    subscription NewManualMatch {
+  newManualMatch {
+    id
+    matches {
+      id
+      user {
+        ...UserSmFields
+      }
+    }
+    me {
+      ...MeMdFields
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}
+${MeMdFieldsFragmentDoc}`;
+
+export function useNewManualMatchSubscription<TData = NewManualMatchSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewManualMatchSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewManualMatchSubscription, TData>) {
+  return Urql.useSubscription<NewManualMatchSubscription, TData, NewManualMatchSubscriptionVariables>({ query: NewManualMatchDocument, ...options }, handler);
 };
 export const NewMessageDocument = gql`
     subscription NewMessage {

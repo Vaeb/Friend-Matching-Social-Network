@@ -1,11 +1,14 @@
-query GetMatches {
-    getMatches {
+subscription NewManualMatch {
+    newManualMatch {
         id
         matches {
             id
             user {
                 ...UserSmFields
             }
+        }
+        me {
+            ...MeMdFields
         }
     }
 }
