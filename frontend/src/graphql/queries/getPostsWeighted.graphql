@@ -1,14 +1,15 @@
-query GetPostsWeighted {
-    getPostsWeighted {
+query GetPostsWeighted($view: String!) {
+    getPostsWeighted(view: $view) {
         id
         posts {
             id
-            text
             universityId
             studentsOnly
-            creator {
+            author {
                 ...UserSmFields
             }
+            text
+            numLikes
             createdAt
         }
     }

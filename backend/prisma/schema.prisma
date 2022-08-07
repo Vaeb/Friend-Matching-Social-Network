@@ -15,7 +15,7 @@ model User {
     email                  String              @unique
     password               String
     name                   String
-    university             University?         @relation(name: "SelectedUni", fields: [universityId], references: [id])
+    university             University?         @relation("SelectedUni", fields: [universityId], references: [id])
     universityId           Int?
     universities           UniversityStudent[]
     color                  String?
@@ -23,22 +23,22 @@ model User {
     matchQuality           Int                 @default(0)
     visEmail               Int                 @default(0)
     visInterests           Int                 @default(0)
-    relations1             UserRelation[]      @relation(name: "UserRel1")
-    relations2             UserRelation[]      @relation(name: "UserRel2")
-    sentFriendRequests     FriendRequests[]    @relation(name: "FriendSender")
-    receivedFriendRequests FriendRequests[]    @relation(name: "FriendReceiver")
+    relations1             UserRelation[]      @relation("UserRel1")
+    relations2             UserRelation[]      @relation("UserRel2")
+    sentFriendRequests     FriendRequests[]    @relation("FriendSender")
+    receivedFriendRequests FriendRequests[]    @relation("FriendReceiver")
     interests              UserInterest[]
     matchingEnabled        Boolean             @default(true)
-    matchSettings          MatchSettings[]     @relation(name: "UserMatchSettings")
-    nextUserMatchSettings  MatchSettings[]     @relation(name: "NextManualMatch")
+    matchSettings          MatchSettings[]     @relation("UserMatchSettings")
+    nextUserMatchSettings  MatchSettings[]     @relation("NextManualMatch")
     channels               Channel[]
-    sentMessages           Message[]           @relation(name: "MessageFrom")
-    receivedMessages       Message[]           @relation(name: "MessageTo")
-    createdChannels        Channel[]           @relation(name: "CreatedChannels")
-    posts                  Post[]              @relation(name: "CreatedPosts")
-    comments               Comment[]           @relation(name: "CreatedComments")
-    reactions              Reaction[]          @relation(name: "CreatedReactions")
-    savedPosts             Post[]              @relation(name: "SavedPosts")
+    sentMessages           Message[]           @relation("MessageFrom")
+    receivedMessages       Message[]           @relation("MessageTo")
+    createdChannels        Channel[]           @relation("CreatedChannels")
+    posts                  Post[]              @relation("CreatedPosts")
+    comments               Comment[]           @relation("CreatedComments")
+    reactions              Reaction[]          @relation("CreatedReactions")
+    savedPosts             Post[]              @relation("SavedPosts")
     updatedInterests       DateTime?
     createdAt              DateTime            @default(now())
     updatedAt              DateTime            @updatedAt
@@ -60,17 +60,16 @@ model UniversityStudent {
 }
 
 model MatchSettings {
-    user              User       @relation(name: "UserMatchSettings", fields: [userId], references: [id])
+    user              User       @relation("UserMatchSettings", fields: [userId], references: [id])
     userId            Int
     university        University @relation(fields: [universityId], references: [id])
     universityId      Int
     manualEnabled     Boolean    @default(true)
-    // eligibleAfter  DateTime? // Requires: updating every MatchSettings after-match with individual eligibleAfter + fetch matches by eligibleAfter + refresh on changed freq
-    lastAutoMatched   DateTime   @default("1970-01-01T00:00:00.000Z") // Requires: updating every MatchSettings after-match with common nowDate + fetch matches by lastAutoMatched+eligibleFreq [BEST]
-    autoFreq          Int        @default(0) // Days
+    lastAutoMatched   DateTime   @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone"))
+    autoFreq          Int        @default(0)
     snoozedUntil      DateTime?
-    studentsOnly      Boolean    @default(false) // Match students only
-    nextManualMatch   User?      @relation(name: "NextManualMatch", fields: [nextManualMatchId], references: [id])
+    studentsOnly      Boolean    @default(false)
+    nextManualMatch   User?      @relation("NextManualMatch", fields: [nextManualMatchId], references: [id])
     nextManualMatchId Int?
     createdAt         DateTime   @default(now())
     updatedAt         DateTime   @updatedAt
@@ -80,9 +79,9 @@ model MatchSettings {
 }
 
 model FriendRequests {
-    sender     User     @relation(name: "FriendSender", fields: [senderId], references: [id])
+    sender     User     @relation("FriendSender", fields: [senderId], references: [id])
     senderId   Int
-    receiver   User     @relation(name: "FriendReceiver", fields: [receiverId], references: [id])
+    receiver   User     @relation("FriendReceiver", fields: [receiverId], references: [id])
     receiverId Int
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
@@ -92,9 +91,9 @@ model FriendRequests {
 }
 
 model UserRelation {
-    user1                User      @relation(name: "UserRel1", fields: [user1Id], references: [id])
+    user1                User      @relation("UserRel1", fields: [user1Id], references: [id])
     user1Id              Int
-    user2                User      @relation(name: "UserRel2", fields: [user2Id], references: [id])
+    user2                User      @relation("UserRel2", fields: [user2Id], references: [id])
     user2Id              Int
     areFriends           Boolean   @default(false)
     friendDate           DateTime?
@@ -139,7 +138,7 @@ model Channel {
     name        String?
     description String?
     users       User[]
-    creator     User?    @relation(name: "CreatedChannels", fields: [creatorId], references: [id])
+    creator     User?    @relation("CreatedChannels", fields: [creatorId], references: [id])
     creatorId   Int?
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
@@ -149,9 +148,9 @@ model Channel {
 
 model Message {
     id        Int      @id @default(autoincrement())
-    from      User     @relation(name: "MessageFrom", fields: [fromId], references: [id])
+    from      User     @relation("MessageFrom", fields: [fromId], references: [id])
     fromId    Int
-    to        User     @relation(name: "MessageTo", fields: [toId], references: [id])
+    to        User     @relation("MessageTo", fields: [toId], references: [id])
     toId      Int
     text      String
     createdAt DateTime @default(now())
@@ -163,14 +162,14 @@ model Message {
 model Post {
     id           Int        @id @default(autoincrement())
     text         String
-    creator      User       @relation(name: "CreatedPosts", fields: [creatorId], references: [id])
-    creatorId    Int
+    author       User       @relation("CreatedPosts", fields: [authorId], references: [id], map: "posts_creatorId_fkey")
+    authorId     Int
     university   University @relation(fields: [universityId], references: [id])
     universityId Int
     studentsOnly Boolean    @default(false)
     comments     Comment[]
     reactions    Reaction[]
-    savedBy      User[]     @relation(name: "SavedPosts")
+    savedBy      User[]     @relation("SavedPosts")
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
 
@@ -178,18 +177,18 @@ model Post {
 }
 
 model Comment {
-    id          Int        @id @default(autoincrement())
-    post        Post       @relation(fields: [postId], references: [id])
-    postId      Int
-    parent      Comment?   @relation(name: "SubComments", fields: [parentId], references: [id])
-    parentId    Int?
-    text        String
-    creator     User       @relation(name: "CreatedComments", fields: [creatorId], references: [id])
-    creatorId   Int
-    subComments Comment[]  @relation(name: "SubComments")
-    reactions   Reaction[]
-    createdAt   DateTime   @default(now())
-    updatedAt   DateTime   @updatedAt
+    id        Int        @id @default(autoincrement())
+    post      Post       @relation(fields: [postId], references: [id])
+    postId    Int
+    parent    Comment?   @relation("SubComments", fields: [parentId], references: [id])
+    parentId  Int?
+    text      String
+    author    User       @relation("CreatedComments", fields: [authorId], references: [id], map: "comments_creatorId_fkey")
+    authorId  Int
+    children  Comment[]  @relation("SubComments")
+    reactions Reaction[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 
     @@map("comments")
 }
@@ -200,9 +199,9 @@ model Reaction {
     postId    Int
     comment   Comment? @relation(fields: [commentId], references: [id])
     commentId Int?
-    reaction  String
-    creator   User     @relation(name: "CreatedReactions", fields: [creatorId], references: [id])
-    creatorId Int
+    type      String
+    user      User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
+    userId    Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -214,9 +213,9 @@ model University {
     name             String              @unique
     shortName        String?
     emailRegex       String?
-    publicRestricted Int                 @default(0) // 0=None, 1=Phone, 2=Confirmed
+    publicRestricted Int                 @default(0) // 0=None, 1=Phone, 2=Student, 3=StudentFriend
     posts            Post[]
-    activeUsers      User[]              @relation(name: "SelectedUni")
+    activeUsers      User[]              @relation("SelectedUni")
     students         UniversityStudent[]
     MatchSettings    MatchSettings[]
     createdAt        DateTime            @default(now())

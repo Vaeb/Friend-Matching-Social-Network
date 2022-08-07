@@ -22,6 +22,19 @@ export type ChatsStore = {
   users: Array<User>;
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  author: User;
+  children?: Maybe<Array<Comment>>;
+  createdAt: Scalars['Date'];
+  id: Scalars['Int'];
+  numLikes: Scalars['Int'];
+  parent?: Maybe<Comment>;
+  post?: Maybe<Post>;
+  reactions?: Maybe<Array<Reaction>>;
+  text: Scalars['String'];
+};
+
 export type Error = {
   __typename?: 'Error';
   field: Scalars['String'];
@@ -267,12 +280,21 @@ export type MutationUpdateMeArgs = {
 
 export type Post = {
   __typename?: 'Post';
+  author: User;
+  comments: Array<Comment>;
   createdAt: Scalars['Date'];
-  creator: User;
   id: Scalars['Int'];
+  numLikes: Scalars['Int'];
+  reactions?: Maybe<Array<Reaction>>;
   studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
   universityId: Scalars['Int'];
+};
+
+export type PostsStore = {
+  __typename?: 'PostsStore';
+  id: Scalars['Int'];
+  posts: Array<Post>;
 };
 
 export type Query = {
@@ -286,7 +308,7 @@ export type Query = {
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
   getPostsFromUser: Array<Post>;
-  getPostsWeighted: WeightedPosts;
+  getPostsWeighted: PostsStore;
   getUniversities: Array<University>;
   getUser?: Maybe<User>;
   getUserByHandle?: Maybe<User>;
@@ -332,6 +354,7 @@ export type QueryGetPostsFromUserArgs = {
 
 export type QueryGetPostsWeightedArgs = {
   cursor?: InputMaybe<Scalars['Int']>;
+  view: Scalars['String'];
 };
 
 
@@ -347,6 +370,13 @@ export type QueryGetUserByHandleArgs = {
 
 export type QueryGetUsersArgs = {
   limit?: InputMaybe<Scalars['Int']>;
+};
+
+export type Reaction = {
+  __typename?: 'Reaction';
+  num: Scalars['Int'];
+  type: Scalars['String'];
+  userIds?: Maybe<Array<Scalars['Int']>>;
 };
 
 export type SendPostResponse = {
@@ -448,12 +478,6 @@ export type UserResponse = {
   user?: Maybe<User>;
 };
 
-export type WeightedPosts = {
-  __typename?: 'WeightedPosts';
-  id: Scalars['Int'];
-  posts: Array<Post>;
-};
-
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -525,6 +549,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   ChatsStore: ResolverTypeWrapper<ChatsStore>;
+  Comment: ResolverTypeWrapper<Comment>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Error: ResolverTypeWrapper<Error>;
   File: ResolverTypeWrapper<File>;
@@ -547,7 +572,9 @@ export type ResolversTypes = {
   MessageSubResponse: ResolverTypeWrapper<MessageSubResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
+  PostsStore: ResolverTypeWrapper<PostsStore>;
   Query: ResolverTypeWrapper<{}>;
+  Reaction: ResolverTypeWrapper<Reaction>;
   SendPostResponse: ResolverTypeWrapper<SendPostResponse>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -561,13 +588,13 @@ export type ResolversTypes = {
   UserInterestResponse: ResolverTypeWrapper<UserInterestResponse>;
   UserRelation: ResolverTypeWrapper<UserRelation>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
-  WeightedPosts: ResolverTypeWrapper<WeightedPosts>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   ChatsStore: ChatsStore;
+  Comment: Comment;
   Date: Scalars['Date'];
   Error: Error;
   File: File;
@@ -589,7 +616,9 @@ export type ResolversParentTypes = {
   MessageSubResponse: MessageSubResponse;
   Mutation: {};
   Post: Post;
+  PostsStore: PostsStore;
   Query: {};
+  Reaction: Reaction;
   SendPostResponse: SendPostResponse;
   String: Scalars['String'];
   Subscription: {};
@@ -603,12 +632,24 @@ export type ResolversParentTypes = {
   UserInterestResponse: UserInterestResponse;
   UserRelation: UserRelation;
   UserResponse: UserResponse;
-  WeightedPosts: WeightedPosts;
 };
 
 export type ChatsStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatsStore'] = ResolversParentTypes['ChatsStore']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CommentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Comment'] = ResolversParentTypes['Comment']> = {
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  children?: Resolver<Maybe<Array<ResolversTypes['Comment']>>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  numLikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  parent?: Resolver<Maybe<ResolversTypes['Comment']>, ParentType, ContextType>;
+  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
+  reactions?: Resolver<Maybe<Array<ResolversTypes['Reaction']>>, ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -781,12 +822,21 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type PostResolvers<ContextType = any, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = {
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  creator?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  numLikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reactions?: Resolver<Maybe<Array<ResolversTypes['Reaction']>>, ParentType, ContextType>;
   studentsOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   universityId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostsStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['PostsStore'] = ResolversParentTypes['PostsStore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -800,7 +850,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromFriends?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsFromFriendsArgs>>;
   getPostsFromUser?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostsFromUserArgs, 'userId'>>;
-  getPostsWeighted?: Resolver<ResolversTypes['WeightedPosts'], ParentType, ContextType, Partial<QueryGetPostsWeightedArgs>>;
+  getPostsWeighted?: Resolver<ResolversTypes['PostsStore'], ParentType, ContextType, RequireFields<QueryGetPostsWeightedArgs, 'view'>>;
   getUniversities?: Resolver<Array<ResolversTypes['University']>, ParentType, ContextType>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'userId'>>;
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
@@ -809,6 +859,13 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   pingTest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type ReactionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Reaction'] = ResolversParentTypes['Reaction']> = {
+  num?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userIds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SendPostResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendPostResponse'] = ResolversParentTypes['SendPostResponse']> = {
@@ -908,14 +965,9 @@ export type UserResponseResolvers<ContextType = any, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type WeightedPostsResolvers<ContextType = any, ParentType extends ResolversParentTypes['WeightedPosts'] = ResolversParentTypes['WeightedPosts']> = {
-  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type Resolvers<ContextType = any> = {
   ChatsStore?: ChatsStoreResolvers<ContextType>;
+  Comment?: CommentResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Error?: ErrorResolvers<ContextType>;
   File?: FileResolvers<ContextType>;
@@ -936,7 +988,9 @@ export type Resolvers<ContextType = any> = {
   MessageSubResponse?: MessageSubResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostsStore?: PostsStoreResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Reaction?: ReactionResolvers<ContextType>;
   SendPostResponse?: SendPostResponseResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   University?: UniversityResolvers<ContextType>;
@@ -948,6 +1002,5 @@ export type Resolvers<ContextType = any> = {
   UserInterestResponse?: UserInterestResponseResolvers<ContextType>;
   UserRelation?: UserRelationResolvers<ContextType>;
   UserResponse?: UserResponseResolvers<ContextType>;
-  WeightedPosts?: WeightedPostsResolvers<ContextType>;
 };
 

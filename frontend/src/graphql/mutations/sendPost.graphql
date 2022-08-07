@@ -7,10 +7,13 @@ mutation SendPost($text: String!, $studentsOnly: Boolean!) {
         }
         post {
             id
-            text
-            creator {
+            universityId
+            studentsOnly
+            author {
                 ...UserSmFields
             }
+            text
+            numLikes
             createdAt
         }
     }

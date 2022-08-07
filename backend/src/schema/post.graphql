@@ -1,11 +1,32 @@
+type Reaction {
+    type: String!
+    num: Int!
+    userIds: [Int!]
+}
+
 type Post {
     id: Int!
-    text: String!
     universityId: Int!
     studentsOnly: Boolean!
-    creator: User!
+    author: User!
+    text: String!
+    reactions: [Reaction!]
+    numLikes: Int!
+    comments: [Comment!]!
     # savedBy(limit: Int): [User!]!
     createdAt: Date!
+}
+
+type Comment {
+    id: Int!
+    text: String!
+    author: User!
+    reactions: [Reaction!]
+    numLikes: Int!
+    createdAt: Date!
+    children: [Comment!]
+    parent: Comment
+    post: Post
 }
 
 type SendPostResponse {
@@ -14,7 +35,7 @@ type SendPostResponse {
     post: Post
 }
 
-type WeightedPosts {
+type PostsStore {
     id: Int!
     posts: [Post!]!
 }
@@ -24,7 +45,7 @@ type Query {
     getPosts(limit: Int): [Post!]!
     getPostsFromUser(userId: Int!, limit: Int): [Post!]!
     getPostsFromFriends(cursor: Int): [Post!]!
-    getPostsWeighted(cursor: Int): WeightedPosts!
+    getPostsWeighted(cursor: Int, view: String!): PostsStore!
 }
 
 type Mutation {
