@@ -23,7 +23,7 @@ const RoomButton = ({ children, room, newRoom, setRoom, theme, ...props }) => {
                 ${selected
                     ? 'bg-_blackT-600 text-white'
                     : 'bg-transparent hover:bg-_blackT-500 text-_gray-600'
-                } text-base font-[500] text-left w-full h-[38px]
+                } text-base font-[400] text-left w-full h-[38px]
             `}
             classNames={{
                 inner: 'justify-start',
@@ -46,7 +46,7 @@ const TimelineLeft: FC = () => {
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
     const me = !meFetching ? meData?.me : null;
 
-    console.log(room);
+    console.log('room', room);
 
     return (
         <Stack className='w-full mt-[25px] items-center' spacing={16}>

@@ -4,5 +4,6 @@ fragment PostSmFields on Post {
     studentsOnly
     text
     numLikes
+    meLiked
     createdAt
 }

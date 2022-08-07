@@ -1,0 +1,17 @@
+mutation Like($id: Int!, $onType: String!, $remove: Boolean!) {
+    like(id: $id, onType: $onType, remove: $remove) { # Either post or comment
+        ok
+        errors {
+            field
+            message
+        }
+        post {
+            ...PostLgFields
+        }
+        comment {
+            ...CommentMdFields
+            ...CommentMdParent
+            ...CommentMdChildren
+        }
+    }
+}

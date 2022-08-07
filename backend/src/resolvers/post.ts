@@ -3,7 +3,7 @@ import { Post } from '@prisma/client';
 
 import { prisma } from '../server';
 import { consoleError, fixPosts, formatErrors, getUserRelations } from '../utils';
-import type { QueryGetPostsWeightedArgs, Resolvers } from '../schema/generated';
+import type { QueryGetPostsWeightedArgs, Resolvers, Post as GPost } from '../schema/generated';
 import { Context, Context2 } from '../types';
 import { NEW_POST, NEW_POSTS, pubsub } from '../pubsub';
 import { permPostNotAuthor } from '../permissions';
@@ -27,13 +27,20 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
     const { id: meId, universityId } = userCore;
 
     // const friendIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
-    const posts = fixPosts(await prisma.post.findMany({
-        where: { universityId },
-        // where: { authorId: { in: userIds } },
-        include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 30,
-    }));
+    const posts = fixPosts(
+        await prisma.post.findMany({
+            where: { universityId },
+            // where: { authorId: { in: userIds } },
+            include: {
+                author: true,
+                reactions: { include: { users: { where: { userId: meId } } } },
+                comments: { include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 30,
+        }),
+        meId
+    );
 
     return { id: 1, posts };
 };
@@ -51,17 +58,18 @@ setInterval(() => {
     });
 }, postFrequency);
 
-type PostsPayload = { posts: Post[], postIds: Record<string | number, boolean> };
+type PostsPayload = { posts: Post[]; postIds: Record<string | number, boolean> };
 
 const resolvers: Resolvers = {
     Subscription: {
-        newPosts: { // Resolve only runs if filter passes
+        newPosts: {
+            // Resolve only runs if filter passes
             resolve: (async (payload: PostsPayload, _, context: Context2) => {
                 const { posts: newPosts, postIds: newPostIds } = payload;
                 if (newPosts.length === 0) return null;
 
                 const { posts: userPosts } = await getPostsWeighted(payload, _, context);
-                
+
                 let hasNewPost = false;
                 for (const userPost of userPosts) {
                     if (newPostIds[userPost.id]) {
@@ -84,7 +92,8 @@ const resolvers: Resolvers = {
                 // permPostNotAuthor.chainResolver((payload, variables, context) => true)
             ) as any,
         },
-        newPost: { // Resolve only runs if filter passes
+        newPost: {
+            // Resolve only runs if filter passes
             resolve: (payload, _, _context: Context2) => payload.post,
             subscribe: withFilter(
                 () => pubsub.asyncIterator(NEW_POST),
@@ -110,14 +119,21 @@ const resolvers: Resolvers = {
         // },
         getPostsFromUser: async (_parent, { userId, limit }, { userCore }: Context) => {
             console.log('Received request for getPostsFromUser:', userId, limit);
-            const { universityId } = userCore;
+            const { id: meId, universityId } = userCore;
 
-            const posts = fixPosts(await prisma.post.findMany({
-                where: { authorId: userId, universityId },
-                include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
-                orderBy: { createdAt: 'desc' },
-                take: limit ?? undefined,
-            }));
+            const posts = fixPosts(
+                await prisma.post.findMany({
+                    where: { authorId: userId, universityId },
+                    include: {
+                        author: true,
+                        reactions: { include: { users: { where: { userId: meId } } } },
+                        comments: { include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } } },
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: limit ?? undefined,
+                }),
+                meId
+            );
 
             return posts;
         },
@@ -142,17 +158,24 @@ const resolvers: Resolvers = {
     Mutation: {
         sendPost: async (_parent, { text, studentsOnly }, { userCore }: Context) => {
             try {
-                const { id: userId, universityId } = userCore;
+                const { id: meId, universityId } = userCore;
                 console.log('Received request for sendPost:', text);
 
                 if (text.trim().length === 0) {
                     throw new Error('Post must have text');
                 }
 
-                const post = fixPosts(await prisma.post.create({
-                    data: { authorId: userId, text, universityId, studentsOnly },
-                    include: { author: true, reactions: true, comments: { include: { author: true, reactions: true } } },
-                }));
+                const post = fixPosts(
+                    await prisma.post.create({
+                        data: { authorId: meId, text, universityId, studentsOnly },
+                        include: {
+                            author: true,
+                            reactions: { include: { users: { where: { userId: meId } } } },
+                            comments: { include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } } },
+                        },
+                    }),
+                    meId
+                );
 
                 const pubsubPost = { ...post, createdAt: +post.createdAt }; // May need updatedAt?
                 freshPosts.push(pubsubPost);
@@ -169,6 +192,86 @@ const resolvers: Resolvers = {
                 };
             }
         },
+        like: async (_parent, { id, onType, remove }, { userCore }: Context) => {
+            try {
+                const { id: meId, universityId } = userCore;
+                console.log('Received request for likePost:', id, onType, remove);
+                let post: GPost;
+
+                if (onType === 'post') {
+                    if (remove) {
+                        const rawPost = await prisma.postReaction.update({
+                            select: {
+                                post: {
+                                    include: {
+                                        author: true,
+                                        reactions: { include: { users: { where: { userId: meId } } } },
+                                        comments: {
+                                            include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } },
+                                        },
+                                    },
+                                },
+                            },
+                            where: { postId_type: { postId: id, type: 'like' } },
+                            data: {
+                                num: { decrement: 1 },
+                                users: {
+                                    delete: {
+                                        postId_type_userId: { postId: id, type: 'like', userId: meId },
+                                    },
+                                },
+                            },
+                        });
+                        post = fixPosts(rawPost.post, meId);
+                    } else {
+                        const rawPost = await prisma.postReaction.upsert({
+                            select: {
+                                post: {
+                                    include: {
+                                        author: true,
+                                        reactions: { include: { users: { where: { userId: meId } } } },
+                                        comments: {
+                                            include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } },
+                                        },
+                                    },
+                                },
+                            },
+                            where: { postId_type: { postId: id, type: 'like' } },
+                            update: {
+                                num: { increment: 1 },
+                                users: {
+                                    create: {
+                                        userId: meId,
+                                    },
+                                },
+                            },
+                            create: {
+                                postId: id,
+                                type: 'like',
+                                num: 1,
+                                users: {
+                                    create: {
+                                        userId: meId,
+                                    },
+                                },
+                            },
+                        });
+                        post = fixPosts(rawPost.post, meId);
+                    }
+                }
+
+                return {
+                    ok: true,
+                    post,
+                };
+            } catch (err) {
+                consoleError('LIKE_POST', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
     },
     Post: {
         // author: async ({ id: postId }, args) => {
@@ -178,7 +281,6 @@ const resolvers: Resolvers = {
         //             author: true,
         //         },
         //     });
-
         //     return thisPost!.author;
         // },
         // savedBy: async ({ id: postId }, { limit }) => {
@@ -188,7 +290,6 @@ const resolvers: Resolvers = {
         //             savedBy: { take: limit ?? undefined },
         //         },
         //     });
-
         //     return thisPost?.savedBy ?? null;
         // },
     },

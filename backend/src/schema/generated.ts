@@ -194,13 +194,15 @@ export type Mutation = {
   addFriend: FriendResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
+  comment: PostResponse;
   deleteUser: MeMultiResponse;
+  like: PostResponse;
   login: MeMultiResponse;
   logout: MeMultiResponse;
   manualMatch: ManualMatchResponse;
   register: MeMultiResponse;
   sendMessage: MessageResponse;
-  sendPost: SendPostResponse;
+  sendPost: PostResponse;
   singleUpload: File;
   updateMatchSettings: MeMultiResponse;
   updateMe: MeMultiResponse;
@@ -221,6 +223,20 @@ export type MutationAddUserInterestArgs = {
 
 export type MutationAddUserInterestsArgs = {
   userInterests: Array<UserInterestInput>;
+};
+
+
+export type MutationCommentArgs = {
+  id: Scalars['Int'];
+  onType: Scalars['String'];
+  text: Scalars['String'];
+};
+
+
+export type MutationLikeArgs = {
+  id: Scalars['Int'];
+  onType: Scalars['String'];
+  remove: Scalars['Boolean'];
 };
 
 
@@ -284,11 +300,20 @@ export type Post = {
   comments?: Maybe<Array<Comment>>;
   createdAt: Scalars['Date'];
   id: Scalars['Int'];
+  meLiked: Scalars['Boolean'];
   numLikes: Scalars['Int'];
   reactions?: Maybe<Array<Reaction>>;
   studentsOnly: Scalars['Boolean'];
   text: Scalars['String'];
   universityId: Scalars['Int'];
+};
+
+export type PostResponse = {
+  __typename?: 'PostResponse';
+  comment?: Maybe<Comment>;
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+  post?: Maybe<Post>;
 };
 
 export type PostsStore = {
@@ -377,13 +402,6 @@ export type Reaction = {
   num: Scalars['Int'];
   type: Scalars['String'];
   userIds?: Maybe<Array<Scalars['Int']>>;
-};
-
-export type SendPostResponse = {
-  __typename?: 'SendPostResponse';
-  errors?: Maybe<Array<Error>>;
-  ok: Scalars['Boolean'];
-  post?: Maybe<Post>;
 };
 
 export type Subscription = {
@@ -572,10 +590,10 @@ export type ResolversTypes = {
   MessageSubResponse: ResolverTypeWrapper<MessageSubResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
+  PostResponse: ResolverTypeWrapper<PostResponse>;
   PostsStore: ResolverTypeWrapper<PostsStore>;
   Query: ResolverTypeWrapper<{}>;
   Reaction: ResolverTypeWrapper<Reaction>;
-  SendPostResponse: ResolverTypeWrapper<SendPostResponse>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   University: ResolverTypeWrapper<University>;
@@ -616,10 +634,10 @@ export type ResolversParentTypes = {
   MessageSubResponse: MessageSubResponse;
   Mutation: {};
   Post: Post;
+  PostResponse: PostResponse;
   PostsStore: PostsStore;
   Query: {};
   Reaction: Reaction;
-  SendPostResponse: SendPostResponse;
   String: Scalars['String'];
   Subscription: {};
   University: University;
@@ -809,13 +827,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addFriend?: Resolver<ResolversTypes['FriendResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
+  comment?: Resolver<ResolversTypes['PostResponse'], ParentType, ContextType, RequireFields<MutationCommentArgs, 'id' | 'onType' | 'text'>>;
   deleteUser?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
+  like?: Resolver<ResolversTypes['PostResponse'], ParentType, ContextType, RequireFields<MutationLikeArgs, 'id' | 'onType' | 'remove'>>;
   login?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'handle' | 'password'>>;
   logout?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
   manualMatch?: Resolver<ResolversTypes['ManualMatchResponse'], ParentType, ContextType>;
   register?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'email' | 'name' | 'password' | 'universityId' | 'username'>>;
   sendMessage?: Resolver<ResolversTypes['MessageResponse'], ParentType, ContextType, RequireFields<MutationSendMessageArgs, 'text' | 'to'>>;
-  sendPost?: Resolver<ResolversTypes['SendPostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
+  sendPost?: Resolver<ResolversTypes['PostResponse'], ParentType, ContextType, RequireFields<MutationSendPostArgs, 'studentsOnly' | 'text'>>;
   singleUpload?: Resolver<ResolversTypes['File'], ParentType, ContextType, RequireFields<MutationSingleUploadArgs, 'file'>>;
   updateMatchSettings?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, Partial<MutationUpdateMatchSettingsArgs>>;
   updateMe?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType, Partial<MutationUpdateMeArgs>>;
@@ -826,11 +846,20 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
   comments?: Resolver<Maybe<Array<ResolversTypes['Comment']>>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  meLiked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   numLikes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   reactions?: Resolver<Maybe<Array<ResolversTypes['Reaction']>>, ParentType, ContextType>;
   studentsOnly?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   universityId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['PostResponse'] = ResolversParentTypes['PostResponse']> = {
+  comment?: Resolver<Maybe<ResolversTypes['Comment']>, ParentType, ContextType>;
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -865,13 +894,6 @@ export type ReactionResolvers<ContextType = any, ParentType extends ResolversPar
   num?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userIds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type SendPostResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['SendPostResponse'] = ResolversParentTypes['SendPostResponse']> = {
-  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
-  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  post?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -988,10 +1010,10 @@ export type Resolvers<ContextType = any> = {
   MessageSubResponse?: MessageSubResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostResponse?: PostResponseResolvers<ContextType>;
   PostsStore?: PostsStoreResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Reaction?: ReactionResolvers<ContextType>;
-  SendPostResponse?: SendPostResponseResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   University?: UniversityResolvers<ContextType>;
   Upload?: GraphQLScalarType;

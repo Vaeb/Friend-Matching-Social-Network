@@ -11,6 +11,7 @@ type Post {
     author: User!
     text: String!
     numLikes: Int!
+    meLiked: Boolean!
     reactions: [Reaction!]
     comments: [Comment!]
     # savedBy(limit: Int): [User!]!
@@ -29,10 +30,11 @@ type Comment {
     createdAt: Date!
 }
 
-type SendPostResponse {
+type PostResponse { # Either post or comment
     ok: Boolean!
     errors: [Error!]
     post: Post
+    comment: Comment
 }
 
 type PostsStore {
@@ -49,7 +51,9 @@ type Query {
 }
 
 type Mutation {
-    sendPost(text: String!, studentsOnly: Boolean!): SendPostResponse!
+    sendPost(text: String!, studentsOnly: Boolean!): PostResponse!
+    like(id: Int!, onType: String!, remove: Boolean!): PostResponse!
+    comment(id: Int!, onType: String!, text: String!): PostResponse!
 }
 
 type Subscription {

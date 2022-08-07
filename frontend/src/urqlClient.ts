@@ -198,11 +198,15 @@ const exchanges = [
                         // }
                     }
                 },
-                updateMe: (_result, _args, cache, _info) => {
+                updateMe: (_result, _args, cache, _info) => { // Have universityId in getPostsWeighted, better practice..
                     const result = _result as any;
                     const args = _args as any;
+                    console.log('Invalidating posts...');
                     if (result?.updateMe?.ok && args?.universityId !== undefined) {
-                        cache.invalidate('Query', 'getPostsWeighted');
+                        cache.invalidate('Query', 'getPostsWeighted', { view: 'all' });
+                        cache.invalidate('Query', 'getPostsWeighted', { view: 'public' });
+                        cache.invalidate('Query', 'getPostsWeighted', { view: 'student' });
+                        console.log('Invalidated posts!');
                     }
                 },
             },

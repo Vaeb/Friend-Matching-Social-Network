@@ -10,38 +10,39 @@ datasource db {
 }
 
 model User {
-    id                     Int                 @id @default(autoincrement())
-    username               String              @unique
-    email                  String              @unique
+    id                     Int                   @id @default(autoincrement())
+    username               String                @unique
+    email                  String                @unique
     password               String
     name                   String
-    university             University?         @relation("SelectedUni", fields: [universityId], references: [id])
+    university             University?           @relation("SelectedUni", fields: [universityId], references: [id])
     universityId           Int?
     universities           UniversityStudent[]
     color                  String?
     birthDate              DateTime?
-    matchQuality           Int                 @default(0)
-    visEmail               Int                 @default(0)
-    visInterests           Int                 @default(0)
-    relations1             UserRelation[]      @relation("UserRel1")
-    relations2             UserRelation[]      @relation("UserRel2")
-    sentFriendRequests     FriendRequests[]    @relation("FriendSender")
-    receivedFriendRequests FriendRequests[]    @relation("FriendReceiver")
+    matchQuality           Int                   @default(0)
+    visEmail               Int                   @default(0)
+    visInterests           Int                   @default(0)
+    relations1             UserRelation[]        @relation("UserRel1")
+    relations2             UserRelation[]        @relation("UserRel2")
+    sentFriendRequests     FriendRequests[]      @relation("FriendSender")
+    receivedFriendRequests FriendRequests[]      @relation("FriendReceiver")
     interests              UserInterest[]
-    matchingEnabled        Boolean             @default(true)
-    matchSettings          MatchSettings[]     @relation("UserMatchSettings")
-    nextUserMatchSettings  MatchSettings[]     @relation("NextManualMatch")
+    matchingEnabled        Boolean               @default(true)
+    matchSettings          MatchSettings[]       @relation("UserMatchSettings")
+    nextUserMatchSettings  MatchSettings[]       @relation("NextManualMatch")
     channels               Channel[]
-    sentMessages           Message[]           @relation("MessageFrom")
-    receivedMessages       Message[]           @relation("MessageTo")
-    createdChannels        Channel[]           @relation("CreatedChannels")
-    posts                  Post[]              @relation("CreatedPosts")
-    comments               Comment[]           @relation("CreatedComments")
-    reactions              ReactionSender[]    @relation("CreatedReactions")
-    savedPosts             Post[]              @relation("SavedPosts")
+    sentMessages           Message[]             @relation("MessageFrom")
+    receivedMessages       Message[]             @relation("MessageTo")
+    createdChannels        Channel[]             @relation("CreatedChannels")
+    posts                  Post[]                @relation("CreatedPosts")
+    comments               Comment[]             @relation("CreatedComments")
+    postReactions          PostReactionUser[]
+    commentReactions       CommentReactionUser[]
+    savedPosts             Post[]                @relation("SavedPosts")
     updatedInterests       DateTime?
-    createdAt              DateTime            @default(now())
-    updatedAt              DateTime            @updatedAt
+    createdAt              DateTime              @default(now())
+    updatedAt              DateTime              @updatedAt
 
     @@map("users")
 }
@@ -160,65 +161,107 @@ model Message {
 }
 
 model Post {
-    id           Int        @id @default(autoincrement())
-    text         String
-    author       User       @relation("CreatedPosts", fields: [authorId], references: [id], map: "posts_creatorId_fkey")
-    authorId     Int
-    university   University @relation(fields: [universityId], references: [id])
-    universityId Int
-    studentsOnly Boolean    @default(false)
-    comments     Comment[]
-    reactions    Reaction[]
-    savedBy      User[]     @relation("SavedPosts")
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @updatedAt
+    id            Int                @id @default(autoincrement())
+    text          String
+    author        User               @relation("CreatedPosts", fields: [authorId], references: [id], map: "posts_creatorId_fkey")
+    authorId      Int
+    university    University         @relation(fields: [universityId], references: [id])
+    universityId  Int
+    studentsOnly  Boolean            @default(false)
+    comments      Comment[]
+    reactions     PostReaction[]
+    reactionUsers PostReactionUser[]
+    savedBy       User[]             @relation("SavedPosts")
+    createdAt     DateTime           @default(now())
+    updatedAt     DateTime           @updatedAt
 
     @@map("posts")
 }
 
 model Comment {
-    id        Int        @id @default(autoincrement())
-    post      Post       @relation(fields: [postId], references: [id])
-    postId    Int
-    parent    Comment?   @relation("SubComments", fields: [parentId], references: [id])
-    parentId  Int?
-    text      String
-    author    User       @relation("CreatedComments", fields: [authorId], references: [id], map: "comments_creatorId_fkey")
-    authorId  Int
-    children  Comment[]  @relation("SubComments")
-    reactions Reaction[]
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    id            Int                   @id @default(autoincrement())
+    post          Post                  @relation(fields: [postId], references: [id])
+    postId        Int
+    parent        Comment?              @relation("SubComments", fields: [parentId], references: [id])
+    parentId      Int?
+    text          String
+    author        User                  @relation("CreatedComments", fields: [authorId], references: [id], map: "comments_creatorId_fkey")
+    authorId      Int
+    children      Comment[]             @relation("SubComments")
+    reactions     CommentReaction[]
+    reactionUsers CommentReactionUser[]
+    createdAt     DateTime              @default(now())
+    updatedAt     DateTime              @updatedAt
 
     @@map("comments")
 }
 
-model Reaction {
-    id        Int              @id @default(autoincrement())
-    post      Post             @relation(fields: [postId], references: [id])
+model PostReaction {
+    post      Post               @relation(fields: [postId], references: [id])
     postId    Int
-    comment   Comment?         @relation(fields: [commentId], references: [id])
-    commentId Int?
     type      String
-    num       Int              @default(0)
-    users     ReactionSender[]
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
+    num       Int                @default(0)
+    users     PostReactionUser[]
+    createdAt DateTime           @default(now())
+    updatedAt DateTime           @updatedAt
 
-    @@map("reactions")
+    @@id([postId, type])
+    @@map("post_reactions")
 }
 
-model ReactionSender {
-    id         Int      @id @default(autoincrement())
-    reaction   Reaction @relation(fields: [reactionId], references: [id])
-    reactionId Int
-    user       User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
-    userId     Int
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+model CommentReaction {
+    comment   Comment               @relation(fields: [commentId], references: [id])
+    commentId Int
+    type      String
+    num       Int                   @default(0)
+    users     CommentReactionUser[]
+    createdAt DateTime              @default(now())
+    updatedAt DateTime              @updatedAt
 
-    @@map("reaction_users")
+    @@id([commentId, type])
+    @@map("comment_reactions")
 }
+
+model PostReactionUser {
+    reaction  PostReaction @relation(fields: [postId, type], references: [postId, type])
+    post      Post         @relation(fields: [postId], references: [id])
+    postId    Int
+    type      String
+    user      User         @relation(fields: [userId], references: [id])
+    userId    Int
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
+
+    @@id([postId, type, userId])
+    @@map("post_reactions_users")
+}
+
+model CommentReactionUser {
+    reaction  CommentReaction @relation(fields: [commentId, type], references: [commentId, type])
+    comment   Comment         @relation(fields: [commentId], references: [id])
+    commentId Int
+    type      String
+    user      User            @relation(fields: [userId], references: [id])
+    userId    Int
+    createdAt DateTime        @default(now())
+    updatedAt DateTime        @updatedAt
+
+    @@id([commentId, type, userId])
+    @@map("comment_reactions_users")
+}
+
+// model PostReactionSender {
+//     id             Int      @id @default(autoincrement())
+//     reaction       PostReaction @relation(fields: [reactionPostId, reactionType], references: [postId, type])
+//     reactionPostId Int
+//     reactionType   String
+//     user           User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
+//     userId         Int
+//     createdAt      DateTime @default(now())
+//     updatedAt      DateTime @updatedAt
+
+//     @@map("reaction_users")
+// }
 
 model University {
     id               Int                 @id @default(autoincrement())

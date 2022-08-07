@@ -3,14 +3,18 @@ import {
 } from '@mantine/core';
 import React, { FC, useEffect, useRef } from 'react';
 import shallow from 'zustand/shallow';
+import { RiHeartLine as LikeIcon } from 'react-icons/ri';
+import { RiHeartFill as LikeIconFilled } from 'react-icons/ri';
+import { FaRegCommentDots as CommentIcon } from 'react-icons/fa';
 
-import { useMeQuery, useSendPostMutation } from '../../generated/graphql';
+import { useLikeMutation, useMeQuery, useSendPostMutation } from '../../generated/graphql';
 import { TimelineState, useAppStore, useTimelineStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
 import CustomScroll from '../CustomScroll';
 import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
+import { FullPost } from '../../utils/splitPosts';
 
 const getPostTime = (postDateRaw: Date | number, nowDate = new Date()) => {
     const postDate = new Date(postDateRaw);
@@ -27,6 +31,11 @@ const roomToPosts = {
     student: 'sPosts',
 };
 
+interface DynamicLikeIconProps { children?: React.ReactNode; post: FullPost; [x: string | number | symbol]: unknown; }
+const DynamicLikeIcon = ({ children, post, ...props }: DynamicLikeIconProps) => post.meLiked
+    ? <LikeIconFilled {...props}>{children}</LikeIconFilled>
+    : <LikeIcon {...props}>{children}</LikeIcon>;
+
 const TimelineMid: FC = () => {
     const theme = useMantineTheme();
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
@@ -37,16 +46,14 @@ const TimelineMid: FC = () => {
         shallow
     );
     const setScrollToTop = useTimelineStore(state => state.setScrollToTop);
+
     const [, doSendPost] = useSendPostMutation();
+    const [, doLike] = useLikeMutation();
+
     const inputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     // const divtextRef = useRef<HTMLDivElement>(null);
     const scrollRef = useRef<HTMLInputElement>(null);
-
-    // console.log('stale', stale);
-    // console.log(posts);
-    // const posts = !postsFetching ? postsData?.getPostsWeighted?.posts : [];
-    // console.log('posts', posts);
 
     const me = meData?.me;
     // const isMe = user => user.id == me.id;
@@ -78,6 +85,10 @@ const TimelineMid: FC = () => {
 
     const onUserClick = (post: typeof posts[0]) => {
         setView('user', null, post.author.id);
+    };
+
+    const likePost = async (post: typeof posts[0]) => {
+        await doLike({ id: post.id, onType: 'post', remove: post.meLiked });
     };
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
@@ -142,7 +153,7 @@ const TimelineMid: FC = () => {
                             <Button className='float-left' size='sm' variant='default'>Send post</Button>
                         </Box> */}
                 </Box>
-                <Stack className='mt-[23px] mb-[18px]' spacing={23}>
+                <Stack className='mt-[23px] mb-[18px]' spacing={19}>
                     {posts.map(post => ( // style={{ color: post.author.color, opacity: 0.7 }}
                         // <>
                         <Box className='flex w-full text-_gray-800 px-[10px]' key={post.id}>
@@ -164,6 +175,11 @@ const TimelineMid: FC = () => {
                                     </Tooltip>
                                 </div>
                                 <Text className='text-base text-gray-_800'>{post.text}</Text>
+                                <div className='flex mt-[4px] items-center'>
+                                    <DynamicLikeIcon post={post} className='opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} onClick={() => likePost(post)} />
+                                    {post.numLikes > 0 ? <Text className='ml-[5px] text-xs'>{post.numLikes}</Text> : null}
+                                    <CommentIcon className='ml-[14px] opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} />
+                                </div>
                             </Stack>
                         </Box>
                         // <Divider key={`${post.id}-divider`} size='xs' color={theme.colors._dividerT2[0]} /> </>
