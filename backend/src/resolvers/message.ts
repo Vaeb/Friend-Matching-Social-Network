@@ -17,16 +17,16 @@ const resolvers: Resolvers = {
             console.log('Pong!', new Date());
             return 'Pong';
         }),
-        getMessages: (_parent, { target, limit }, { userCore }: Context) => {
-            if (limit === undefined) limit = 20;
+        getMessages: async (_parent, { target, limit }, { userCore }: Context) => {
+            if (limit === undefined) limit = 24;
             console.log('Received request for getMessages:', target, limit);
             const meId = userCore.id;
-            return prisma.message.findMany({
+            return (await prisma.message.findMany({
                 where: { AND: [{ OR: [{ fromId: target }, { toId: target }] }, { OR: [{ fromId: meId }, { toId: meId }] }] },
                 include: { from: true, to: true },
-                orderBy: { createdAt: 'asc' },
+                orderBy: { createdAt: 'desc' },
                 take: limit ?? undefined,
-            });
+            })).reverse();
         },
     },
     Mutation: {
