@@ -1,13 +1,13 @@
 mutation UpdateMatchSettings(
     $manualEnabled: Boolean
     $autoFreq: Int
-    $matchStudents: Boolean
+    $studentsOnly: Boolean
     $snoozedUntil: Date
 ) {
     updateMatchSettings(
         manualEnabled: $manualEnabled
         autoFreq: $autoFreq
-        matchStudents: $matchStudents
+        studentsOnly: $studentsOnly
         snoozedUntil: $snoozedUntil
     ) {
         ok

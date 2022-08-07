@@ -2,12 +2,13 @@ fragment MeMdFields on Me {
     ...MeSmFields
     birthDate
     uni
+    uniConfirmed
     matchingEnabled
     matchQuality
     manualEnabled
     lastAutoMatched
     autoFreq
     nextManualMatchId
-    matchStudents
+    studentsOnly
     snoozedUntil
 }

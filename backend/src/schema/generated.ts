@@ -121,12 +121,13 @@ export type Me = {
   lastAutoMatched?: Maybe<Scalars['Date']>;
   manualEnabled?: Maybe<Scalars['Boolean']>;
   matchQuality: Scalars['Int'];
-  matchStudents?: Maybe<Scalars['Boolean']>;
   matchingEnabled: Scalars['Boolean'];
   name: Scalars['String'];
   nextManualMatchId?: Maybe<Scalars['Int']>;
   snoozedUntil?: Maybe<Scalars['Date']>;
+  studentsOnly?: Maybe<Scalars['Boolean']>;
   uni?: Maybe<Scalars['String']>;
+  uniConfirmed?: Maybe<Scalars['Boolean']>;
   universityId?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedInterests?: Maybe<Scalars['Date']>;
@@ -244,8 +245,8 @@ export type MutationSingleUploadArgs = {
 export type MutationUpdateMatchSettingsArgs = {
   autoFreq?: InputMaybe<Scalars['Int']>;
   manualEnabled?: InputMaybe<Scalars['Boolean']>;
-  matchStudents?: InputMaybe<Scalars['Boolean']>;
   snoozedUntil?: InputMaybe<Scalars['Date']>;
+  studentsOnly?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -258,6 +259,7 @@ export type MutationUpdateMeArgs = {
   name?: InputMaybe<Scalars['String']>;
   oldPassword?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
+  universityEmail?: InputMaybe<Scalars['String']>;
   universityId?: InputMaybe<Scalars['Int']>;
   username?: InputMaybe<Scalars['String']>;
 };
@@ -702,12 +704,13 @@ export type MeResolvers<ContextType = any, ParentType extends ResolversParentTyp
   lastAutoMatched?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   manualEnabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   matchQuality?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  matchStudents?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   matchingEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   nextManualMatchId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   snoozedUntil?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  studentsOnly?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   uni?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  uniConfirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   universityId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedInterests?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;

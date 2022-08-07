@@ -12,9 +12,32 @@ const interval = 1000 * 60 * 60 * 24;
 const maxNumber = Number.MAX_SAFE_INTEGER;
 // const maxNumber = 1e4;
 
+const qualityLevels = Object.fromEntries(Object.entries({
+    '0':  1,
+    '1':  7,
+    '2':  14,
+    '3':  22,
+    '4':  31,
+    '5':  41,
+    '6':  53,
+    '7':  67,
+    '8':  83,
+    '9':  101,
+    '10': 122,
+}).map(([k, v]) => [k, -v]));
+
+type UserData = {
+    id: number;
+    quality: number;
+};
+
+type UserDataMap = Record<string, UserData>;
+type ScoresMap = Record<string, Record<string, number>>;
+type ScoresMap2 = Record<string, Record<string, any>>;
+
 // eslint-disable-next-line prefer-const
 let matchAlgorithmSecond;
-const matchAlgorithm = (userScores, rowKeys, colKeys = rowKeys) => {
+const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], colKeys: string[] = rowKeys) => {
     const originalUserScores = cloneObj(userScores);
     console.log('Original weights:');
     console.table(originalUserScores);
@@ -250,7 +273,7 @@ const matchAlgorithm = (userScores, rowKeys, colKeys = rowKeys) => {
     return results;
 };
 
-matchAlgorithmSecond = (userScores, rowKeys, colKeys = rowKeys) => {
+matchAlgorithmSecond = <T extends ScoresMap>(userScores: T, rowKeys: string[], colKeys: string[] = rowKeys) => {
     const allPairs = [];
     const seenPairs = {};
     const seenMatches = {};
@@ -280,21 +303,7 @@ matchAlgorithmSecond = (userScores, rowKeys, colKeys = rowKeys) => {
     return matches;
 };
 
-type CompatibilityRelation = {
-    id1: number;
-    id2: number;
-    compatibility: number;
-    manual: boolean;
-    auto: boolean;
-    username1: string;
-    username2: string;
-    last1: string;
-    last2: string;
-    freq1: number;
-    freq2: number;
-};
-
-const matchSubset = async (matchType, university, baseDateIso, userScores, userMap, callback = (a?: any, b?: any): any => undefined) => {
+const matchSubset = async (matchType, university, baseDateIso, userScores: ScoresMap, userMap: UserDataMap, callback = (_a?: any, _b?: any): any => undefined) => {
     const users = Object.keys(userMap);
 
     if (users.length < 2) {
@@ -304,7 +313,7 @@ const matchSubset = async (matchType, university, baseDateIso, userScores, userM
 
     if (users.length % 2 === 1) {
         const extraTag = '__NO_MATCH__';
-        userMap[extraTag] = -1;
+        userMap[extraTag] = { id: -1, quality: 1 };
         userScores[extraTag] = { [extraTag]: Infinity };
         for (const tag of users) {
             userScores[tag][extraTag] = 0;
@@ -326,11 +335,11 @@ const matchSubset = async (matchType, university, baseDateIso, userScores, userM
     const matchedIds = [];
     const updateRows = [];
     for (const [tag1, tag2] of matches) {
-        const id1 = userMap[tag1];
-        const id2 = userMap[tag2];
+        const { id: id1, quality: quality1 } = userMap[tag1];
+        const { id: id2, quality: quality2 } = userMap[tag2];
         const originalScore = userScores[tag1][tag2];
         console.log(id1, id2, userScores[tag1][tag2]);
-        if (id1 === -1 || id2 === -1 || originalScore === undefined || originalScore >= 0) continue; // negated score
+        if (id1 === -1 || id2 === -1 || originalScore === undefined || originalScore >= 0 || originalScore > qualityLevels[quality1] || originalScore > qualityLevels[quality2]) continue; // negated score
         console.log(`[${university.shortName}]`, 'Found match:', tag1, tag2, id1, id2);
         matchedIds.push(id1, id2);   
         if (id1 < id2) {
@@ -374,6 +383,22 @@ const matchSubset = async (matchType, university, baseDateIso, userScores, userM
     return matches;
 };
 
+type CompatibilityRelation = {
+    id1: number;
+    id2: number;
+    compatibility: number;
+    manual: boolean;
+    auto: boolean;
+    username1: string;
+    username2: string;
+    quality1: number;
+    quality2: number;
+    last1: string;
+    last2: string;
+    freq1: number;
+    freq2: number;
+};
+
 const doMatch = async () => {
     const baseDate = new Date(+new Date() - (1000 * 60 * 60)); // Safety window
     const baseDateIso = baseDate.toISOString();
@@ -388,6 +413,7 @@ const doMatch = async () => {
                 (ms1."autoFreq" <> 0 AND CURRENT_DATE >= ms1."lastAutoMatched"::DATE + ms1."autoFreq"
                     AND ms2."autoFreq" <> 0 AND CURRENT_DATE >= ms2."lastAutoMatched"::DATE + ms2."autoFreq") as "auto",
                 u1."username" as "username1", u2."username" as "username2",
+                u1."matchQuality" as quality1, u2."matchQuality" as quality2,
                 ms1."lastAutoMatched" as last1, ms2."lastAutoMatched" as last2, ms1."autoFreq" as freq1, ms2."autoFreq" as freq2
             FROM user_relations
             JOIN match_settings ms1
@@ -396,20 +422,27 @@ const doMatch = async () => {
             JOIN match_settings ms2
                 ON "user2Id" = ms2."userId" AND ms2."universityId" = ${university.id}
                     AND ((ms2."manualEnabled" = true AND ms2."nextManualMatchId" IS NULL) OR (ms2."autoFreq" <> 0 AND CURRENT_DATE >= ms2."lastAutoMatched"::DATE + ms2."autoFreq"))
-            JOIN users u1 ON "user1Id" = u1."id"
-            JOIN users u2 ON "user2Id" = u2."id"
-            WHERE compatibility > 0 AND "haveMatched" = false AND "areFriends" = false;
+            JOIN users u1
+                ON "user1Id" = u1."id"
+            LEFT JOIN university_students us1
+                ON "user1Id" = us1."userId" AND us1."universityId" = ${university.id}
+            JOIN users u2
+                ON "user2Id" = u2."id"
+            LEFT JOIN university_students us2
+                ON "user2Id" = us2."userId" AND us2."universityId" = ${university.id}
+            WHERE compatibility > 0 AND "haveMatched" = false AND "areFriends" = false
+                AND (ms1."studentsOnly" = false OR us2."universityId" IS NOT NULL) AND (ms2."studentsOnly" = false OR us1."universityId" IS NOT NULL);
         `;
         console.table(compatibleRelations);
 
-        const autoUserMap = {};
-        const autoUserScores = {};
-        const manualUsersMap = {};
-        const manualUserScores = {};
+        const autoUserMap: UserDataMap = {};
+        const autoUserScores: ScoresMap = {};
+        const manualUsersMap: UserDataMap = {};
+        const manualUserScores: ScoresMap = {};
 
-        const fillMap = (c, tag1, tag2, mapUsers, mapScores, negCompatibility) => {
-            mapUsers[tag1] = c.id1;
-            mapUsers[tag2] = c.id2;
+        const fillMap = (c: CompatibilityRelation, tag1: string, tag2: string, mapUsers: UserDataMap, mapScores: ScoresMap, negCompatibility: number) => {
+            mapUsers[tag1] = { id: c.id1, quality: c.quality1 };
+            mapUsers[tag2] = { id: c.id2, quality: c.quality2 };
             if (!mapScores[tag1]) mapScores[tag1] = { [tag1]: Infinity };
             if (!mapScores[tag2]) mapScores[tag2] = { [tag2]: Infinity };
             mapScores[tag1][tag2] = negCompatibility;
@@ -449,7 +482,7 @@ const doMatch = async () => {
         });
 
         for (const [tag1, tag2] of autoMatches) {
-            if (manualUserScores[tag1][tag2] !== undefined) {
+            if (manualUserScores[tag1]?.[tag2] !== undefined) {
                 manualUserScores[tag1][tag2] = Infinity;
                 manualUserScores[tag2][tag1] = Infinity;
             }

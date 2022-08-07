@@ -19,13 +19,14 @@ type Me {
     updatedInterests: Date
     updatedAt: Date
     createdAt: Date
+    uniConfirmed: Boolean
     uni: String
     # Match Settings
     manualEnabled: Boolean
     lastAutoMatched: Date
     autoFreq: Int
     nextManualMatchId: Int
-    matchStudents: Boolean
+    studentsOnly: Boolean
     snoozedUntil: Date
 }
 
@@ -193,13 +194,14 @@ type Mutation {
         color: String
         birthDate: Date
         universityId: Int
+        universityEmail: String
         matchingEnabled: Boolean
         matchQuality: Int
     ): MeMultiResponse!
     updateMatchSettings(
         manualEnabled: Boolean
         autoFreq: Int
-        matchStudents: Boolean
+        studentsOnly: Boolean
         snoozedUntil: Date
     ): MeMultiResponse!
     addFriend(userId: Int!, remove: Boolean): FriendResponse!

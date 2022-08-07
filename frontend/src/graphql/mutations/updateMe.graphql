@@ -7,6 +7,7 @@ mutation UpdateMe(
     $color: String
     $birthDate: Date
     $universityId: Int
+    $universityEmail: String
     $matchingEnabled: Boolean
     $matchQuality: Int
 ) {
@@ -19,6 +20,7 @@ mutation UpdateMe(
         color: $color
         birthDate: $birthDate
         universityId: $universityId
+        universityEmail: $universityEmail
         matchingEnabled: $matchingEnabled
         matchQuality: $matchQuality
     ) {

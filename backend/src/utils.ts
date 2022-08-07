@@ -175,8 +175,9 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
         where: { id: userId },
         include: {
             university: { select: { name: true } },
+            universities: { select: { universityId: true } },
             matchSettings: {
-                select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, nextManualMatchId: true, matchStudents: true, snoozedUntil: true },
+                select: { manualEnabled: true, lastAutoMatched: true, autoFreq: true, nextManualMatchId: true, studentsOnly: true, snoozedUntil: true },
                 where: { universityId },
             },
             sentFriendRequests: { select: { createdAt: true }, where: { receiverId: meId } },
@@ -185,6 +186,7 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
     });
 
     const { university } = userDetails;
+    const uniConfirmed = userDetails.universities.some(uni => uni.universityId === universityId);
     const matchSettings: Partial<typeof userDetails.matchSettings[0]> = userDetails.matchSettings?.[0] ?? {};
     const receivedFrFrom = userDetails.sentFriendRequests.length > 0;
     const sentFrTo = userDetails.receivedFriendRequests.length > 0;
@@ -192,7 +194,7 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
     if (userRelation) { // Other User
         const { user: baseUser, ...bigUser } = { ...userRelation, ...userRelation.user };
 
-        const fullUser = { ...bigUser, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
+        const fullUser = { ...bigUser, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
 
         return fullUser;
     } else { // Me or Other User
@@ -202,13 +204,13 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
             sentFriendRequests: _3,
             receivedFriendRequests: _4,
             ...fullUser
-        } = { ...userDetails, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
+        } = { ...userDetails, uniConfirmed, uni: university.name, ...matchSettings, receivedFrFrom, sentFrTo };
 
         return fullUser;
     }
 };
 
-export const setupMatchSettings = async (meId, universityId) => { // Will need to update user_relations (and delete when matching disabled for uni)
+export const setupMatchSettings = async (meId, universityId, onRegister = false) => { // Will need to update user_relations (and delete when matching disabled for uni)
     console.log(meId, universityId);
     const matchSettings = await prisma.matchSettings.upsert({
         where: { userId_universityId: { userId: meId, universityId } },
@@ -216,6 +218,7 @@ export const setupMatchSettings = async (meId, universityId) => { // Will need t
         create: {
             userId: meId,
             universityId,
+            manualEnabled: onRegister,
         },
     });
     return matchSettings;

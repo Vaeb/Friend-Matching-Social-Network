@@ -10,40 +10,53 @@ datasource db {
 }
 
 model User {
-    id                     Int              @id @default(autoincrement())
-    username               String           @unique
-    email                  String           @unique
+    id                     Int                 @id @default(autoincrement())
+    username               String              @unique
+    email                  String              @unique
     password               String
     name                   String
-    university             University?      @relation(name: "SelectedUni", fields: [universityId], references: [id])
+    university             University?         @relation(name: "SelectedUni", fields: [universityId], references: [id])
     universityId           Int?
-    universities           University[]     @relation(name: "ConfirmedUnis")
+    universities           UniversityStudent[]
     color                  String?
     birthDate              DateTime?
-    matchQuality           Int              @default(0)
-    visEmail               Int              @default(0)
-    visInterests           Int              @default(0)
-    relations1             UserRelation[]   @relation(name: "UserRel1")
-    relations2             UserRelation[]   @relation(name: "UserRel2")
-    sentFriendRequests     FriendRequests[] @relation(name: "FriendSender")
-    receivedFriendRequests FriendRequests[] @relation(name: "FriendReceiver")
+    matchQuality           Int                 @default(0)
+    visEmail               Int                 @default(0)
+    visInterests           Int                 @default(0)
+    relations1             UserRelation[]      @relation(name: "UserRel1")
+    relations2             UserRelation[]      @relation(name: "UserRel2")
+    sentFriendRequests     FriendRequests[]    @relation(name: "FriendSender")
+    receivedFriendRequests FriendRequests[]    @relation(name: "FriendReceiver")
     interests              UserInterest[]
-    matchingEnabled        Boolean          @default(true)
-    matchSettings          MatchSettings[]  @relation(name: "UserMatchSettings")
-    nextUserMatchSettings  MatchSettings[]  @relation(name: "NextManualMatch")
+    matchingEnabled        Boolean             @default(true)
+    matchSettings          MatchSettings[]     @relation(name: "UserMatchSettings")
+    nextUserMatchSettings  MatchSettings[]     @relation(name: "NextManualMatch")
     channels               Channel[]
-    sentMessages           Message[]        @relation(name: "MessageFrom")
-    receivedMessages       Message[]        @relation(name: "MessageTo")
-    createdChannels        Channel[]        @relation(name: "CreatedChannels")
-    posts                  Post[]           @relation(name: "CreatedPosts")
-    comments               Comment[]        @relation(name: "CreatedComments")
-    reactions              Reaction[]       @relation(name: "CreatedReactions")
-    savedPosts             Post[]           @relation(name: "SavedPosts")
+    sentMessages           Message[]           @relation(name: "MessageFrom")
+    receivedMessages       Message[]           @relation(name: "MessageTo")
+    createdChannels        Channel[]           @relation(name: "CreatedChannels")
+    posts                  Post[]              @relation(name: "CreatedPosts")
+    comments               Comment[]           @relation(name: "CreatedComments")
+    reactions              Reaction[]          @relation(name: "CreatedReactions")
+    savedPosts             Post[]              @relation(name: "SavedPosts")
     updatedInterests       DateTime?
-    createdAt              DateTime         @default(now())
-    updatedAt              DateTime         @updatedAt
+    createdAt              DateTime            @default(now())
+    updatedAt              DateTime            @updatedAt
 
     @@map("users")
+}
+
+model UniversityStudent {
+    user         User       @relation(fields: [userId], references: [id])
+    userId       Int
+    university   University @relation(fields: [universityId], references: [id])
+    universityId Int
+    uniEmail     String
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+
+    @@id([userId, universityId])
+    @@map("university_students")
 }
 
 model MatchSettings {
@@ -56,7 +69,7 @@ model MatchSettings {
     lastAutoMatched   DateTime   @default("1970-01-01T00:00:00.000Z") // Requires: updating every MatchSettings after-match with common nowDate + fetch matches by lastAutoMatched+eligibleFreq [BEST]
     autoFreq          Int        @default(0) // Days
     snoozedUntil      DateTime?
-    matchStudents     Boolean    @default(false) // Match students only
+    studentsOnly      Boolean    @default(false) // Match students only
     nextManualMatch   User?      @relation(name: "NextManualMatch", fields: [nextManualMatchId], references: [id])
     nextManualMatchId Int?
     createdAt         DateTime   @default(now())
@@ -197,17 +210,17 @@ model Reaction {
 }
 
 model University {
-    id               Int             @id @default(autoincrement())
-    name             String          @unique
+    id               Int                 @id @default(autoincrement())
+    name             String              @unique
     shortName        String?
     emailRegex       String?
-    publicRestricted Int             @default(0) // 0=None, 1=Phone, 2=Confirmed
+    publicRestricted Int                 @default(0) // 0=None, 1=Phone, 2=Confirmed
     posts            Post[]
-    activeUsers      User[]          @relation(name: "SelectedUni")
-    confirmedUsers   User[]          @relation(name: "ConfirmedUnis")
+    activeUsers      User[]              @relation(name: "SelectedUni")
+    students         UniversityStudent[]
     MatchSettings    MatchSettings[]
-    createdAt        DateTime        @default(now())
-    updatedAt        DateTime        @updatedAt
+    createdAt        DateTime            @default(now())
+    updatedAt        DateTime            @updatedAt
 
     @@map("universities")
 }

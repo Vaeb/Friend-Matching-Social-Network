@@ -294,12 +294,19 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
             </Stack>
             <Stack spacing={0}>
                 <div className='flex justify-between'>
-                    <Text className='opacity-40 text-[14px] font-[500] mb-[8px] text-_label'>Confirmed students only</Text>
+                    <Text className={`${me.uniConfirmed ? '' : 'opacity-40'} text-[14px] font-[500] mb-[8px] text-_label`}>Confirmed students only</Text>
                     <div className='flex gap-1'>
-                        <Switch onLabel='ON' offLabel='OFF' size='lg' checked={me.matchStudents} onChange={e => updateMe('matchStudents', e.currentTarget.checked, true)} disabled />
+                        <Switch
+                            onLabel='ON'
+                            offLabel='OFF'
+                            size='lg'
+                            checked={me.studentsOnly}
+                            onChange={e => updateMe('studentsOnly', e.currentTarget.checked, true)}
+                            disabled={!me.uniConfirmed}
+                        />
                     </div>
                 </div>
-                <Text className='opacity-40 text-[13px] font-[400] text-_gray-600'>Only match with confirmed {me.uni} students.</Text>
+                <Text className={`${me.uniConfirmed ? '' : 'opacity-40'} text-[13px] font-[400] text-_gray-600`}>Only match with confirmed {me.uni} students.</Text>
             </Stack>
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />
@@ -322,7 +329,8 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
                     <Button size='sm' variant='filled' color='grape' onClick={() => updateMe('matchQuality', matchQualityNow)}>Save</Button>
                 </div>
                 <Text className='mt-[12px] text-[13px] font-[400] text-_gray-600'>
-                    We prioritize generating the best matches for everyone, but some matches may be better than others. This setting will skip matches that are lower quality.
+                    We prioritize generating the best matches for everyone, but some matches will be better than others.
+                    This setting will skip matches that are lower quality.
                     Current setting: {me.matchQuality}.
                 </Text>
             </Stack>

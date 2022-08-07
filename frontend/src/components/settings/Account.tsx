@@ -42,11 +42,12 @@ const Account: FC<any> = () => {
     const passwordRef1 = useRef<HTMLInputElement>(null);
     const passwordRef2 = useRef<HTMLInputElement>(null);
     const passwordRef3 = useRef<HTMLInputElement>(null);
-    const confirmUniRef = useRef<HTMLInputElement>(null);
+    const uniEmailRef = useRef<HTMLInputElement>(null);
     const [universityId, setUniversityId] = useState(me?.universityId ? String(me.universityId) : '');
     const [birthDate, setBirthDate] = useState(me?.birthDate ? new Date(me.birthDate) : null);
     const [colorValue, setColorValue] = useState(me?.color || theme.colors._gray[8]);
     const [{ file, fileUrl }, setFile] = useState({ file: null, fileUrl: null });
+    const [badUniEmail, setBadUniEmail] = useState(false);
 
     const universityValues = universities.map(university => ({ value: String(university.id), label: university.name }));
 
@@ -76,7 +77,7 @@ const Account: FC<any> = () => {
         setFile({ file: newFile, fileUrl: newFileUrl });
     };
 
-    const saveUpdate = async (varName: keyof UpdateMeMutationVariables, inputRefs: any) => {
+    const saveUpdate = async (varName: keyof UpdateMeMutationVariables, inputRefs: any, errorCallback?: (val: any) => void) => {
         const isRef = Array.isArray(inputRefs);
         const varValue = isRef ? inputRefs[0].current.value : inputRefs;
         console.log('Updating user...', isRef, varValue);
@@ -100,6 +101,7 @@ const Account: FC<any> = () => {
             console.log('Update success');
         } else {
             console.log('Update failed:', result.data?.updateMe.errors);
+            if (errorCallback) errorCallback(varValue);
         }
     };
 
@@ -113,6 +115,8 @@ const Account: FC<any> = () => {
             console.log('Upload failed:', err);
         }
     };
+
+    console.log(uniEmailRef?.current?.value);
 
     return (
         <Stack spacing={18}>
@@ -233,16 +237,36 @@ const Account: FC<any> = () => {
             </Stack>
 
             <Divider size='xs' color={theme.colors._dividerT2[0]} />
-            <Stack spacing={2}>
-                <Text className='text-[14px] font-[500] text-_label'>Confirm university membership</Text>
-                <div className='flex gap-1'>
-                    <TextInput ref={confirmUniRef} classNames={{ root: 'grow' }} autoComplete='new-password' size='sm' variant='filled' placeholder='student@university.ac.uk' />
-                    <Button size='sm' variant='filled' color='grape' onClick={() => saveUpdate('universityId', Number(universityId))}>Save</Button>
-                </div>
-                <Text className='text-[13px] font-[400] text-_gray-600'>
-                    Confirm that you are a student by providing your {me.uni} email address.
-                </Text>
-            </Stack>
+            {me.uniConfirmed ? (
+                <Stack spacing={2}>
+                    <Text className='text-[14px] font-[500] text-_label'>You are a confirmed member of the {me.uni}!</Text>
+                </Stack>
+            ) : (
+                <Stack spacing={2}>
+                    <Text className='text-[14px] font-[500] text-_label'>Confirm university membership</Text>
+                    <div className='flex gap-1'>
+                        <TextInput
+                            error={badUniEmail}
+                            ref={uniEmailRef}
+                            onFocus={() => setBadUniEmail(false)}
+                            classNames={{ root: 'grow' }}
+                            autoComplete='new-password'
+                            size='sm'
+                            variant='filled'
+                            placeholder='student@university.ac.uk'
+                        />
+                        <Button
+                            size='sm'
+                            variant='filled'
+                            color='grape'
+                            onClick={() => saveUpdate('universityEmail', [uniEmailRef], () => setBadUniEmail(true))}
+                        >Save</Button>
+                    </div>
+                    <Text className='text-[13px] font-[400] text-_gray-600'>
+                        Confirm that you are a student by providing your {me.uni} email address.
+                    </Text>
+                </Stack>
+            )}
         </Stack>
     );
 };

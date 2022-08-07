@@ -3,7 +3,9 @@ import { withFilter } from 'graphql-subscriptions';
 
 import { login, logout, updateTokens } from '../authentication';
 import { prisma } from '../server';
-import { consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings } from '../utils';
+import {
+    consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings, 
+} from '../utils';
 import { Context, Context2 } from '../types';
 import { FriendRequestType, FriendStatus } from '../schema/generated';
 import type { Error, Resolvers } from '../schema/generated';
@@ -98,7 +100,6 @@ const resolvers: Resolvers = {
             //     setupUserRelations(user.id, user.universityId);
             // }
             const me = await getBigUser(userCore.id, userCore.id, userCore.universityId);
-            console.log('qqme', me?.nextManualMatchId);
             return me;
         },
         getUserInterests: async (_parent, _, { userCore }: Context) => {
@@ -181,7 +182,7 @@ const resolvers: Resolvers = {
 
                 const user = await prisma.user.create({ data: args });
 
-                await setupMatchSettings(user.id, user.universityId);
+                await setupMatchSettings(user.id, user.universityId, true);
                 // await setupUserRelations(user.id, user.universityId);
 
                 console.log('Success! Logging in...');
@@ -462,9 +463,9 @@ const resolvers: Resolvers = {
         updateMe: async (_parent, rawArgs, { req, res, userCore }: Context) => {
             try {
                 console.log(userCore);
-                const { id: meId } = userCore;
+                const { id: meId, universityId } = userCore;
                 console.log('Received request for updateMe:', meId, rawArgs);
-                const { oldPassword, ...args } = rawArgs;
+                const { oldPassword, universityEmail, ...args } = rawArgs;
 
                 if (args.password) {
                     const user = await prisma.user.findUnique({ where: { id: meId } });
@@ -473,6 +474,26 @@ const resolvers: Resolvers = {
                     const isValid = await bcrypt.compare(oldPassword, user.password);
                     if (!isValid) throw new Error('Incorrect current password.');
                     args.password = await hashPassword(args.password);
+                }
+
+                if (universityEmail) {
+                    const university = await prisma.university.findUnique({ where: { id: universityId } });
+                    const emailRegex = new RegExp(university.emailRegex, 'i');
+                    console.log(emailRegex);
+                    if (!emailRegex.test(universityEmail)) throw new Error('Invalid university email.');
+                    await prisma.user.update({
+                        where: { id: meId },
+                        data: {
+                            universities: {
+                                create: {
+                                    uniEmail: universityEmail,
+                                    university: {
+                                        connect: { id: universityId },
+                                    },
+                                },
+                            },
+                        },
+                    });
                 }
 
                 const me = await prisma.user.update({
