@@ -56,7 +56,7 @@ const UserLeft = () => {
             <Box className='relative w-[85%] aspect-square mb-[0px]'>
                 <Avatar
                     radius='xl'
-                    classNames={{ root: 'rounded-full w-full h-full' }} // 180-40
+                    classNames={{ root: 'rounded-full w-full h-full', image: 'aspect-square' }} // 180-40
                     color='blue'
                     src={avatarUrl(user, true)}
                     alt='Profile image'
