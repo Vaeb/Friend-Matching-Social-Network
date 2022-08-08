@@ -1,0 +1,16 @@
+mutation ClearSeen($userId: Int!) {
+    clearSeen(userId: $userId) {
+        ok
+        errors {
+            field
+            message
+        }
+        chatsStore {
+            id
+            users {
+                ...UserSmFields
+                unseenChats
+            }
+        }
+    }
+}

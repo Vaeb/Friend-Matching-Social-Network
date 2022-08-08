@@ -2,7 +2,7 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import produce from 'immer';
 
-import { GetPostsWeightedQuery, GetUniversitiesQuery, Post, User } from './generated/graphql';
+import { GetMessagesQuery, GetPostsWeightedQuery, GetUniversitiesQuery, Post, User } from './generated/graphql';
 import { splitPosts, SplitPosts } from './utils/splitPosts';
 
 type Panel = 'left' | 'mid' | 'right';
@@ -124,6 +124,35 @@ export const useTimelineStore = create<TimelineState>(set => ({
             state.posts = posts;
             state.postGroups = splitPosts(posts);
             state.refreshedPosts = new Date();
+        })),
+
+}));
+
+type FullMessage = GetMessagesQuery['getMessages']['messages'][0];
+
+export interface ChatState {
+    messages: Record<string | number, FullMessage[]>;
+    // refreshedMessages: Record<string | number, Date>;
+    refreshedMessages: Date;
+    setMessages: (userId: number, messages: FullMessage[]) => void;
+    // setRefreshed: (userId: number) => void;
+    setRefreshed: () => void;
+}
+
+export const useChatStore = create<ChatState>(set => ({
+    messages: {},
+    refreshedMessages: new Date(),
+    setMessages: (userId, _messages) =>
+        set(produce((state: ChatState) => {
+            // state.messages[userId] = messages;
+            console.log('Refreshed messages date');
+            state.refreshedMessages[userId] = new Date();
+        })),
+    setRefreshed: () =>
+        set(produce((state: ChatState) => {
+            console.log('Refreshed messages date (only)');
+            // state.refreshedMessages[userId] = new Date();
+            state.refreshedMessages = new Date();
         })),
 
 }));

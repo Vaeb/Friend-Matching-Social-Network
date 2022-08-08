@@ -6,12 +6,6 @@ type Message {
     createdAt: Date!
 }
 
-type MessageResponse {
-    ok: Boolean!
-    errors: [Error!]
-    message: Message
-}
-
 type MessageSubResponse {
     message: Message!
     meId: Boolean!
@@ -19,15 +13,33 @@ type MessageSubResponse {
     fromMe: Boolean!
 }
 
+type MessageStore {
+    id: Int! # Other user id
+    messages: [Message!]!
+}
+
+# type MessagesAndChats {
+#     messageStore: MessageStore!
+#     chatsStore: ChatsStore!
+# }
+
+type MessageResponse {
+    ok: Boolean!
+    errors: [Error!]
+    message: Message
+}
+
 type Query {
     pingTest: String
-    getMessages(target: Int!, limit: Int): [Message!]!
+    getMessages(target: Int!, limit: Int): MessageStore!
 }
 
 type Mutation {
     sendMessage(to: Int!, text: String!): MessageResponse!
+    clearSeen(userId: Int!): ChatsStoreResponse!
 }
 
 type Subscription {
-    newMessage: Message!
+    newMessage: MessageStore!
+    newChats: ChatsStore!
 }

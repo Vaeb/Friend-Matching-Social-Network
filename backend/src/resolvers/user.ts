@@ -4,7 +4,7 @@ import { withFilter } from 'graphql-subscriptions';
 import { login, logout, updateTokens } from '../authentication';
 import { prisma } from '../server';
 import {
-    consoleError, formatErrors, getBigUser, getUserRelations, setupMatchSettings, 
+    consoleError, formatErrors, getBigUser, getChats, getUserRelations, setupMatchSettings, 
 } from '../utils';
 import { Context, Context2 } from '../types';
 import { FriendRequestType, FriendStatus, Match, MatchesStore } from '../schema/generated';
@@ -28,23 +28,6 @@ const getFriendRequests = async (meId: number) =>
             receiverId: meId,
         },
     })).map(fr => fr.sender);
-
-const getChats = async (meId: number) => {
-    const messages = await prisma.message.groupBy({
-        by: ['fromId', 'toId'],
-        where: { OR: [{ fromId: meId }, { toId: meId }] },
-        _max: { createdAt: true },
-        orderBy: { _max: { createdAt: 'desc' } },
-    });
-    const chatters = [...new Set(messages.map(({ fromId, toId, _max: { createdAt } }) => ({ userId: fromId !== meId ? fromId : toId, createdAt })))];
-    const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
-    // console.log(chattersMap);
-    const friends = await getUserRelations(meId, '"areFriends" = true');
-    const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
-    // console.log(friendsUpdatedMap);
-    const users = friends.map(relation => relation.user).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
-    return users;
-};
 
 const resolvers: Resolvers = {
     Subscription: {

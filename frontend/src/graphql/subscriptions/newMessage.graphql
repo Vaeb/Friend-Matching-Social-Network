@@ -1,13 +1,16 @@
 subscription NewMessage {
     newMessage {
         id
-        text
-        from {
+        messages {
             id
+            text
+            from {
+                id
+            }
+            to {
+                id
+            }
+            createdAt
         }
-        to {
-            id
-        }
-        createdAt
     }
 }

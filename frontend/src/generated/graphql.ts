@@ -25,6 +25,13 @@ export type ChatsStore = {
   users: Array<User>;
 };
 
+export type ChatsStoreResponse = {
+  __typename?: 'ChatsStoreResponse';
+  chatsStore?: Maybe<ChatsStore>;
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+};
+
 export type Comment = {
   __typename?: 'Comment';
   author: User;
@@ -184,6 +191,12 @@ export type MessageResponse = {
   ok: Scalars['Boolean'];
 };
 
+export type MessageStore = {
+  __typename?: 'MessageStore';
+  id: Scalars['Int'];
+  messages: Array<Message>;
+};
+
 export type MessageSubResponse = {
   __typename?: 'MessageSubResponse';
   fromMe: Scalars['Boolean'];
@@ -197,6 +210,7 @@ export type Mutation = {
   addFriend: FriendResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
+  clearSeen: ChatsStoreResponse;
   comment: PostResponse;
   deleteUser: MeMultiResponse;
   like: PostResponse;
@@ -226,6 +240,11 @@ export type MutationAddUserInterestArgs = {
 
 export type MutationAddUserInterestsArgs = {
   userInterests: Array<UserInterestInput>;
+};
+
+
+export type MutationClearSeenArgs = {
+  userId: Scalars['Int'];
 };
 
 
@@ -331,7 +350,7 @@ export type Query = {
   getFriendRequests: FrStore;
   getInterests: Array<Interest>;
   getMatches: MatchesStore;
-  getMessages: Array<Message>;
+  getMessages: MessageStore;
   getPost?: Maybe<Post>;
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
@@ -413,8 +432,9 @@ export type Subscription = {
   heartbeat: Scalars['String'];
   manualMatchAvailable: Scalars['Int'];
   newAutoMatch: Match;
+  newChats: ChatsStore;
   newManualMatch: MatchesStore;
-  newMessage: Message;
+  newMessage: MessageStore;
   newPost: Post;
   newPosts?: Maybe<Array<Post>>;
 };
@@ -442,6 +462,7 @@ export type User = {
   name: Scalars['String'];
   receivedFrFrom?: Maybe<Scalars['Boolean']>;
   sentFrTo?: Maybe<Scalars['Boolean']>;
+  unseenChats?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
@@ -540,6 +561,13 @@ export type AddUserInterestMutationVariables = Exact<{
 
 
 export type AddUserInterestMutation = { __typename?: 'Mutation', addUserInterest: { __typename?: 'UserInterestResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, userInterest?: { __typename?: 'UserInterest', score: number, interest: { __typename?: 'Interest', id: number, name: string } } | null } };
+
+export type ClearSeenMutationVariables = Exact<{
+  userId: Scalars['Int'];
+}>;
+
+
+export type ClearSeenMutation = { __typename?: 'Mutation', clearSeen: { __typename?: 'ChatsStoreResponse', ok: boolean, errors?: Array<{ __typename?: 'Error', field: string, message: string }> | null, chatsStore?: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', unseenChats?: number | null, name: string, color?: string | null, id: number, username: string }> } | null } };
 
 export type CommentMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -641,7 +669,7 @@ export type UpdateMeMutation = { __typename?: 'Mutation', updateMe: { __typename
 export type GetChatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetChatsQuery = { __typename?: 'Query', getChats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', name: string, color?: string | null, id: number, username: string }> } };
+export type GetChatsQuery = { __typename?: 'Query', getChats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', unseenChats?: number | null, name: string, color?: string | null, id: number, username: string }> } };
 
 export type GetFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -663,7 +691,7 @@ export type GetMessagesQueryVariables = Exact<{
 }>;
 
 
-export type GetMessagesQuery = { __typename?: 'Query', getMessages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> };
+export type GetMessagesQuery = { __typename?: 'Query', getMessages: { __typename?: 'MessageStore', id: number, messages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> } };
 
 export type GetPostsFromUserQueryVariables = Exact<{
   userId: Scalars['Int'];
@@ -729,6 +757,11 @@ export type NewAutoMatchSubscriptionVariables = Exact<{ [key: string]: never; }>
 
 export type NewAutoMatchSubscription = { __typename?: 'Subscription', newAutoMatch: { __typename?: 'Match', id: number, user: { __typename?: 'User', name: string, color?: string | null, id: number, username: string } } };
 
+export type NewChatsSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewChatsSubscription = { __typename?: 'Subscription', newChats: { __typename?: 'ChatsStore', id: number, users: Array<{ __typename?: 'User', unseenChats?: number | null, name: string, color?: string | null, id: number, username: string }> } };
+
 export type NewManualMatchSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -737,7 +770,7 @@ export type NewManualMatchSubscription = { __typename?: 'Subscription', newManua
 export type NewMessageSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: { __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } } };
+export type NewMessageSubscription = { __typename?: 'Subscription', newMessage: { __typename?: 'MessageStore', id: number, messages: Array<{ __typename?: 'Message', id: number, text: string, createdAt: any, from: { __typename?: 'User', id: number }, to: { __typename?: 'User', id: number } }> } };
 
 export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -791,6 +824,48 @@ export default {
                     "ofType": null
                   }
                 }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ChatsStoreResponse",
+        "fields": [
+          {
+            "name": "chatsStore",
+            "type": {
+              "kind": "OBJECT",
+              "name": "ChatsStore",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
+            "name": "errors",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Error",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "ok",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
               }
             },
             "args": []
@@ -1817,6 +1892,42 @@ export default {
       },
       {
         "kind": "OBJECT",
+        "name": "MessageStore",
+        "fields": [
+          {
+            "name": "id",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Any"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "messages",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "LIST",
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Message",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
         "name": "MessageSubResponse",
         "fields": [
           {
@@ -1955,6 +2066,29 @@ export default {
                         "name": "Any"
                       }
                     }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "clearSeen",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ChatsStoreResponse",
+                "ofType": null
+              }
+            },
+            "args": [
+              {
+                "name": "userId",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
                   }
                 }
               }
@@ -2685,15 +2819,9 @@ export default {
             "type": {
               "kind": "NON_NULL",
               "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Message",
-                    "ofType": null
-                  }
-                }
+                "kind": "OBJECT",
+                "name": "MessageStore",
+                "ofType": null
               }
             },
             "args": [
@@ -3081,6 +3209,18 @@ export default {
             "args": []
           },
           {
+            "name": "newChats",
+            "type": {
+              "kind": "NON_NULL",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ChatsStore",
+                "ofType": null
+              }
+            },
+            "args": []
+          },
+          {
             "name": "newManualMatch",
             "type": {
               "kind": "NON_NULL",
@@ -3098,7 +3238,7 @@ export default {
               "kind": "NON_NULL",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Message",
+                "name": "MessageStore",
                 "ofType": null
               }
             },
@@ -3296,6 +3436,14 @@ export default {
           },
           {
             "name": "sentFrTo",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "unseenChats",
             "type": {
               "kind": "SCALAR",
               "name": "Any"
@@ -3843,6 +3991,28 @@ export const AddUserInterestDocument = gql`
 export function useAddUserInterestMutation() {
   return Urql.useMutation<AddUserInterestMutation, AddUserInterestMutationVariables>(AddUserInterestDocument);
 };
+export const ClearSeenDocument = gql`
+    mutation ClearSeen($userId: Int!) {
+  clearSeen(userId: $userId) {
+    ok
+    errors {
+      field
+      message
+    }
+    chatsStore {
+      id
+      users {
+        ...UserSmFields
+        unseenChats
+      }
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}`;
+
+export function useClearSeenMutation() {
+  return Urql.useMutation<ClearSeenMutation, ClearSeenMutationVariables>(ClearSeenDocument);
+};
 export const CommentDocument = gql`
     mutation Comment($id: Int!, $onType: String!, $text: String!) {
   comment(id: $id, onType: $onType, text: $text) {
@@ -4113,6 +4283,7 @@ export const GetChatsDocument = gql`
     id
     users {
       ...UserSmFields
+      unseenChats
     }
   }
 }
@@ -4168,14 +4339,17 @@ export const GetMessagesDocument = gql`
     query GetMessages($target: Int!) {
   getMessages(target: $target) {
     id
-    text
-    from {
+    messages {
       id
+      text
+      from {
+        id
+      }
+      to {
+        id
+      }
+      createdAt
     }
-    to {
-      id
-    }
-    createdAt
   }
 }
     `;
@@ -4338,6 +4512,21 @@ export const NewAutoMatchDocument = gql`
 export function useNewAutoMatchSubscription<TData = NewAutoMatchSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewAutoMatchSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewAutoMatchSubscription, TData>) {
   return Urql.useSubscription<NewAutoMatchSubscription, TData, NewAutoMatchSubscriptionVariables>({ query: NewAutoMatchDocument, ...options }, handler);
 };
+export const NewChatsDocument = gql`
+    subscription NewChats {
+  newChats {
+    id
+    users {
+      ...UserSmFields
+      unseenChats
+    }
+  }
+}
+    ${UserSmFieldsFragmentDoc}`;
+
+export function useNewChatsSubscription<TData = NewChatsSubscription>(options: Omit<Urql.UseSubscriptionArgs<NewChatsSubscriptionVariables>, 'query'> = {}, handler?: Urql.SubscriptionHandler<NewChatsSubscription, TData>) {
+  return Urql.useSubscription<NewChatsSubscription, TData, NewChatsSubscriptionVariables>({ query: NewChatsDocument, ...options }, handler);
+};
 export const NewManualMatchDocument = gql`
     subscription NewManualMatch {
   newManualMatch {
@@ -4363,14 +4552,17 @@ export const NewMessageDocument = gql`
     subscription NewMessage {
   newMessage {
     id
-    text
-    from {
+    messages {
       id
+      text
+      from {
+        id
+      }
+      to {
+        id
+      }
+      createdAt
     }
-    to {
-      id
-    }
-    createdAt
   }
 }
     `;

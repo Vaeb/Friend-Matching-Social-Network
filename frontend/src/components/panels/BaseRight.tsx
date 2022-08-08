@@ -48,12 +48,14 @@ const BaseRight: FC<any> = () => {
                             <Stack className='w-full items-center' key={user.id} spacing={4}>
                                 {/* <PanelAction> */}
                                 <UnstyledButton aria-label='Friend Chat'>
-                                    <UserAvatar
-                                    // className='rounded-full w-full h-full cursor-pointer hover:opacity-75'
-                                        className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
-                                        url={avatarUrl(user)}
-                                        onClick={() => setView('chat', null, user.id)}
-                                    />
+                                    <Indicator zIndex={99999} disabled={!user.unseenChats} label={user.unseenChats} color='blue' size={17} offset={7}>
+                                        <UserAvatar
+                                        // className='rounded-full w-full h-full cursor-pointer hover:opacity-75'
+                                            className='rounded-full w-[51px] h-[51px] cursor-pointer hover:opacity-75'
+                                            url={avatarUrl(user)}
+                                            onClick={() => setView('chat', null, user.id)}
+                                        />
+                                    </Indicator>
                                 </UnstyledButton>
                                 {/* </PanelAction> */}
                                 <Text

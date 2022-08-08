@@ -291,6 +291,37 @@ export const fixPosts = <T extends (FullPost | FullPost[])>(posts: T, meId: numb
     return (wasArray ? newPosts : newPosts[0]) as T extends FullPost ? GPost : GPost[];
 };
 
+export const getChats = async (meId: number) => {
+    const messages = await prisma.message.groupBy({
+        by: ['fromId', 'toId'],
+        where: { OR: [{ fromId: meId }, { toId: meId }] },
+        _max: { createdAt: true },
+        orderBy: { _max: { createdAt: 'desc' } },
+    });
+    const numberUnseen = await prisma.message.groupBy({
+        by: ['fromId', 'toId'],
+        where: { toId: meId, seen: false },
+        _count: true,
+        orderBy: { _max: { createdAt: 'desc' } },
+    });
+    const numberUnseenMap: Record<string, number> = Object.assign({}, ...numberUnseen.map(({ fromId, _count }) => ({ [fromId]: _count })));
+    // console.log('messages', messages);
+    // console.log('numberUnseen', numberUnseen);
+    const chattersMap = {};
+    messages.forEach(({ fromId, toId, _max: { createdAt } }) => {
+        const userId = fromId !== meId ? fromId : toId;
+        if (!chattersMap[userId]) chattersMap[userId] = +createdAt;
+        else chattersMap[userId] = Math.max(chattersMap[userId], +createdAt);
+    });
+    // const chattersMap = Object.assign({}, ...chatters.map(({ userId, createdAt }) => ({ [userId]: +createdAt })));
+    // console.log(chattersMap);
+    const friends = await getUserRelations(meId, '"areFriends" = true');
+    const friendsUpdatedMap = Object.assign({}, ...friends.map(({ user, friendDate, matchDate }) => ({ [user.id]: Math.max(+friendDate, +matchDate, chattersMap[user.id] ?? 0 ) })));
+    // console.log(friendsUpdatedMap);
+    const users = friends.map(({ user }) => ({ ...user, unseenChats: numberUnseenMap[user.id] ?? 0 })).sort((a, b) => friendsUpdatedMap[b.id] - friendsUpdatedMap[a.id]);
+    return users;
+};
+
 // export const fixPost = (posts: FullPost[] | FullPost) => {
 //     const wasArray = Array.isArray(posts);
 //     if (!Array.isArray(posts)) posts = [posts];

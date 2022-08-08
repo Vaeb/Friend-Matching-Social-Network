@@ -16,6 +16,8 @@ import {
     ManualMatchAvailableSubscription,
     MeDocument,
     MeQuery,
+    SendMessageMutation,
+    GetMessagesQuery,
 } from './generated/graphql';
 import { graphqlUrl, wsUrl } from './defaults';
 
@@ -110,20 +112,26 @@ const exchanges = [
                     }
                 },
                 sendMessage: (_result, _args, cache, _info) => {
-                    const result = _result as any;
+                    const rawResult = _result as any;
                     const args = _args as any;
-                    if (result?.sendMessage?.ok) {
+                    const resultData = rawResult?.sendMessage as SendMessageMutation['sendMessage'];
+                    console.log('111 send hm', resultData);
+                    if (resultData?.ok) {
+                        const { message } = resultData;
                         cache.updateQuery(
                             {
                                 query: GetMessagesDocument,
                                 variables: { target: args.to },
                             },
                             (_data) => {
-                                const data = _data as any;
+                                const data = _data as GetMessagesQuery;
                                 if (!data?.getMessages) return data;
-                                const { message } = result.sendMessage;
-                                data.getMessages.push(message);
-                                return data;
+                                if (data.getMessages.messages.length >= 50) {
+                                    data.getMessages.messages.splice(0, data.getMessages.messages.length - 50 + 1);
+                                }
+                                data.getMessages.messages.push(message);
+                                console.log('222 new:', data.getMessages.messages.length);
+                                return data as any;
                             }
                         );
                     }
@@ -211,29 +219,29 @@ const exchanges = [
                 },
             },
             Subscription: {
-                newMessage: (_result, _args, cache, _info) => {
-                    const result = _result as any;
-                    const args = _args as any;
-                    // console.log(1111, result, result?.newMessage);
-                    // console.log(2222, args);
-                    if (result?.newMessage) {
-                        const message = result.newMessage;
-                        cache.updateQuery(
-                            {
-                                query: GetMessagesDocument,
-                                variables: { target: message.from.id },
-                            },
-                            (_data) => {
-                                const data = _data as any;
-                                if (!data?.getMessages) return data;
-                                // console.log(4444, args.to, data, message);
-                                data.getMessages.push(message);
-                                // console.log('added', data);
-                                return data;
-                            }
-                        );
-                    }
-                },
+                // newMessage: (_result, _args, cache, _info) => {
+                //     const result = _result as any;
+                //     const args = _args as any;
+                //     // console.log(1111, result, result?.newMessage);
+                //     // console.log(2222, args);
+                //     if (result?.newMessage) {
+                //         const message = result.newMessage;
+                //         cache.updateQuery(
+                //             {
+                //                 query: GetMessagesDocument,
+                //                 variables: { target: message.from.id },
+                //             },
+                //             (_data) => {
+                //                 const data = _data as any;
+                //                 if (!data?.getMessages) return data;
+                //                 // console.log(4444, args.to, data, message);
+                //                 data.getMessages.push(message);
+                //                 // console.log('added', data);
+                //                 return data;
+                //             }
+                //         );
+                //     }
+                // },
                 newAutoMatch: (_result, _args, cache, _info) => {
                     const rawResult = _result as any;
                     const args = _args as any;

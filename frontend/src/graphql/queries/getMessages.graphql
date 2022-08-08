@@ -1,13 +1,16 @@
 query GetMessages($target: Int!) {
     getMessages(target: $target) {
         id
-        text
-        from {
+        messages {
             id
+            text
+            from {
+                id
+            }
+            to {
+                id
+            }
+            createdAt
         }
-        to {
-            id
-        }
-        createdAt
     }
 }

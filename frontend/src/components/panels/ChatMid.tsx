@@ -1,19 +1,24 @@
 import {
     Avatar, Box, Group, ScrollArea, Space, Stack, Text, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import shallow from 'zustand/shallow';
 
 import {
-    GetUserQuery, Me, useGetMessagesQuery, useGetUserQuery, useMeQuery, User, useSendMessageMutation, 
+    GetUserQuery, Me, useClearSeenMutation, useGetMessagesQuery, useGetUserQuery, useMeQuery, User, useSendMessageMutation, 
 } from '../../generated/graphql';
-import { useAppStore } from '../../state';
+import { useAppStore, useChatStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
 import CustomScroll from '../CustomScroll';
 import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
+
+const getElapsedTime = (itemDateRaw: Date | number, nowDate = new Date()) => {
+    const itemDate = new Date(itemDateRaw);
+    return formatTime(+nowDate - +itemDate);
+};
 
 const ChatMid: FC = () => {
     const theme = useMantineTheme();
@@ -22,21 +27,30 @@ const ChatMid: FC = () => {
         shallow
     );
 
+    const refreshedMessages = useChatStore(state => state.refreshedMessages);
+
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
     const [{ data: userData, fetching: userFetching }] = useGetUserQuery({ variables: { userId } });
     const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: userId } });
     const [, doSendMessage] = useSendMessageMutation();
+    const [, doClearSeen] = useClearSeenMutation();
 
     const me = meData?.me;
     const user = !userFetching ? userData?.getUser : null;
 
+    const [nowDate, setNowDate] = useState(new Date());
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLInputElement>(null);
 
-
     // console.log('resData', res.data);
 
-    const messages = (!messagesFetching && messagesData?.getMessages) || [];
+    const messages = (!messagesFetching && messagesData?.getMessages.messages) || [];
+
+    // const lastMessage = messages?.[messages.length - 1];
+    // const lastMessageJson = lastMessage ? JSON.stringify(lastMessage) : undefined;
+    const lastMessageId = messages?.at(-1)?.id;
+    // console.log('Rendering ChatMid', lastMessageId, nowDate, messages.length);
+    // console.log(lastMessageJson);
 
     const isMe = u => u.id == me.id;
 
@@ -44,6 +58,17 @@ const ChatMid: FC = () => {
         [me?.id ?? -1]: me,
         [userId]: user,
     };
+
+    useEffect(() => {
+        console.log('Clearing seen:', userId);
+        // setNowDate(new Date());
+        doClearSeen({ userId });
+    }, [userId, doClearSeen]);
+
+    // useEffect(() => {
+    //     console.log('Resetting date:');
+    //     setNowDate(new Date());
+    // }, [userId, lastMessageId]);
 
     const scrollToBottom = () => {
         // console.log(11, scrollRef, scrollRef.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
@@ -58,17 +83,18 @@ const ChatMid: FC = () => {
         if (inputRef.current) {
             inputRef.current.focus();
         }
-    }, [userId, messages.length]);
+    }, [userId, lastMessageId]);
 
-    const onKeyDown = (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
+    const onKeyDown = async (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
         const { key } = props;
         if (key === 'Enter') {
             const msg = inputRef.current.value;
-            doSendMessage({
+            inputRef.current.value = '';
+            await doSendMessage({
                 to: userId,
                 text: msg,
             });
-            inputRef.current.value = '';
+            setNowDate(new Date());
         }
     };
 
@@ -103,7 +129,7 @@ const ChatMid: FC = () => {
                                         >{`${users[message.from.id]?.name ?? 'Name'}`}</Text>
                                         <Text className='text-xs text-_gray-800'>·</Text>
                                         <Tooltip className='opacity-50' label={getDateString(new Date(message.createdAt))} withArrow openDelay={400}>
-                                            <Text className='text-xs text-_gray-400'>{formatTime(+new Date() - +new Date(message.createdAt))}</Text>
+                                            <Text className='text-xs text-_gray-400'>{getElapsedTime(message.createdAt, nowDate)}</Text>
                                         </Tooltip>
                                     </div>
                                     <Text className='text-base text-gray-300'>{message.text}</Text>

@@ -50,6 +50,7 @@ type User {
     updatedCompatibility: Date
     sentFrTo: Boolean
     receivedFrFrom: Boolean
+    unseenChats: Int
 }
 
 type UserCore {
@@ -168,6 +169,12 @@ type FriendStatus {
 type ChatsStore {
     id: Int!
     users: [User!]!
+}
+
+type ChatsStoreResponse {
+    ok: Boolean!
+    errors: [Error!]
+    chatsStore: ChatsStore
 }
 
 type Query {

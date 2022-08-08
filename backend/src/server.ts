@@ -97,7 +97,7 @@ export const listen = async (): Promise<void> => {
             } as Context),
         formatError: (err) => {
             console.log('\n>>> Error from GraphQL resolver:');
-            console.error(err);
+            console.dir(err, { depth: null });
             return err;
         },
         plugins: [

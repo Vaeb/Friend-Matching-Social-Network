@@ -1,5 +1,5 @@
-query GetChats {
-    getChats {
+subscription NewChats {
+    newChats {
         id
         users {
             ...UserSmFields

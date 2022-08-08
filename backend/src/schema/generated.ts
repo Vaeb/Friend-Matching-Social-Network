@@ -22,6 +22,13 @@ export type ChatsStore = {
   users: Array<User>;
 };
 
+export type ChatsStoreResponse = {
+  __typename?: 'ChatsStoreResponse';
+  chatsStore?: Maybe<ChatsStore>;
+  errors?: Maybe<Array<Error>>;
+  ok: Scalars['Boolean'];
+};
+
 export type Comment = {
   __typename?: 'Comment';
   author: User;
@@ -181,6 +188,12 @@ export type MessageResponse = {
   ok: Scalars['Boolean'];
 };
 
+export type MessageStore = {
+  __typename?: 'MessageStore';
+  id: Scalars['Int'];
+  messages: Array<Message>;
+};
+
 export type MessageSubResponse = {
   __typename?: 'MessageSubResponse';
   fromMe: Scalars['Boolean'];
@@ -194,6 +207,7 @@ export type Mutation = {
   addFriend: FriendResponse;
   addUserInterest: UserInterestResponse;
   addUserInterests: GenResponse;
+  clearSeen: ChatsStoreResponse;
   comment: PostResponse;
   deleteUser: MeMultiResponse;
   like: PostResponse;
@@ -223,6 +237,11 @@ export type MutationAddUserInterestArgs = {
 
 export type MutationAddUserInterestsArgs = {
   userInterests: Array<UserInterestInput>;
+};
+
+
+export type MutationClearSeenArgs = {
+  userId: Scalars['Int'];
 };
 
 
@@ -328,7 +347,7 @@ export type Query = {
   getFriendRequests: FrStore;
   getInterests: Array<Interest>;
   getMatches: MatchesStore;
-  getMessages: Array<Message>;
+  getMessages: MessageStore;
   getPost?: Maybe<Post>;
   getPosts: Array<Post>;
   getPostsFromFriends: Array<Post>;
@@ -410,8 +429,9 @@ export type Subscription = {
   heartbeat: Scalars['String'];
   manualMatchAvailable: Scalars['Int'];
   newAutoMatch: Match;
+  newChats: ChatsStore;
   newManualMatch: MatchesStore;
-  newMessage: Message;
+  newMessage: MessageStore;
   newPost: Post;
   newPosts?: Maybe<Array<Post>>;
 };
@@ -439,6 +459,7 @@ export type User = {
   name: Scalars['String'];
   receivedFrFrom?: Maybe<Scalars['Boolean']>;
   sentFrTo?: Maybe<Scalars['Boolean']>;
+  unseenChats?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['Date']>;
   updatedCompatibility?: Maybe<Scalars['Date']>;
   username: Scalars['String'];
@@ -567,6 +588,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   ChatsStore: ResolverTypeWrapper<ChatsStore>;
+  ChatsStoreResponse: ResolverTypeWrapper<ChatsStoreResponse>;
   Comment: ResolverTypeWrapper<Comment>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Error: ResolverTypeWrapper<Error>;
@@ -587,6 +609,7 @@ export type ResolversTypes = {
   MeResponse: ResolverTypeWrapper<MeResponse>;
   Message: ResolverTypeWrapper<Message>;
   MessageResponse: ResolverTypeWrapper<MessageResponse>;
+  MessageStore: ResolverTypeWrapper<MessageStore>;
   MessageSubResponse: ResolverTypeWrapper<MessageSubResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
@@ -612,6 +635,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   ChatsStore: ChatsStore;
+  ChatsStoreResponse: ChatsStoreResponse;
   Comment: Comment;
   Date: Scalars['Date'];
   Error: Error;
@@ -631,6 +655,7 @@ export type ResolversParentTypes = {
   MeResponse: MeResponse;
   Message: Message;
   MessageResponse: MessageResponse;
+  MessageStore: MessageStore;
   MessageSubResponse: MessageSubResponse;
   Mutation: {};
   Post: Post;
@@ -655,6 +680,13 @@ export type ResolversParentTypes = {
 export type ChatsStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatsStore'] = ResolversParentTypes['ChatsStore']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ChatsStoreResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['ChatsStoreResponse'] = ResolversParentTypes['ChatsStoreResponse']> = {
+  chatsStore?: Resolver<Maybe<ResolversTypes['ChatsStore']>, ParentType, ContextType>;
+  errors?: Resolver<Maybe<Array<ResolversTypes['Error']>>, ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -815,6 +847,12 @@ export type MessageResponseResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MessageStoreResolvers<ContextType = any, ParentType extends ResolversParentTypes['MessageStore'] = ResolversParentTypes['MessageStore']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MessageSubResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MessageSubResponse'] = ResolversParentTypes['MessageSubResponse']> = {
   fromMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   meId?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -827,6 +865,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addFriend?: Resolver<ResolversTypes['FriendResponse'], ParentType, ContextType, RequireFields<MutationAddFriendArgs, 'userId'>>;
   addUserInterest?: Resolver<ResolversTypes['UserInterestResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestArgs, 'userInterest'>>;
   addUserInterests?: Resolver<ResolversTypes['GenResponse'], ParentType, ContextType, RequireFields<MutationAddUserInterestsArgs, 'userInterests'>>;
+  clearSeen?: Resolver<ResolversTypes['ChatsStoreResponse'], ParentType, ContextType, RequireFields<MutationClearSeenArgs, 'userId'>>;
   comment?: Resolver<ResolversTypes['PostResponse'], ParentType, ContextType, RequireFields<MutationCommentArgs, 'id' | 'onType' | 'text'>>;
   deleteUser?: Resolver<ResolversTypes['MeMultiResponse'], ParentType, ContextType>;
   like?: Resolver<ResolversTypes['PostResponse'], ParentType, ContextType, RequireFields<MutationLikeArgs, 'id' | 'onType' | 'remove'>>;
@@ -874,7 +913,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getFriendRequests?: Resolver<ResolversTypes['FrStore'], ParentType, ContextType>;
   getInterests?: Resolver<Array<ResolversTypes['Interest']>, ParentType, ContextType, Partial<QueryGetInterestsArgs>>;
   getMatches?: Resolver<ResolversTypes['MatchesStore'], ParentType, ContextType>;
-  getMessages?: Resolver<Array<ResolversTypes['Message']>, ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'target'>>;
+  getMessages?: Resolver<ResolversTypes['MessageStore'], ParentType, ContextType, RequireFields<QueryGetMessagesArgs, 'target'>>;
   getPost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsArgs>>;
   getPostsFromFriends?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryGetPostsFromFriendsArgs>>;
@@ -902,8 +941,9 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   heartbeat?: SubscriptionResolver<ResolversTypes['String'], "heartbeat", ParentType, ContextType>;
   manualMatchAvailable?: SubscriptionResolver<ResolversTypes['Int'], "manualMatchAvailable", ParentType, ContextType>;
   newAutoMatch?: SubscriptionResolver<ResolversTypes['Match'], "newAutoMatch", ParentType, ContextType>;
+  newChats?: SubscriptionResolver<ResolversTypes['ChatsStore'], "newChats", ParentType, ContextType>;
   newManualMatch?: SubscriptionResolver<ResolversTypes['MatchesStore'], "newManualMatch", ParentType, ContextType>;
-  newMessage?: SubscriptionResolver<ResolversTypes['Message'], "newMessage", ParentType, ContextType>;
+  newMessage?: SubscriptionResolver<ResolversTypes['MessageStore'], "newMessage", ParentType, ContextType>;
   newPost?: SubscriptionResolver<ResolversTypes['Post'], "newPost", ParentType, ContextType>;
   newPosts?: SubscriptionResolver<Maybe<Array<ResolversTypes['Post']>>, "newPosts", ParentType, ContextType>;
 };
@@ -934,6 +974,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   receivedFrFrom?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   sentFrTo?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  unseenChats?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   updatedCompatibility?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -989,6 +1030,7 @@ export type UserResponseResolvers<ContextType = any, ParentType extends Resolver
 
 export type Resolvers<ContextType = any> = {
   ChatsStore?: ChatsStoreResolvers<ContextType>;
+  ChatsStoreResponse?: ChatsStoreResponseResolvers<ContextType>;
   Comment?: CommentResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Error?: ErrorResolvers<ContextType>;
@@ -1007,6 +1049,7 @@ export type Resolvers<ContextType = any> = {
   MeResponse?: MeResponseResolvers<ContextType>;
   Message?: MessageResolvers<ContextType>;
   MessageResponse?: MessageResponseResolvers<ContextType>;
+  MessageStore?: MessageStoreResolvers<ContextType>;
   MessageSubResponse?: MessageSubResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;

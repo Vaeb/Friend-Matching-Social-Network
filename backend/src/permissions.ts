@@ -75,3 +75,25 @@ export const relevantManualMatch = chainResolver((payload: any, _, { userCore: {
 
     return false;
 });
+
+export const relevantMessage = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
+    console.log('GOT MESSAGE SUBSCR...', meId);
+    const { fromId, toId } = payload;
+
+    if (fromId === meId || toId === meId) {
+        return true;
+    }
+
+    return false;
+});
+
+export const relevantConsumer = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
+    console.log('GOT CONSUMER SUBSCR...', meId);
+    const { consumerIdMap } = payload;
+
+    if (consumerIdMap[meId]) {
+        return true;
+    }
+
+    return false;
+});

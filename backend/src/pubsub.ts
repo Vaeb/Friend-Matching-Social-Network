@@ -12,6 +12,7 @@ console.log(123, 'loading pubsub', pubsub != null);
 
 export const HEARTBEAT = 'HEARTBEAT';
 export const NEW_MESSAGE = 'NEW_MESSAGE';
+export const REFRESH_CHATS = 'REFRESH_CHATS';
 export const NEW_POST = 'NEW_POST';
 export const NEW_POSTS = 'NEW_POSTS';
 export const FRIEND_REQUEST = 'FRIEND_REQUEST';
