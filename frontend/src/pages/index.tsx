@@ -24,6 +24,13 @@ const Index = () => {
         }
     }, [universities, setUniversityMap]);
 
+    useEffect(() => { 
+        history.pushState(null, null, location.href);
+        window.onpopstate = function (event) {
+            history.go(1);
+        };
+    }, []);
+
     return (
         data?.me ? (
             <Page>

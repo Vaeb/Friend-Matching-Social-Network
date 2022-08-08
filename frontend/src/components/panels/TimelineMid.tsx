@@ -88,7 +88,7 @@ const TimelineMid: FC = () => {
         textareaRef.current.value = '';
     };
 
-    const onUserClick = (post: typeof posts[0]) => {
+    const onUserClick = (post: typeof posts[0] | typeof posts[0]['comments'][0]) => {
         setView('user', null, post.author.id);
     };
 
@@ -218,7 +218,7 @@ const TimelineMid: FC = () => {
                                                     <UserAvatar
                                                         className='rounded-full w-10 h-10 mt-[2px] cursor-pointer'
                                                         url={avatarUrl(comment.author)}
-                                                        // onClick={() => onUserClick(comment)}
+                                                        onClick={() => onUserClick(comment)}
                                                     />
                                                 </Box>
                                                 <Stack className='ml-[16px] grow' spacing={0}>
