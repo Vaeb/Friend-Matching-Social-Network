@@ -201,7 +201,7 @@ const TimelineMid: FC = () => {
                                 </div>
                                 {postsCommenting[post.id] ? (
                                     <TextInput
-                                        className={`${post.comments.length ? 'mb-[4px]' : 'mb-[5px]'} mt-[10px] mr-[56px]`}
+                                        className={`${post.comments.length ? 'mb-[3px]' : 'mb-[5px]'} mt-[10px] mr-[56px]`}
                                         classNames={{ input: 'h-[3px] min-h-[40px] leading-[38px]' }}
                                         autoComplete='off'
                                         ref={inputRef}
@@ -211,7 +211,7 @@ const TimelineMid: FC = () => {
                                         onKeyDown={e => onKeyDownComment(e, post)}
                                     />) : null}
                                 {post.comments.length ? (
-                                    <Stack sx={{ borderColor: mainColor }} className='mt-[8px] border-l-2 pl-[10px]' spacing={14}>
+                                    <Stack sx={{ borderColor: mainColor }} className='mt-[9px] border-l-2 pl-[10px]' spacing={14}>
                                         {post.comments.map(comment => (
                                             <Box className='flex w-full' key={comment.id}>
                                                 <Box>
