@@ -56,7 +56,11 @@ const BaseRight: FC<any> = () => {
                                     />
                                 </UnstyledButton>
                                 {/* </PanelAction> */}
-                                <Text className='text-sm text-_gray-800 truncate text-center w-[69px] cursor-pointer' onClick={() => setView('user', null, user.id)}>
+                                <Text
+                                    sx={{ color: user.color ?? theme.colors._gray[8] }}
+                                    className='text-sm truncate text-center w-[69px] cursor-pointer'
+                                    onClick={() => setView('user', null, user.id)}
+                                >
                                     @{user.username}
                                 </Text>
                             </Stack>

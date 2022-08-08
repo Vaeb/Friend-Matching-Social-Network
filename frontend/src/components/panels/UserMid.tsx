@@ -1,5 +1,5 @@
 import {
-    Card, Group, ScrollArea, SimpleGrid, Stack, Text, Title, Tooltip, 
+    Card, Group, ScrollArea, SimpleGrid, Stack, Text, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import React from 'react';
@@ -12,6 +12,7 @@ import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
 
 const UserMid = () => {
+    const theme = useMantineTheme();
     const userId = useAppStore(state => state.mid.viewValue);
     const [{ data: userData, fetching: userFetching }] = useGetUserQuery({ variables: { userId } });
     const [{ data: postsData, fetching: postsFetching }] = useGetPostsFromUserQuery({ variables: { userId } });
@@ -27,7 +28,7 @@ const UserMid = () => {
             <Stack spacing={0}>
                 <PaddedArea x className='h-[50px] flex flex-col justify-center'>
                     <div className='flex gap-[5px] items-center text-[22px]'>
-                        <p className='font-[700] text-_gray-800'>{user?.name ?? 'Name'}</p>
+                        <p style={{ color: user?.color ?? theme.colors._gray[8] }} className='font-[600] text-_gray-800'>{user?.name ?? 'Name'}</p>
                         <p className=''>·</p>
                         <p className='text-_gray-400'>@{user?.username ?? 'Username'}</p>
                     </div>

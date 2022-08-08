@@ -46,27 +46,32 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
 };
 
 let freshPosts = [];
+let changedPostsMap = {};
 const postFrequency = 200;
 setInterval(() => {
-    if (freshPosts.length === 0) return;
+    const numChangedPosts = Object.keys(changedPostsMap).length;
+    if (freshPosts.length === 0 && numChangedPosts === 0) return;
     const usePosts = [...freshPosts];
     freshPosts = [];
-    const useIds = Object.assign({}, ...usePosts.map(post => ({ [post.id]: true })));
+    // console.log(changedPostsMap);
+    const useIds = Object.assign({ ...changedPostsMap }, ...usePosts.map(post => ({ [post.id]: true })));
+    changedPostsMap = {};
     pubsub.publish(NEW_POSTS, {
         posts: usePosts,
         postIds: useIds,
+        numChangedPosts,
     });
 }, postFrequency);
 
-type PostsPayload = { posts: Post[]; postIds: Record<string | number, boolean> };
+type PostsPayload = { posts: Post[]; postIds: Record<string | number, boolean>, numChangedPosts: number };
 
 const resolvers: Resolvers = {
     Subscription: {
         newPosts: {
             // Resolve only runs if filter passes
             resolve: (async (payload: PostsPayload, _, context: Context2) => {
-                const { posts: newPosts, postIds: newPostIds } = payload;
-                if (newPosts.length === 0) return null;
+                const { posts: newPosts, postIds: newPostIds, numChangedPosts } = payload;
+                if (newPosts.length === 0 && numChangedPosts === 0) return null;
 
                 const { posts: userPosts } = await getPostsWeighted(payload, _, context);
 
@@ -77,6 +82,8 @@ const resolvers: Resolvers = {
                         break;
                     }
                 }
+
+                // console.log(hasNewPost, newPostIds, userPosts);
 
                 if (hasNewPost === false) {
                     console.log('No fresh posts for user', context.userCore.username);
@@ -161,9 +168,7 @@ const resolvers: Resolvers = {
                 const { id: meId, universityId } = userCore;
                 console.log('Received request for sendPost:', text);
 
-                if (text.trim().length === 0) {
-                    throw new Error('Post must have text');
-                }
+                if (text.trim().length === 0) throw new Error('Post must have text');
 
                 const post = fixPosts(
                     await prisma.post.create({
@@ -222,6 +227,7 @@ const resolvers: Resolvers = {
                                 },
                             },
                         });
+                        changedPostsMap[id] = true;
                         post = fixPosts(rawPost.post, meId);
                     } else {
                         const rawPost = await prisma.postReaction.upsert({
@@ -256,6 +262,7 @@ const resolvers: Resolvers = {
                                 },
                             },
                         });
+                        changedPostsMap[id] = true;
                         post = fixPosts(rawPost.post, meId);
                     }
                 }
@@ -276,6 +283,7 @@ const resolvers: Resolvers = {
             try {
                 const { id: meId, universityId } = userCore;
                 console.log('Received request for comment:', id, onType, text);
+                if (text.trim().length === 0) throw new Error('Comment must have text');
                 let post: GPost;
 
                 if (onType === 'post') {
@@ -297,6 +305,7 @@ const resolvers: Resolvers = {
                             },
                         },
                     });
+                    changedPostsMap[id] = true;
                     post = fixPosts(rawPost, meId);
                 }
 

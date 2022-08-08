@@ -31,6 +31,8 @@ const roomToPosts = {
     student: 'sPosts',
 };
 
+const mainColor = '#b77cee';
+
 interface DynamicLikeIconProps { children?: React.ReactNode; post: FullPost; [x: string | number | symbol]: unknown; }
 const DynamicLikeIcon = ({ children, post, ...props }: DynamicLikeIconProps) => post.meLiked
     ? <LikeIconFilled {...props}>{children}</LikeIconFilled>
@@ -95,7 +97,7 @@ const TimelineMid: FC = () => {
     };
 
     const toggleCommenting = (post: typeof posts[0]) => {
-        setPostsCommenting({ ...postsCommenting, [post.id]: !postsCommenting[post.id] });
+        setPostsCommenting({ [post.id]: !postsCommenting[post.id] });
     };
 
     const onKeyDownComment = async (e: React.KeyboardEvent<HTMLInputElement>, post: typeof posts[0]) => {
@@ -107,8 +109,6 @@ const TimelineMid: FC = () => {
             target.value = '';
         }
     };
-
-    console.log(posts);
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
@@ -195,9 +195,9 @@ const TimelineMid: FC = () => {
                                 </div>
                                 <Text className='text-base text-gray-_800'>{post.text}</Text>
                                 <div className='flex mt-[4px] items-center'>
-                                    <DynamicLikeIcon post={post} className='opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} onClick={() => likePost(post)} />
+                                    <DynamicLikeIcon post={post} className='opacity-50 cursor-pointer w-[18px] h-[18px]' color={mainColor} onClick={() => likePost(post)} />
                                     {post.numLikes > 0 ? <Text className='ml-[5px] text-xs'>{post.numLikes}</Text> : null}
-                                    <CommentIcon className='ml-[14px] opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} onClick={() => toggleCommenting(post)} />
+                                    <CommentIcon className='ml-[14px] opacity-50 cursor-pointer w-[18px] h-[18px]' color={mainColor} onClick={() => toggleCommenting(post)} />
                                 </div>
                                 {postsCommenting[post.id] ? (
                                     <TextInput
@@ -211,7 +211,7 @@ const TimelineMid: FC = () => {
                                         onKeyDown={e => onKeyDownComment(e, post)}
                                     />) : null}
                                 {post.comments.length ? (
-                                    <Stack sx={{ borderColor: me.color }} className='mt-[8px] border-l-2 pl-[10px]' spacing={14}>
+                                    <Stack sx={{ borderColor: mainColor }} className='mt-[8px] border-l-2 pl-[10px]' spacing={14}>
                                         {post.comments.map(comment => (
                                             <Box className='flex w-full' key={comment.id}>
                                                 <Box>
