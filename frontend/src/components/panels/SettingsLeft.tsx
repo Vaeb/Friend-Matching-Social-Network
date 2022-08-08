@@ -26,7 +26,7 @@ const SettingsLeft = () => {
         return (
             <Button
                 sx={{
-                    backgroundColor: selected ? theme.colors._black[6] : (isMobile ? theme.colors._blackT[5] : 'transparent'),
+                    backgroundColor: selected ? (isMobile ? theme.colors._blackT[5] : theme.colors._black[6]) : 'transparent',
                     color: selected ? '#fff' : theme.colors._gray[6],
                     fontSize: '16px',
                     fontWeight: 500,
