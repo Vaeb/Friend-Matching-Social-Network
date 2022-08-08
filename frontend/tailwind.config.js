@@ -21,6 +21,10 @@ module.exports = {
                     600: '#b9bbbe',
                     800: '#dcddde',
                 },
+                _blue: {
+                    700: 'rgb(25, 113, 194)',
+                    800: 'rgb(28, 126, 214)',
+                },
                 _dividerT: 'rgba(79, 84, 92, 0.48)',
                 _dividerT2: 'rgba(79, 84, 92, 0.9)',
                 _label: '#c1c2c5',
