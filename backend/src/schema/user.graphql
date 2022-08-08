@@ -93,10 +93,10 @@ type UserCoreResponse {
 
 type UserInterest {
     id: String!
-    userId: Int!
-    interestId: Int!
     user: User
+    userId: Int!
     interest: Interest!
+    interestId: Int!
     score: Int!
 }
 
@@ -181,7 +181,7 @@ type Query {
     getUser(userId: Int!): User
     getUserByHandle(handle: String!): User
     getUsers(limit: Int): [User!]!
-    getUserInterests: [UserInterest!]!
+    getUserInterests(userId: Int): [UserInterest!]!
     getMatches: MatchesStore!
     getFriendRequests: FrStore!
     getChats: ChatsStore!

@@ -5,7 +5,7 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import shallow from 'zustand/shallow';
 
 import {
-    GetUserQuery, Me, useClearSeenMutation, useGetMessagesQuery, useGetUserQuery, useMeQuery, User, useSendMessageMutation, 
+    GetUserQuery, Me, useClearSeenMutation, useGetMessagesQuery, useGetUserInterestsQuery, useGetUserQuery, useMeQuery, User, useSendMessageMutation, 
 } from '../../generated/graphql';
 import { useAppStore, useChatStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
@@ -33,14 +33,18 @@ const ChatMid: FC = () => {
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
     const [{ data: userData, fetching: userFetching }] = useGetUserQuery({ variables: { userId } });
     const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: userId } });
+    const [{ data: meInterestsData, fetching: meInterestsFetching }] = useGetUserInterestsQuery();
+    const [{ data: userInterestsData, fetching: userInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
     const [, doSendMessage] = useSendMessageMutation();
     const [, doClearSeen] = useClearSeenMutation();
-    const device = useMobileDetect();
+    const device = useMobileDetect(); // If messages < 48, unshift interests message to messages
 
     const isMobile = device.isMobile();
 
     const me = meData?.me;
     const user = !userFetching ? userData?.getUser : null;
+    const meInterests = !meInterestsFetching ? meInterestsData?.getUserInterests : null;
+    const userInterests = !userInterestsFetching ? userInterestsData?.getUserInterests : null;
 
     const [nowDate, setNowDate] = useState(new Date());
     const inputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +52,32 @@ const ChatMid: FC = () => {
 
     // console.log('resData', res.data);
 
-    const messages = (!messagesFetching && messagesData?.getMessages.messages) || [];
+    let messages = (!messagesFetching && messagesData?.getMessages.messages) || [];
+    if (messages.length < 48 && me && user && meInterests && userInterests) {
+        let initialMessage = `🙋 You and ${user.name} are similarly interested in`;
+        const sharedInterests = [];
+        const meInterestsMap = Object.assign({}, ...meInterests?.map(interestData => ({ [interestData.interest.name]: interestData.score })));
+        for (const userInterestData of userInterests) {
+            const { interest: { name }, score: userScore } = userInterestData;
+            const meScore = meInterestsMap[name];
+            if (meScore === undefined || meScore === 50 || userScore === 50 || (meScore < 50 && userScore > 50) || (meScore > 50 && userScore < 50)) continue;
+            sharedInterests.push(name);
+        }
+        if (sharedInterests.length > 0) {
+            initialMessage = `${initialMessage} ${sharedInterests.join(', ').toLowerCase()}.`
+                .replace(/,([^,]*)$/, `${sharedInterests.length > 2 ? ',' : ''} and$1`);
+
+            const createdAt = Math.min(user.friendDate ?? Infinity, user.matchDate ?? Infinity);
+            const startMessage: typeof messages[0] = {
+                id: -1,
+                text: initialMessage,
+                from: { id: -1 },
+                to: { id: me?.id },
+                createdAt,
+            };
+            messages = [startMessage, ...messages];
+        }
+    }
 
     // const lastMessage = messages?.[messages.length - 1];
     // const lastMessageJson = lastMessage ? JSON.stringify(lastMessage) : undefined;
@@ -61,6 +90,7 @@ const ChatMid: FC = () => {
     const users: Record<any, Partial<User | Me>> = {
         [me?.id ?? -1]: me,
         [userId]: user,
+        [-1]: { id: -1, name: 'System' },
     };
 
     useEffect(() => {
@@ -104,6 +134,7 @@ const ChatMid: FC = () => {
     };
 
     const onUserClick = (message: typeof messages[0]) => {
+        if (message.from.id === -1) return;
         setView('user', null, message.from.id);
     };
 

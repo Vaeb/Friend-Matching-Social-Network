@@ -130,11 +130,12 @@ const resolvers: Resolvers = {
             const me = await getBigUser(userCore.id, userCore.id, userCore.universityId);
             return me;
         },
-        getUserInterests: async (_parent, _, { userCore }: Context) => {
+        getUserInterests: async (_parent, { userId }, { userCore }: Context) => {
             console.log('Received request for getUserInterests');
-            const userId = userCore.id;
+            const meId = userCore.id;
+            const targetId = userId ?? meId;
             const userInterests = (await prisma.userInterest.findMany({
-                where: { userId },
+                where: { userId: targetId },
                 include: { interest: true },
                 orderBy: { score: 'desc' },
             }))

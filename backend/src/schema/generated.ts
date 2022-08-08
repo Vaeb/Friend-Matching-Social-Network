@@ -412,6 +412,11 @@ export type QueryGetUserByHandleArgs = {
 };
 
 
+export type QueryGetUserInterestsArgs = {
+  userId?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type QueryGetUsersArgs = {
   limit?: InputMaybe<Scalars['Int']>;
 };
@@ -922,7 +927,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getUniversities?: Resolver<Array<ResolversTypes['University']>, ParentType, ContextType>;
   getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'userId'>>;
   getUserByHandle?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByHandleArgs, 'handle'>>;
-  getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType>;
+  getUserInterests?: Resolver<Array<ResolversTypes['UserInterest']>, ParentType, ContextType, Partial<QueryGetUserInterestsArgs>>;
   getUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetUsersArgs>>;
   me?: Resolver<Maybe<ResolversTypes['Me']>, ParentType, ContextType>;
   ping?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

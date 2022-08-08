@@ -415,6 +415,11 @@ export type QueryGetUserByHandleArgs = {
 };
 
 
+export type QueryGetUserInterestsArgs = {
+  userId?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type QueryGetUsersArgs = {
   limit?: InputMaybe<Scalars['Int']>;
 };
@@ -727,7 +732,9 @@ export type GetUserByHandleQueryVariables = Exact<{
 
 export type GetUserByHandleQuery = { __typename?: 'Query', getUserByHandle?: { __typename?: 'User', id: number, username: string } | null };
 
-export type GetUserInterestsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetUserInterestsQueryVariables = Exact<{
+  userId?: InputMaybe<Scalars['Int']>;
+}>;
 
 
 export type GetUserInterestsQuery = { __typename?: 'Query', getUserInterests: Array<{ __typename?: 'UserInterest', id: string, score: number, interest: { __typename?: 'Interest', id: number, name: string } }> };
@@ -3056,7 +3063,15 @@ export default {
                 }
               }
             },
-            "args": []
+            "args": [
+              {
+                "name": "userId",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              }
+            ]
           },
           {
             "name": "getUsers",
@@ -4419,8 +4434,8 @@ export function useGetUserByHandleQuery(options: Omit<Urql.UseQueryArgs<GetUserB
   return Urql.useQuery<GetUserByHandleQuery>({ query: GetUserByHandleDocument, ...options });
 };
 export const GetUserInterestsDocument = gql`
-    query GetUserInterests {
-  getUserInterests {
+    query GetUserInterests($userId: Int) {
+  getUserInterests(userId: $userId) {
     id
     interest {
       id
