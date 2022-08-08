@@ -5,9 +5,10 @@ import PaddedArea from './PaddedArea';
 type CustomScrollProps = {
     children?: React.ReactNode;
     scrollPadded?: boolean;
+    needsP?: boolean;
 };
 
-const CustomScroll = React.forwardRef(function CustomScroll({ children, scrollPadded }: CustomScrollProps, ref: any) {
+const CustomScroll = React.forwardRef(function CustomScroll({ children, scrollPadded, needsP }: CustomScrollProps, ref: any) {
     return (
         <ScrollArea
             className='grow px-0 pb-0'
@@ -20,7 +21,7 @@ const CustomScroll = React.forwardRef(function CustomScroll({ children, scrollPa
                 thumb: 'bg-_scrollThumb-50',
             }}
         >
-            {scrollPadded ? <PaddedArea xScr>{children}</PaddedArea> : children}
+            {scrollPadded ? <PaddedArea xScr needsP={needsP}>{children}</PaddedArea> : children}
         </ScrollArea>
     );
 });

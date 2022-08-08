@@ -114,7 +114,7 @@ const ChatMid: FC = () => {
                     </PaddedArea>
                     <div className='h-[1px] shadow-_box6' />
                 </Stack>
-                <CustomScroll scrollPadded ref={scrollRef}>
+                <CustomScroll scrollPadded needsP ref={scrollRef}>
                     <Stack className='mt-[18px] mb-[18px]' spacing={22}>
                         {messages.map(message => (
                             <Box className='flex w-full' key={message.id}>

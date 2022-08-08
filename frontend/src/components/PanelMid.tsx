@@ -1,5 +1,5 @@
-import React, { FC, useEffect } from 'react';
-import { useMantineTheme, Box } from '@mantine/core';
+import React, { FC, useEffect, useState } from 'react';
+import { useMantineTheme, Box, Burger } from '@mantine/core';
 
 import {
     useClearSeenMutation,
@@ -21,6 +21,7 @@ import UserMid from './panels/UserMid';
 import SearchModal from './SearchModal';
 import Heartbeat from './Heartbeat';
 import shallow from 'zustand/shallow';
+import { useMobileDetect } from '../utils/useMobileDetect';
 
 const handleSubscription = (prev: any, next: any) => {
     console.log('handling', prev, next);
@@ -30,12 +31,20 @@ const handleSubscription = (prev: any, next: any) => {
 interface PanelMProps {
     children?: React.ReactNode;
 }
+  
+// export default useMobileDetect;
 
 const PanelM: FC<PanelMProps> = () => { // #36393f
     const theme = useMantineTheme();
     const [{ data }] = useMeQuery();
-    const { leftView, midValue } = useAppStore(
-        state => ({ leftView: state.left.view, midValue: state.mid.viewValue }),
+    const { leftView, midValue, leftOpenMobile, rightOpenMobile, setOpenMobile } = useAppStore(
+        state => ({
+            leftView: state.left.view,
+            midValue: state.mid.viewValue,
+            leftOpenMobile: state.left.openMobile,
+            rightOpenMobile: state.right.openMobile,
+            setOpenMobile: state.setOpenMobile,
+        }),
         shallow
     );
     const setPosts = useTimelineStore(state => state.setPosts);
@@ -50,6 +59,14 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
     useManualMatchAvailableSubscription();
     const [postsRes] = useNewPostsSubscription();
     const [, doClearSeen] = useClearSeenMutation();
+
+    // const [leftOpened, setLeftOpened] = useState(false);
+    // const [rightOpened, setRightOpened] = useState(false);
+    const device = useMobileDetect();
+
+    console.log('mobile', device.isMobile(), 'desktop', device.isDesktop());
+    console.log('left', leftOpenMobile, 'right', rightOpenMobile);
+    const isMobile = device.isMobile();
 
     const gotPosts = postsData?.getPostsWeighted?.posts;
     // const messages = messagesRes?.data?.newMessage.messages;
@@ -96,10 +113,22 @@ const PanelM: FC<PanelMProps> = () => { // #36393f
         // console.log('useNewMessageSubscription');
     }, [messagesRes, midValue, setRefreshed, doClearSeen]);
 
+    const isActive = !isMobile || (!leftOpenMobile && !rightOpenMobile);
+
     return (
-        <Box className='bg-_black-300 h-full grow'>
+        <Box className={`${isActive ? '' : 'hidden'} ${isMobile ? 'w-full' : ''} relative bg-_black-300 h-full grow`}>
             <Heartbeat />
             <SearchModal />
+            {isMobile && (!rightOpenMobile || leftOpenMobile) ? (
+                <div className='absolute z-50 top-[40vh]'>
+                    <Burger transitionDuration={0} opened={leftOpenMobile} onClick={() => { setOpenMobile({ left: !leftOpenMobile }); }} aria-label='Open left' />
+                </div>
+            ) : null}
+            {isMobile && (!leftOpenMobile || rightOpenMobile) ? (
+                <div className='absolute right-0 z-50 top-[40vh]'>
+                    <Burger transitionDuration={0} opened={rightOpenMobile} onClick={() => { setOpenMobile({ right: !rightOpenMobile }); }} aria-label='Open right' />
+                </div>
+            ) : null}
             {{
                 settings: <SettingsMid data={data} />,
                 chat: <ChatMid />,

@@ -24,7 +24,7 @@ const SettingsMid: FC<SettingsMidProps> = ({ data }) => {
 
     return data?.me ? (
         <CustomScroll>
-            <PaddedArea full xScr y>
+            <PaddedArea full xScr y needsP>
                 <Title className='tracking-wide capitalize text-3xl text-white font-medium' mb={10}>
                     {section}
                 </Title>

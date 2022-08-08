@@ -10,6 +10,7 @@ type Panel = 'left' | 'mid' | 'right';
 interface ViewState {
     view: string;
     viewValue: any;
+    openMobile: boolean;
 }
 
 interface AppState {
@@ -17,6 +18,7 @@ interface AppState {
     mid: ViewState;
     right: ViewState;
     setView: (view: string, panels?: Panel | Panel[] | 'all', viewValue1?: any, viewValue2?: any, viewValue3?: any, softViewValues?: boolean) => void;
+    setOpenMobile: (openMobile: { [k in Panel]?: boolean; }) => void;
 }
 
 const translateViews = {
@@ -38,15 +40,25 @@ export const useAppStore = create<AppState>()(persist((set, get) => ({
     left: {
         view: translateViews.left.base,
         viewValue: translateViews.left.viewValue,
+        openMobile: false,
     },
     mid: {
         view: translateViews.mid.base,
         viewValue: translateViews.mid.viewValue,
+        openMobile: true,
     },
     right: {
         view: translateViews.right.base,
         viewValue: translateViews.right.viewValue,
+        openMobile: false,
     },
+    setOpenMobile: openMobile =>
+        set(produce((state: AppState) => {
+            if (openMobile.left != null) state.left.openMobile = openMobile.left;
+            if (openMobile.mid != null) state.mid.openMobile = openMobile.mid;
+            if (openMobile.right != null) state.right.openMobile = openMobile.right;
+            console.log('openMobile', openMobile);
+        })),
     setView: (view, panels, viewValue1, viewValue2, viewValue3, softViewValues = false) =>
         set(produce((state: AppState) => {
             if (!panels) panels = ['left', 'mid'];

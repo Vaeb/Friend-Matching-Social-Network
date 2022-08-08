@@ -123,7 +123,7 @@ const TimelineMid: FC = () => {
             </Stack>
             <CustomScroll ref={scrollRef} scrollPadded>
                 <Box className='flex flex-col justify-end'>
-                    <Box className='flex w-full'>
+                    <Box className='flex w-full overflow-x-hidden'>
                         <Textarea
                             ref={textareaRef}
                             // contentEditable='true' data-testid='tweetTextarea_0' role='textbox' spellCheck='true' tabIndex={0}
