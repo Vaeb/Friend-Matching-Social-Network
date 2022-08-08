@@ -265,7 +265,47 @@ const resolvers: Resolvers = {
                     post,
                 };
             } catch (err) {
-                consoleError('LIKE_POST', err);
+                consoleError('LIKE', err);
+                return {
+                    ok: false,
+                    errors: formatErrors(err),
+                };
+            }
+        },
+        comment: async (_parent, { id, onType, text }, { userCore }: Context) => {
+            try {
+                const { id: meId, universityId } = userCore;
+                console.log('Received request for comment:', id, onType, text);
+                let post: GPost;
+
+                if (onType === 'post') {
+                    const rawPost = await prisma.post.update({
+                        include: {
+                            author: true,
+                            reactions: { include: { users: { where: { userId: meId } } } },
+                            comments: {
+                                include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } },
+                            },
+                        },
+                        where: { id },
+                        data: {
+                            comments: {
+                                create: {
+                                    authorId: meId,
+                                    text,
+                                },
+                            },
+                        },
+                    });
+                    post = fixPosts(rawPost, meId);
+                }
+
+                return {
+                    ok: true,
+                    post,
+                };
+            } catch (err) {
+                consoleError('COMMENT', err);
                 return {
                     ok: false,
                     errors: formatErrors(err),

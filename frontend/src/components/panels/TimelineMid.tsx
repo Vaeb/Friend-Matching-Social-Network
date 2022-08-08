@@ -1,13 +1,13 @@
 import {
     Box, Button, Divider, ScrollArea, Stack, Text, Textarea, TextInput, TextInputProps, Title, Tooltip, useMantineTheme, 
 } from '@mantine/core';
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import shallow from 'zustand/shallow';
 import { RiHeartLine as LikeIcon } from 'react-icons/ri';
 import { RiHeartFill as LikeIconFilled } from 'react-icons/ri';
 import { FaRegCommentDots as CommentIcon } from 'react-icons/fa';
 
-import { useLikeMutation, useMeQuery, useSendPostMutation } from '../../generated/graphql';
+import { useCommentMutation, useLikeMutation, useMeQuery, useSendPostMutation } from '../../generated/graphql';
 import { TimelineState, useAppStore, useTimelineStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
@@ -49,6 +49,9 @@ const TimelineMid: FC = () => {
 
     const [, doSendPost] = useSendPostMutation();
     const [, doLike] = useLikeMutation();
+    const [, doComment] = useCommentMutation();
+
+    const [postsCommenting, setPostsCommenting] = useState({});
 
     const inputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -90,6 +93,22 @@ const TimelineMid: FC = () => {
     const likePost = async (post: typeof posts[0]) => {
         await doLike({ id: post.id, onType: 'post', remove: post.meLiked });
     };
+
+    const toggleCommenting = (post: typeof posts[0]) => {
+        setPostsCommenting({ ...postsCommenting, [post.id]: !postsCommenting[post.id] });
+    };
+
+    const onKeyDownComment = async (e: React.KeyboardEvent<HTMLInputElement>, post: typeof posts[0]) => {
+        const { currentTarget: target, key } = e;
+        if (key === 'Enter') {
+            const text = target.value;
+            console.log('Sending comment:', text);
+            await doComment({ id: post.id, onType: 'post', text });
+            target.value = '';
+        }
+    };
+
+    console.log(posts);
 
     // {`flex w-full ${isMe(message.from) ? 'justify-end' : ''}`}
     return (
@@ -165,7 +184,7 @@ const TimelineMid: FC = () => {
                                     onClick={() => onUserClick(post)}
                                 />
                             </Box>
-                            <Stack ml={16} spacing={0}>
+                            <Stack className='ml-[16px] grow' spacing={0}>
                                 <div className='flex gap-[5px] items-center'>
                                     <Text className='font-[500] cursor-pointer' style={{ color: post.author.color }} onClick={() => onUserClick(post)}>{post.author.name}</Text>
                                     <Text className='text-_gray-400 cursor-pointer' onClick={() => onUserClick(post)}>(@{post.author.username})</Text>
@@ -178,11 +197,47 @@ const TimelineMid: FC = () => {
                                 <div className='flex mt-[4px] items-center'>
                                     <DynamicLikeIcon post={post} className='opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} onClick={() => likePost(post)} />
                                     {post.numLikes > 0 ? <Text className='ml-[5px] text-xs'>{post.numLikes}</Text> : null}
-                                    <CommentIcon className='ml-[14px] opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} />
+                                    <CommentIcon className='ml-[14px] opacity-50 cursor-pointer w-[18px] h-[18px]' color={me.color} onClick={() => toggleCommenting(post)} />
                                 </div>
+                                {postsCommenting[post.id] ? (
+                                    <TextInput
+                                        className={`${post.comments.length ? 'mb-[4px]' : 'mb-[5px]'} mt-[10px] mr-[56px]`}
+                                        classNames={{ input: 'h-[3px] min-h-[40px] leading-[38px]' }}
+                                        autoComplete='off'
+                                        ref={inputRef}
+                                        size='sm'
+                                        radius='sm'
+                                        placeholder='Send a comment!'
+                                        onKeyDown={e => onKeyDownComment(e, post)}
+                                    />) : null}
+                                {post.comments.length ? (
+                                    <Stack sx={{ borderColor: me.color }} className='mt-[8px] border-l-2 pl-[10px]' spacing={14}>
+                                        {post.comments.map(comment => (
+                                            <Box className='flex w-full' key={comment.id}>
+                                                <Box>
+                                                    <UserAvatar
+                                                        className='rounded-full w-10 h-10 mt-[2px] cursor-pointer'
+                                                        url={avatarUrl(comment.author)}
+                                                        // onClick={() => onUserClick(comment)}
+                                                    />
+                                                </Box>
+                                                <Stack className='ml-[16px] grow' spacing={0}>
+                                                    <div className='flex gap-[5px] items-center'>
+                                                        <Text className='font-[500] cursor-pointer' style={{ color: comment.author.color }}>{comment.author.name}</Text>
+                                                        <Text className='text-_gray-400 cursor-pointer'>(@{comment.author.username})</Text>
+                                                        <Text className='text-xs'>·</Text>
+                                                        <Tooltip label={getDateString(new Date(comment.createdAt))} withArrow openDelay={400}>
+                                                            <Text className='text-xs text-_gray-400'>{getPostTime(comment.createdAt, refreshedPosts)}</Text>
+                                                        </Tooltip>
+                                                    </div>
+                                                    <Text className='text-base text-gray-_800'>{comment.text}</Text>
+                                                </Stack>
+                                            </Box>
+                                        ))}
+                                    </Stack>) : null}
                             </Stack>
                         </Box>
-                        // <Divider key={`${post.id}-divider`} size='xs' color={theme.colors._dividerT2[0]} /> </>
+                        // </>
                     ))}
                 </Stack>
             </CustomScroll>

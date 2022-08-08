@@ -1,0 +1,17 @@
+mutation Comment($id: Int!, $onType: String!, $text: String!) {
+    comment(id: $id, onType: $onType, text: $text) { # Either post or comment
+        ok
+        errors {
+            field
+            message
+        }
+        post {
+            ...PostLgFields
+        }
+        comment {
+            ...CommentMdFields
+            ...CommentMdParent
+            ...CommentMdChildren
+        }
+    }
+}

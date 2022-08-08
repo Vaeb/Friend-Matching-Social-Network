@@ -265,7 +265,7 @@ export const fixComments = (comments: FullComment[]) => {
         const numLikes = rawComment.reactions.filter(reaction => reaction.type === 'like').length;
         const comment: GComment = { ...rawComment, numLikes };
         return comment;
-    });
+    }).reverse();
 };
 
 type FullPostReaction = (PostReaction & {
