@@ -10,6 +10,7 @@ import {
 import { useAppStore, useChatStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
+import { useMobileDetect } from '../../utils/useMobileDetect';
 import CustomScroll from '../CustomScroll';
 import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
@@ -34,6 +35,9 @@ const ChatMid: FC = () => {
     const [{ data: messagesData, fetching: messagesFetching }] = useGetMessagesQuery({ variables: { target: userId } });
     const [, doSendMessage] = useSendMessageMutation();
     const [, doClearSeen] = useClearSeenMutation();
+    const device = useMobileDetect();
+
+    const isMobile = device.isMobile();
 
     const me = meData?.me;
     const user = !userFetching ? userData?.getUser : null;
@@ -80,10 +84,11 @@ const ChatMid: FC = () => {
 
     useEffect(() => {
         scrollToBottom();
-        if (inputRef.current) {
+        console.log('Chat effect (scroll, focus)');
+        if (inputRef.current && !isMobile) {
             inputRef.current.focus();
         }
-    }, [userId, lastMessageId]);
+    }, [userId, lastMessageId, isMobile]);
 
     const onKeyDown = async (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
         const { key } = props;
