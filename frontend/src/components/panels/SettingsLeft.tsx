@@ -4,6 +4,7 @@ import shallow from 'zustand/shallow';
 
 import { useLogoutMutation } from '../../generated/graphql';
 import { useAppStore, useMiscStore } from '../../state';
+import { useMobileDetect } from '../../utils/useMobileDetect';
 
 const SettingsLeft = () => {
     const theme = useMantineTheme();
@@ -11,6 +12,9 @@ const SettingsLeft = () => {
 
     const { section, setView } = useAppStore(state => ({ section: state.left.viewValue, setView: state.setView }), shallow);
     const resetClient = useMiscStore(state => state.resetClient);
+    const device = useMobileDetect();
+
+    const isMobile = device.isMobile();
 
     const logout = async () => {
         await doLogout();
@@ -22,7 +26,7 @@ const SettingsLeft = () => {
         return (
             <Button
                 sx={{
-                    backgroundColor: selected ? theme.colors._black[6] : 'transparent',
+                    backgroundColor: selected ? theme.colors._black[6] : (isMobile ? theme.colors._blackT[5] : 'transparent'),
                     color: selected ? '#fff' : theme.colors._gray[6],
                     fontSize: '16px',
                     fontWeight: 500,
