@@ -53,7 +53,7 @@ const ChatMid: FC = () => {
     // console.log('resData', res.data);
 
     let messages = (!messagesFetching && messagesData?.getMessages.messages) || [];
-    if (messages.length < 48 && me && user && meInterests && userInterests) {
+    if (me && user && meInterests && userInterests) {
         let initialMessage = `🙋 You and ${user.name} are similarly interested in`;
         const sharedInterests = [];
         const meInterestsMap = Object.assign({}, ...meInterests?.map(interestData => ({ [interestData.interest.name]: interestData.score })));
