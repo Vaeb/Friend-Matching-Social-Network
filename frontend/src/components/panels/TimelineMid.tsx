@@ -65,7 +65,9 @@ const TimelineMid: FC = () => {
 
     useEffect(() => {
         // console.log('new effect', scrollRef.current);
-        setScrollToTop(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }));
+        setScrollToTop(() =>
+            setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 400)
+        );
     }, [setScrollToTop]);
 
     // const onKeyDown = (props: TextInputProps & React.RefAttributes<HTMLInputElement>) => {
