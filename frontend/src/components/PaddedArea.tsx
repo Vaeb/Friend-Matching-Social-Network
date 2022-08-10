@@ -18,6 +18,7 @@ const PaddedArea = ({
 }: PaddedAreaProps) => {
     className = className ?? '';
     const device = useMobileDetect();
+    const origX = x;
 
     const isMobile = device.isMobile();
 
@@ -33,11 +34,12 @@ const PaddedArea = ({
         y = false;
     }
     const useSx = Object.keys(sx).length > 0;
+    console.log(useSx, origX, x, sx, xScr, needsP);
     return (
         <Box
             className={`${full ? 'h-full' : ''} ${isMobile && xScr ? (needsP ? 'px-[10px]' : 'px-[0px]') : (xScr ? 'px-[27px]' : x ? 'px-[32px]' : '')} ${y ? 'py-[20px]' : ''}
                 ${className}`}
-            sx={useSx ? sx : undefined}
+            style={useSx ? sx : undefined}
         >
             {children}
         </Box>

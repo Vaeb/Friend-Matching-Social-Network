@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Button, PasswordInput, Select, TextInput } from '@mantine/core';
+import {
+    Box, Button, createStyles, PasswordInput, Select, TextInput, 
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,9 +16,27 @@ import PaddedArea from '../components/PaddedArea';
 
 interface RegisterProps {}
 
+const useStyles = createStyles(theme => ({
+    extraPadding: {
+        paddingLeft: 10,
+        paddingRight: 10,
+        paddingTop: 28,
+        paddingBottom: 28,
+  
+        // Static media query
+        '@media (min-width: 768px)': {
+            paddingLeft: 32,
+            paddingRight: 32,
+            paddingTop: 28,
+            paddingBottom: 28,
+        },
+    },
+}));
+
 const Register: React.FC<RegisterProps> = ({}) => {
     // const validateUsername = (value: string) => value && value.length > 3 ? undefined : 'Username must be at least 3 characters';
     const router = useRouter();
+    const { classes } = useStyles();
 
     const [, register] = useRegisterMutation();
     const [universitiesQuery] = useGetUniversitiesQuery();
@@ -73,12 +93,11 @@ const Register: React.FC<RegisterProps> = ({}) => {
         router.push('/');
     };
 
-    return (
-        // T6
+    return ( // h-[625px]
         <Page type='center' needsAuth={false}>
-            <Box className={`flex flex-col bg-_blackT-600 w-[450px] max-w-full ${isMobile ? 'h-[593px]' : 'h-[625px]'} max-h-full md:mb-[80px] rounded-md shadow-_box5`}>
+            <Box className={'flex flex-col bg-_blackT-600 w-[450px] max-w-full h-[617px] max-h-full md:mb-[80px] rounded-md shadow-_box5'}>
                 <CustomScroll2 type='never'>
-                    <PaddedArea x={isMobile ? 10 : 32} y={isMobile ? 16 : 32}>
+                    <PaddedArea className={classes.extraPadding}>
                         <Box className='text-xl font-semibold' mb={4}>
                             <p className=''>Welcome!</p>
                             <p>Please register an account.</p>

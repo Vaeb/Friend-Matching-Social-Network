@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, PasswordInput, TextInput } from '@mantine/core';
+import { Box, Button, createStyles, PasswordInput, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import NextLink from 'next/link';
 
@@ -11,11 +11,30 @@ import { useAppStore, useMiscStore } from '../state';
 import { useMobileDetect } from '../utils/useMobileDetect';
 import { CustomScroll2 } from '../components/CustomScroll';
 import PaddedArea from '../components/PaddedArea';
+import { useMediaQuery } from '@mantine/hooks';
 
 interface LoginProps {}
 
+const useStyles = createStyles(theme => ({
+    extraPadding: {
+        paddingLeft: 10,
+        paddingRight: 10,
+        paddingTop: 28,
+        paddingBottom: 28,
+  
+        // Static media query
+        '@media (min-width: 768px)': {
+            paddingLeft: 32,
+            paddingRight: 32,
+            paddingTop: 28,
+            paddingBottom: 28,
+        },
+    },
+}));
+
 const Login: React.FC<LoginProps> = ({}) => {
     const router = useRouter();
+    const { classes } = useStyles();
     const [, login] = useLoginMutation();
 
     const setView = useAppStore(state => state.setView);
@@ -36,6 +55,7 @@ const Login: React.FC<LoginProps> = ({}) => {
     });
 
     const isMobile = device.isMobile();
+    const isDesktop = device.isDesktop();
 
     const onSubmit = async (values: any) => {
         setIsLoading(true);
@@ -53,11 +73,11 @@ const Login: React.FC<LoginProps> = ({}) => {
         router.push('/');
     };
 
-    return (
+    return ( // h-[319px]
         <Page type='center' needsAuth={false}>
-            <Box className={`flex flex-col bg-_blackT-600 w-[450px] max-w-full ${isMobile ? 'h-[287px]' : 'h-[319px]'} max-h-full h755:mb-[80px] rounded-md shadow-_box5`}>
+            <Box className={'flex flex-col bg-_blackT-600 w-[450px] max-w-full h-[311px] max-h-full h755:mb-[80px] rounded-md shadow-_box5'}>
                 <CustomScroll2 type='never'>
-                    <PaddedArea x={isMobile ? 10 : 32} y={isMobile ? 16 : 32}>
+                    <PaddedArea className={classes.extraPadding}>
                         <Box className='text-xl font-semibold' mb={4}>
                             <p>Welcome back!</p>
                             {/* <p>Please login.</p> */}
