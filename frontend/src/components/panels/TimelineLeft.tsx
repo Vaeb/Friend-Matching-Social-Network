@@ -50,7 +50,7 @@ const TimelineLeft: FC = () => {
 
     return (
         <Stack className='w-full mt-[25px] items-center' spacing={16}>
-            <Button variant='outline' className='w-[80%]' onClick={scrollToTop}>Scroll to top</Button>
+            <Button className='w-[80%] z-50' classNames={{ root: 'z-50', inner: 'z-50' }} variant='outline' onClick={scrollToTop}>Scroll to top</Button>
 
             {/* <Divider className='w-[85%] mb-[100px]' size='xs' color={theme.colors._dividerT[0]} /> */}
             <Divider className='w-[85%] mt-[210px]' size='xs' color={theme.colors._dividerT[0]} />
