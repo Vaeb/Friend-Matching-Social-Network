@@ -16,19 +16,20 @@ type PaddedAreaProps = {
 const PaddedArea = ({
     children, className, full, x, y, xScr, needsP, 
 }: PaddedAreaProps) => {
+    className = className ?? '';
     const device = useMobileDetect();
 
     const isMobile = device.isMobile();
 
     const sx: any = {};
     if (typeof x === 'number') {
-        sx.paddingLeft = x;
-        sx.paddingRight = x;
+        sx.paddingLeft = `${x}px`;
+        sx.paddingRight = `${x}px`;
         x = false;
     }
     if (typeof y === 'number') {
-        sx.paddingTop = x;
-        sx.paddingBottom = x;
+        sx.paddingTop = `${y}px`;
+        sx.paddingBottom = `${y}px`;
         y = false;
     }
     const useSx = Object.keys(sx).length > 0;

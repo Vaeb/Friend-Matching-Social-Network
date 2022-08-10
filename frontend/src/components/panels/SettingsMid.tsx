@@ -5,7 +5,7 @@ import Matching, { desc as matchingDesc } from '../settings/Matching';
 
 import { MeQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
-import CustomScroll from '../CustomScroll';
+import { CustomScroll } from '../CustomScroll';
 import PaddedArea from '../PaddedArea';
 
 const descriptions: Record<string, string> = {

@@ -49,6 +49,11 @@ module.exports = {
                 poppins: ["'Poppins'", ...defaultTheme.fontFamily.sans],
             },
         },
+        screens: {
+            h449: { raw: '(min-height: 449px)' },
+            h755: { raw: '(min-height: 755px)' },
+            ...defaultTheme.screens,
+        },
     },
     plugins: [],
     important: '#__next',

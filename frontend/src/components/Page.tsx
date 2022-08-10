@@ -43,8 +43,12 @@ const Regular: FC<HasChildren> = ({ children }) => {
 };
 
 const Center: FC<HasChildren> = ({ children }) => (
-    <div className='flex items-center justify-center w-full h-screen overflow-hidden pb-[10vh]'>
-        {children}
+    <div className='flex flex-col h-full w-full'>
+        {/* <div className='w-full h-5 bg-red-500' /> */}
+        <div className='flex h-[calc(100%_-_30px)] w-[calc(100%_-_16px)] relative items-center justify-center mt-[12px] mb-[18px] mx-[8px]'>
+            {children}
+        </div>
+        {/* <div className='w-full h-5 bg-blue-500' /> */}
         {/* <Box display="block" height="10vh" width="100%" bg="#f00" /> */}
     </div>
 );

@@ -11,7 +11,7 @@ import { useAppStore, useChatStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
 import { useMobileDetect } from '../../utils/useMobileDetect';
-import CustomScroll from '../CustomScroll';
+import { CustomScroll } from '../CustomScroll';
 import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
@@ -37,7 +37,7 @@ const ChatMid: FC = () => {
     const [{ data: userInterestsData, fetching: userInterestsFetching }] = useGetUserInterestsQuery({ variables: { userId } });
     const [, doSendMessage] = useSendMessageMutation();
     const [, doClearSeen] = useClearSeenMutation();
-    const device = useMobileDetect(); // If messages < 48, unshift interests message to messages
+    const device = useMobileDetect();
 
     const isMobile = device.isMobile();
 

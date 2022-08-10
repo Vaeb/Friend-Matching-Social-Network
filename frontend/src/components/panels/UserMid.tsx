@@ -7,7 +7,7 @@ import React from 'react';
 import { useGetPostsFromUserQuery, useGetUserQuery } from '../../generated/graphql';
 import { useAppStore } from '../../state';
 import { formatTime, getDateString } from '../../utils/formatTime';
-import CustomScroll from '../CustomScroll';
+import { CustomScroll } from '../CustomScroll';
 import FullLoader from '../FullLoader';
 import PaddedArea from '../PaddedArea';
 

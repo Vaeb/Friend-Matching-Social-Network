@@ -11,7 +11,7 @@ import { useCommentMutation, useLikeMutation, useMeQuery, useSendPostMutation } 
 import { TimelineState, useAppStore, useTimelineStore } from '../../state';
 import { avatarUrl } from '../../utils/avatarUrl';
 import { formatTime, getDateString } from '../../utils/formatTime';
-import CustomScroll from '../CustomScroll';
+import { CustomScroll } from '../CustomScroll';
 import PaddedArea from '../PaddedArea';
 import UserAvatar from '../UserAvatar';
 import { FullPost } from '../../utils/splitPosts';

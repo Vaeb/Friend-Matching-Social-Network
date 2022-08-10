@@ -7,7 +7,10 @@ import { useRouter } from 'next/router';
 import Page from '../components/Page';
 import { useGetUniversitiesQuery, useRegisterMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
-import { useAppStore, useMiscStore } from '../state';
+import { useAppStore } from '../state';
+import { useMobileDetect } from '../utils/useMobileDetect';
+import { CustomScroll, CustomScroll2 } from '../components/CustomScroll';
+import PaddedArea from '../components/PaddedArea';
 
 interface RegisterProps {}
 
@@ -24,11 +27,13 @@ const Register: React.FC<RegisterProps> = ({}) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [universityId, setUniversityId] = useState('');
+    const device = useMobileDetect();
 
-    const universityValues = universities.map(university => ({ value: String(university.id), label: university.name }));
-
+    const isMobile = device.isMobile();
     const isServer = typeof window === 'undefined';
     console.log('CUSTOM CHECK SSR:', isServer);
+
+    const universityValues = universities.map(university => ({ value: String(university.id), label: university.name }));
 
     const form = useForm({
         initialValues: {
@@ -71,83 +76,87 @@ const Register: React.FC<RegisterProps> = ({}) => {
     return (
         // T6
         <Page type='center' needsAuth={false}>
-            <Box className='bg-_blackT-600 min-w-[450px] rounded-md shadow-_box5 py-8 px-8'>
-                <Box className='text-xl font-semibold' mb={4}>
-                    <p>Welcome!</p>
-                    <p>Please register an account.</p>
-                    <Box className='text-sm font-medium text-_sky-500' mt={1}>
-                        <NextLink href='/login'>
-                            <a>If you have an account, login.</a>
-                        </NextLink>
-                    </Box>
-                </Box>
-                <Box mt={14}>
-                    <form onSubmit={form.onSubmit(onSubmit)}>
-                        <Box>
-                            <TextInput
-                                autoFocus
-                                name='username'
-                                label='USERNAME'
-                                placeholder='Username'
-                                autoComplete='new-password'
-                                {...form.getInputProps('username')}
-                            />
+            <Box className={`flex flex-col bg-_blackT-600 w-[450px] max-w-full ${isMobile ? 'h-[593px]' : 'h-[625px]'} max-h-full md:mb-[80px] rounded-md shadow-_box5`}>
+                <CustomScroll2 type='never'>
+                    <PaddedArea x={isMobile ? 10 : 32} y={isMobile ? 16 : 32}>
+                        <Box className='text-xl font-semibold' mb={4}>
+                            <p className=''>Welcome!</p>
+                            <p>Please register an account.</p>
+                            <Box className='text-sm font-medium text-_sky-500' mt={1}>
+                                <NextLink href='/login'>
+                                    <a>If you have an account, login.</a>
+                                </NextLink>
+                            </Box>
                         </Box>
-                        <Box mt={10}>
-                            <TextInput
-                                name='email'
-                                label='PERSONAL EMAIL'
-                                placeholder='your@email.com'
-                                autoComplete='new-password'
-                                {...form.getInputProps('email')}
-                            />
+                        <Box mt={14}>
+                            <form onSubmit={form.onSubmit(onSubmit)}>
+                                <Box>
+                                    <TextInput
+                                        autoFocus={!isMobile}
+                                        name='username'
+                                        label='USERNAME'
+                                        placeholder='Username'
+                                        autoComplete='new-password'
+                                        {...form.getInputProps('username')}
+                                    />
+                                </Box>
+                                <Box mt={10}>
+                                    <TextInput
+                                        name='email'
+                                        label='PERSONAL EMAIL'
+                                        placeholder='your@email.com'
+                                        autoComplete='new-password'
+                                        {...form.getInputProps('email')}
+                                    />
+                                </Box>
+                                <Box mt={10}>
+                                    <PasswordInput
+                                        name='password'
+                                        label='PASSWORD'
+                                        placeholder='*********'
+                                        autoComplete='new-password'
+                                        {...form.getInputProps('password')}
+                                    />
+                                </Box>
+                                <Box mt={10}>
+                                    <PasswordInput
+                                        name='confirmPassword'
+                                        label='CONFIRM PASSWORD'
+                                        placeholder='*********'
+                                        autoComplete='new-password'
+                                        {...form.getInputProps('confirmPassword')}
+                                    />
+                                </Box>
+                                <Box mt={10}>
+                                    <Select
+                                        name='universityId'
+                                        // variant='filled'
+                                        label='CHOOSE YOUR UNIVERSITY'
+                                        value={universityId}
+                                        onChange={setUniversityId}
+                                        placeholder='...'
+                                        searchable
+                                        nothingFound='No options'
+                                        data={universityValues}
+                                        {...form.getInputProps('universityId')}
+                                    />
+                                </Box>
+                                <Box mt={10}>
+                                    <TextInput
+                                        name='name'
+                                        label='PREFERRED NAME'
+                                        placeholder='John'
+                                        autoComplete='new-password'
+                                        {...form.getInputProps('name')}
+                                    />
+                                </Box>
+                                <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
+                                    Continue
+                                </Button>
+                            </form>
                         </Box>
-                        <Box mt={10}>
-                            <PasswordInput
-                                name='password'
-                                label='PASSWORD'
-                                placeholder='*********'
-                                autoComplete='new-password'
-                                {...form.getInputProps('password')}
-                            />
-                        </Box>
-                        <Box mt={10}>
-                            <PasswordInput
-                                name='confirmPassword'
-                                label='CONFIRM PASSWORD'
-                                placeholder='*********'
-                                autoComplete='new-password'
-                                {...form.getInputProps('confirmPassword')}
-                            />
-                        </Box>
-                        <Box mt={10}>
-                            <Select
-                                name='universityId'
-                                // variant='filled'
-                                label='CHOOSE YOUR UNIVERSITY'
-                                value={universityId}
-                                onChange={setUniversityId}
-                                placeholder='...'
-                                searchable
-                                nothingFound='No options'
-                                data={universityValues}
-                                {...form.getInputProps('universityId')}
-                            />
-                        </Box>
-                        <Box mt={10}>
-                            <TextInput
-                                name='name'
-                                label='PREFERRED NAME'
-                                placeholder='John'
-                                autoComplete='new-password'
-                                {...form.getInputProps('name')}
-                            />
-                        </Box>
-                        <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
-                            Continue
-                        </Button>
-                    </form>
-                </Box>
+                    </PaddedArea>
+                </CustomScroll2>
             </Box>
         </Page>
     );

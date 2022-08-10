@@ -8,6 +8,9 @@ import { useRouter } from 'next/router';
 import { useLoginMutation } from '../generated/graphql';
 import { mapErrors } from '../utils/mapErrors';
 import { useAppStore, useMiscStore } from '../state';
+import { useMobileDetect } from '../utils/useMobileDetect';
+import { CustomScroll2 } from '../components/CustomScroll';
+import PaddedArea from '../components/PaddedArea';
 
 interface LoginProps {}
 
@@ -19,6 +22,7 @@ const Login: React.FC<LoginProps> = ({}) => {
     // const resetClient = useMiscStore(state => state.resetClient);
 
     const [isLoading, setIsLoading] = useState(false);
+    const device = useMobileDetect();
 
     const form = useForm({
         initialValues: {
@@ -30,6 +34,8 @@ const Login: React.FC<LoginProps> = ({}) => {
             password: value => (!value.length ? 'Password is required' : null),
         },
     });
+
+    const isMobile = device.isMobile();
 
     const onSubmit = async (values: any) => {
         setIsLoading(true);
@@ -49,29 +55,33 @@ const Login: React.FC<LoginProps> = ({}) => {
 
     return (
         <Page type='center' needsAuth={false}>
-            <Box className='bg-_blackT-600 min-w-[450px] rounded-md shadow-_box5 py-8 px-8'>
-                <Box className='text-xl font-semibold' mb={4}>
-                    <p>Welcome back!</p>
-                    {/* <p>Please login.</p> */}
-                    <Box className='text-sm font-medium text-_sky-500' mt={1}>
-                        <NextLink href='/register'>
-                            <a>If you&apos;re new, create an account.</a>
-                        </NextLink>
-                    </Box>
-                </Box>
-                <Box mt={14}>
-                    <form onSubmit={form.onSubmit(onSubmit)}>
-                        <Box>
-                            <TextInput autoFocus name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
+            <Box className={`flex flex-col bg-_blackT-600 w-[450px] max-w-full ${isMobile ? 'h-[287px]' : 'h-[319px]'} max-h-full h755:mb-[80px] rounded-md shadow-_box5`}>
+                <CustomScroll2 type='never'>
+                    <PaddedArea x={isMobile ? 10 : 32} y={isMobile ? 16 : 32}>
+                        <Box className='text-xl font-semibold' mb={4}>
+                            <p>Welcome back!</p>
+                            {/* <p>Please login.</p> */}
+                            <Box className='text-sm font-medium text-_sky-500' mt={1}>
+                                <NextLink href='/register'>
+                                    <a>If you&apos;re new, create an account.</a>
+                                </NextLink>
+                            </Box>
                         </Box>
-                        <Box mt={10}>
-                            <PasswordInput name='password' label='PASSWORD' placeholder='' {...form.getInputProps('password')} />
+                        <Box mt={14}>
+                            <form onSubmit={form.onSubmit(onSubmit)}>
+                                <Box>
+                                    <TextInput autoFocus={!isMobile} name='handle' label='USERNAME OR EMAIL' placeholder='' {...form.getInputProps('handle')} />
+                                </Box>
+                                <Box mt={10}>
+                                    <PasswordInput name='password' label='PASSWORD' placeholder='' {...form.getInputProps('password')} />
+                                </Box>
+                                <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
+                                    Continue
+                                </Button>
+                            </form>
                         </Box>
-                        <Button className='w-full' mt={20} type='submit' color='blue' loading={isLoading}>
-                            Continue
-                        </Button>
-                    </form>
-                </Box>
+                    </PaddedArea>
+                </CustomScroll2>
             </Box>
         </Page>
     );
