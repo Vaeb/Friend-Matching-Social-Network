@@ -54,8 +54,10 @@ export const formatTime = (timeRaw: Date | number, calcElapsed = false) => {
     return formatStr;
 };
 
-export const getDateString = (date = new Date()): string => {
+export const getDateString = (date = new Date(), variation = 1): string => {
     // const iso = date.toISOString();
     // return `${iso.substring(0, 10)} ${iso.substring(11, 19)}`;
-    return date.toLocaleString();
+    const localeStr = date.toLocaleString();
+    if (variation === 2) return localeStr.slice(0, -3).replace(/\/2\d(\d\d),/, '/$1 @ ');
+    return localeStr;
 };

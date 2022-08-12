@@ -7,12 +7,13 @@ import { IoMdArrowBack as IconBack } from 'react-icons/io';
 import { TbRefreshDot as IconRefresh } from 'react-icons/tb';
 import Countdown from 'react-countdown';
 
-import { useAppStore, useMeStore } from '../../state';
+import { calcNextMatch, useAppStore, useMeStore } from '../../state';
 import PanelAction from '../PanelAction';
 import { useGetMatchesQuery, useManualMatchMutation, useMeQuery } from '../../generated/graphql';
 import UserAvatar from '../UserAvatar';
 import { avatarUrl } from '../../utils/avatarUrl';
 import shallow from 'zustand/shallow';
+import { getDateString } from '../../utils/formatTime';
 
 // const CountdownRender = ({ days, hours, minutes, seconds, completed }) => {
 //     if (completed) {
@@ -56,17 +57,37 @@ const MatchesRight: FC<any> = () => {
             <PanelAction onClick={() => setView('base', 'right')}>
                 <IconBack style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
             </PanelAction>
-            <PanelAction
-                onClick={() => manualMatch()}
-                color={hasMatch ? 'green' : 'dark'}
-                className={hasMatch ? 'border-2 border-green-400 border-opacity-30' : ''}
-                disabled={!hasMatch ? true : false}
+            <Tooltip
+                multiline
+                width={380}
+                label={`${
+                    hasMatch ? 'You can instantly match with a user now' : `Your instant matching will unlock at ${getDateString(calcNextMatch(1), 2)}`
+                } if there are users available with compatible interests.`}
+                withArrow
+                openDelay={400}
+                position='left'
             >
-                <IconRefresh style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
-            </PanelAction>
+                <div>
+                    <PanelAction
+                        onClick={() => manualMatch()}
+                        color={hasMatch ? 'green' : 'dark'}
+                        className={hasMatch ? 'border-2 border-green-400 border-opacity-30' : ''}
+                        disabled={!hasMatch ? true : false}
+                    >
+                        <IconRefresh style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
+                    </PanelAction>
+                </div>
+            </Tooltip>
             <Text className='text-sm font-bold w-full text-center' color='dimmed'>Friend<br/>Matches</Text>
             {me.autoFreq > 0 ? (
-                <Tooltip label={'When is your next match:'} withArrow openDelay={400} position='left'>
+                <Tooltip
+                    multiline
+                    width={370}
+                    label={`Your next automatic match is at ${getDateString(nextMatch, 2)} if there are users available with compatible interests.`}
+                    withArrow
+                    openDelay={400}
+                    position='left'
+                >
                     <div>
                         <Text className='text-sm w-full text-center' color='dimmed'>Next:</Text>
                         <Text className='text-sm w-full text-center' color='dimmed'>
