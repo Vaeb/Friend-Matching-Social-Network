@@ -196,24 +196,25 @@ export const useMiscStore = create<MiscState>(set => ({
         })),
 }));
 
-const calcNextMatch = (autoFreq: number) => {
-    console.log('Me autoFreq now:', autoFreq);
+const calcNextMatch = (autoFreq: number, forceNext?: boolean) => {
+    console.log('Me autoFreq now:', autoFreq, forceNext);
     const d = new Date();
-    if (d.getUTCHours() >= 11) d.setDate(d.getDate() + autoFreq);
+    if (d.getUTCHours() >= 11 || forceNext) d.setDate(d.getDate() + autoFreq);
     d.setUTCHours(11, 0, 0, 0);
+    console.log('New match date', d);
     return d;
 };
 
 interface MeState {
     nextMatch: Date,
-    refreshNextMatch: (autoFreq: number) => void,
+    refreshNextMatch: (autoFreq: number, forceNext?: boolean) => void,
 }
 
 export const useMeStore = create<MeState>(set => ({
     nextMatch: calcNextMatch(0),
-    refreshNextMatch: autoFreq =>
+    refreshNextMatch: (autoFreq, forceNext) =>
         set(produce((state: MeState) => {
-            state.nextMatch = calcNextMatch(autoFreq);
+            state.nextMatch = calcNextMatch(autoFreq, forceNext);
         })),
 }));
 

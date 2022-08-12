@@ -70,7 +70,7 @@ const MatchesRight: FC<any> = () => {
                     <div>
                         <Text className='text-sm w-full text-center' color='dimmed'>Next:</Text>
                         <Text className='text-sm w-full text-center' color='dimmed'>
-                            <Countdown date={nextMatch} daysInHours={true} onComplete={() => refreshNextMatch(me.autoFreq)} />
+                            <Countdown date={nextMatch} overtime={true} daysInHours={true} onComplete={() => refreshNextMatch(me.autoFreq, true)} />
                         </Text>
                     </div>
                 </Tooltip>) : null}
