@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import sourceMapSupport from 'source-map-support';
+import schedule from 'node-schedule';
 
 import { prisma } from '../server';
 import { pubsub, AUTO_MATCH, MANUAL_MATCH_AVAILABLE } from '../pubsub';
@@ -545,6 +546,11 @@ const doTests = async () => {
     console.log('Done!');
 };
 
-setInterval(doMatch, interval);
-doMatch();
+schedule.scheduleJob('0 12 * * *', () => {
+    console.log('Running matching process...');
+    doMatch();
+});
+
+// setInterval(doMatch, interval);
+// doMatch();
 // doTests();

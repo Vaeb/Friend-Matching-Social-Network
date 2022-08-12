@@ -30,6 +30,7 @@ import {
     useUpdateMeMutation,
 } from '../../generated/graphql';
 import { properToSlider, sliderToProper } from '../../utils/convertScore';
+import { useMeStore } from '../../state';
 
 // type InterestResult = Pick<Interest, 'name'> & Partial<Pick<Interest, 'id'>>;
 // type UserInterestResult = Pick<UserInterest, 'score'> & { interest: InterestResult };
@@ -44,6 +45,8 @@ const matchFreqPhrase = (days) => {
 
 const Matching = ({ me }: { me: MeQuery['me'] }) => {
     const theme = useMantineTheme();
+
+    const refreshNextMatch = useMeStore(state => state.refreshNextMatch);
 
     const [{ data: allInterestsParent, fetching: allInterestsFetching }] = useGetInterestsQuery();
     const [{ data: origUserInterestsParent, fetching: origUserInterestsFetching }] = useGetUserInterestsQuery();
@@ -137,6 +140,7 @@ const Matching = ({ me }: { me: MeQuery['me'] }) => {
 
         if (result.data?.[resField].ok) {
             if (callback) await callback();
+            if (varName === 'autoFreq') refreshNextMatch(varValue);
             console.log('Update success');
         } else {
             console.log('Update failed:', result.data?.[resField].errors);

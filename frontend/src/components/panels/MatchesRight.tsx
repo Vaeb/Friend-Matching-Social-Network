@@ -1,18 +1,35 @@
-import React, { FC } from 'react';
-import { ScrollArea, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import React, { FC, useEffect, useState } from 'react';
+import {
+    ScrollArea, Stack, Text, Tooltip, UnstyledButton, useMantineTheme, 
+} from '@mantine/core';
 import { IoMdArrowBack as IconBack } from 'react-icons/io';
 // import { BsPersonBadge as IconPerson } from 'react-icons/bs';
 import { TbRefreshDot as IconRefresh } from 'react-icons/tb';
+import Countdown from 'react-countdown';
 
-import { useAppStore } from '../../state';
+import { useAppStore, useMeStore } from '../../state';
 import PanelAction from '../PanelAction';
 import { useGetMatchesQuery, useManualMatchMutation, useMeQuery } from '../../generated/graphql';
 import UserAvatar from '../UserAvatar';
 import { avatarUrl } from '../../utils/avatarUrl';
+import shallow from 'zustand/shallow';
+
+// const CountdownRender = ({ days, hours, minutes, seconds, completed }) => {
+//     if (completed) {
+//         return <span>...</span>;
+//     } else {
+//         return (
+//             <span>
+//                 {days}d {hours}h {minutes}m {seconds}s
+//             </span>
+//         );
+//     }
+// };
 
 const MatchesRight: FC<any> = () => {
     const theme = useMantineTheme();
     const setView = useAppStore(state => state.setView);
+    const { nextMatch, refreshNextMatch } = useMeStore(state => ({ nextMatch: state.nextMatch, refreshNextMatch: state.refreshNextMatch }), shallow);
 
     const [{ data: meData, fetching: meFetching }] = useMeQuery();
     const [{ data: matchesData, fetching: matchesFetching }] = useGetMatchesQuery();
@@ -22,6 +39,11 @@ const MatchesRight: FC<any> = () => {
     const matches = matchesData?.getMatches.matches;
 
     const hasMatch = me.manualEnabled && me?.nextManualMatchId != null;
+
+    useEffect(() => {
+        console.log('useEffect autoFreq updating match countdown');
+        refreshNextMatch(me.autoFreq);
+    }, [refreshNextMatch, me.autoFreq]);
 
     const manualMatch = async () => {
         console.log('Getting manual match...');
@@ -43,6 +65,15 @@ const MatchesRight: FC<any> = () => {
                 <IconRefresh style={{ width: '60%', height: '60%' }} color={theme.colors._gray[6]} />
             </PanelAction>
             <Text className='text-sm font-bold w-full text-center' color='dimmed'>Friend<br/>Matches</Text>
+            {me.autoFreq > 0 ? (
+                <Tooltip label={'When is your next match:'} withArrow openDelay={400} position='left'>
+                    <div>
+                        <Text className='text-sm w-full text-center' color='dimmed'>Next:</Text>
+                        <Text className='text-sm w-full text-center' color='dimmed'>
+                            <Countdown date={nextMatch} daysInHours={true} onComplete={() => refreshNextMatch(me.autoFreq)} />
+                        </Text>
+                    </div>
+                </Tooltip>) : null}
             <ScrollArea type='never' className='grow'>
                 <Stack align='center' spacing={20}>
                     {!matchesFetching
