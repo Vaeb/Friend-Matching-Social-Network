@@ -25,12 +25,12 @@ model User {
     visInterests           Int                   @default(0)
     relations1             UserRelation[]        @relation("UserRel1")
     relations2             UserRelation[]        @relation("UserRel2")
-    sentFriendRequests     FriendRequest[]      @relation("FriendSender")
-    receivedFriendRequests FriendRequest[]      @relation("FriendReceiver")
+    sentFriendRequests     FriendRequest[]       @relation("FriendSender")
+    receivedFriendRequests FriendRequest[]       @relation("FriendReceiver")
     interests              UserInterest[]
     matchingEnabled        Boolean               @default(true)
-    matchSettings          MatchSetting[]       @relation("UserMatchSettings")
-    nextUserMatchSettings  MatchSetting[]       @relation("NextManualMatch")
+    matchSettings          MatchSetting[]        @relation("UserMatchSettings")
+    nextUserMatchSettings  MatchSetting[]        @relation("NextManualMatch")
     channels               Channel[]
     sentMessages           Message[]             @relation("MessageFrom")
     receivedMessages       Message[]             @relation("MessageTo")
