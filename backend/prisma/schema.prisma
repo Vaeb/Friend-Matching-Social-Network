@@ -106,6 +106,7 @@ model UserRelation {
     updatedAt            DateTime  @updatedAt
 
     @@id([user1Id, user2Id])
+    @@index([compatibility, haveMatched, areFriends], type: Hash)
     @@map("user_relations")
 }
 
