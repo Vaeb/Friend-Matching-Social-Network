@@ -2,6 +2,7 @@
 
 generator client {
     provider = "prisma-client-js"
+    previewFeatures = ["extendedIndexes"]
 }
 
 datasource db {
@@ -107,7 +108,7 @@ model UserRelation {
     updatedAt            DateTime  @updatedAt
 
     @@id([user1Id, user2Id])
-    @@index([compatibility, haveMatched, areFriends], type: Hash)
+    @@index([compatibility, haveMatched, areFriends])
     @@map("user_relations")
 }
 
@@ -169,7 +170,7 @@ model Message {
 model Post {
     id            Int                @id @default(autoincrement())
     text          String
-    author        User               @relation("CreatedPosts", fields: [authorId], references: [id], map: "posts_creatorId_fkey")
+    author        User               @relation("CreatedPosts", fields: [authorId], references: [id])
     authorId      Int
     university    University         @relation(fields: [universityId], references: [id])
     universityId  Int
@@ -182,7 +183,7 @@ model Post {
     updatedAt     DateTime           @updatedAt
 
     @@index([universityId], type: Hash)
-    @@index([authorId, universityId], type: Hash)
+    @@index([authorId, universityId])
     @@map("posts")
 }
 
@@ -193,7 +194,7 @@ model Comment {
     parent        Comment?              @relation("SubComments", fields: [parentId], references: [id])
     parentId      Int?
     text          String
-    author        User                  @relation("CreatedComments", fields: [authorId], references: [id], map: "comments_creatorId_fkey")
+    author        User                  @relation("CreatedComments", fields: [authorId], references: [id])
     authorId      Int
     children      Comment[]             @relation("SubComments")
     reactions     CommentReaction[]
@@ -259,19 +260,6 @@ model CommentReactionUser {
     @@id([commentId, type, userId])
     @@map("comment_reactions_users")
 }
-
-// model PostReactionSender {
-//     id             Int      @id @default(autoincrement())
-//     reaction       PostReaction @relation(fields: [reactionPostId, reactionType], references: [postId, type])
-//     reactionPostId Int
-//     reactionType   String
-//     user           User     @relation("CreatedReactions", fields: [userId], references: [id], map: "reactions_creatorId_fkey")
-//     userId         Int
-//     createdAt      DateTime @default(now())
-//     updatedAt      DateTime @updatedAt
-
-//     @@map("reaction_users")
-// }
 
 model University {
     id               Int                 @id @default(autoincrement())
