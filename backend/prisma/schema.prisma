@@ -25,12 +25,12 @@ model User {
     visInterests           Int                   @default(0)
     relations1             UserRelation[]        @relation("UserRel1")
     relations2             UserRelation[]        @relation("UserRel2")
-    sentFriendRequests     FriendRequests[]      @relation("FriendSender")
-    receivedFriendRequests FriendRequests[]      @relation("FriendReceiver")
+    sentFriendRequests     FriendRequest[]      @relation("FriendSender")
+    receivedFriendRequests FriendRequest[]      @relation("FriendReceiver")
     interests              UserInterest[]
     matchingEnabled        Boolean               @default(true)
-    matchSettings          MatchSettings[]       @relation("UserMatchSettings")
-    nextUserMatchSettings  MatchSettings[]       @relation("NextManualMatch")
+    matchSettings          MatchSetting[]       @relation("UserMatchSettings")
+    nextUserMatchSettings  MatchSetting[]       @relation("NextManualMatch")
     channels               Channel[]
     sentMessages           Message[]             @relation("MessageFrom")
     receivedMessages       Message[]             @relation("MessageTo")
@@ -60,7 +60,7 @@ model UniversityStudent {
     @@map("university_students")
 }
 
-model MatchSettings {
+model MatchSetting {
     user              User       @relation("UserMatchSettings", fields: [userId], references: [id])
     userId            Int
     university        University @relation(fields: [universityId], references: [id])
@@ -79,7 +79,7 @@ model MatchSettings {
     @@map("match_settings")
 }
 
-model FriendRequests {
+model FriendRequest {
     sender     User     @relation("FriendSender", fields: [senderId], references: [id])
     senderId   Int
     receiver   User     @relation("FriendReceiver", fields: [receiverId], references: [id])
@@ -274,7 +274,7 @@ model University {
     posts            Post[]
     activeUsers      User[]              @relation("SelectedUni")
     students         UniversityStudent[]
-    MatchSettings    MatchSettings[]
+    matchSettings    MatchSetting[]
     createdAt        DateTime            @default(now())
     updatedAt        DateTime            @updatedAt
 
