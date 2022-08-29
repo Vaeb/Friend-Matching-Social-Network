@@ -88,6 +88,7 @@ model FriendRequest {
     updatedAt  DateTime @updatedAt
 
     @@id([senderId, receiverId])
+    @@index([receiverId], type: Hash)
     @@map("friend_requests")
 }
 
@@ -131,6 +132,7 @@ model UserInterest {
     updatedAt  DateTime @updatedAt
 
     @@id([userId, interestId])
+    @@index([userId], type: Hash)
     @@map("user_interests")
 }
 
@@ -159,6 +161,8 @@ model Message {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@index([fromId], type: Hash)
+    @@index([toId], type: Hash)
     @@map("messages")
 }
 
@@ -177,6 +181,8 @@ model Post {
     createdAt     DateTime           @default(now())
     updatedAt     DateTime           @updatedAt
 
+    @@index([universityId], type: Hash)
+    @@index([authorId, universityId], type: Hash)
     @@map("posts")
 }
 
@@ -195,6 +201,7 @@ model Comment {
     createdAt     DateTime              @default(now())
     updatedAt     DateTime              @updatedAt
 
+    @@index([postId], type: Hash)
     @@map("comments")
 }
 
@@ -208,6 +215,7 @@ model PostReaction {
     updatedAt DateTime           @updatedAt
 
     @@id([postId, type])
+    @@index([postId], type: Hash)
     @@map("post_reactions")
 }
 
