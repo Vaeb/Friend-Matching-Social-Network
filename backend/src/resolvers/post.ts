@@ -2,7 +2,7 @@ import { withFilter } from 'graphql-subscriptions';
 import { Post } from '@prisma/client';
 
 import { prisma } from '../server';
-import { consoleError, fixPosts, formatErrors, getUserRelations } from '../utils';
+import { consoleError, fixPosts, formatErrors, getUserRelations, GPostExtra } from '../utils';
 import type { QueryGetPostsWeightedArgs, Resolvers, Post as GPost } from '../schema/generated';
 import { Context, Context2 } from '../types';
 import { NEW_POST, NEW_POSTS, pubsub } from '../pubsub';
@@ -22,17 +22,37 @@ import { permPostNotAuthor } from '../permissions';
 
 */
 
+// Balanced (similar to Reddit)
+
+const hourMs = 1000 * 60 * 60;
+const postWeightAlgorithm = (post: GPostExtra, nowTimestamp): number => {
+    const { numLikes, createdAt, relation: { areFriends, compatibility } } = post;
+    let postWeight = (1 + numLikes) * (areFriends ? 10 : 1);
+    if (compatibility !== 0) {
+        const mult = compatibility > 0 ? 1 : -1; // Reduction when compatibility is negative
+        postWeight = postWeight + postWeight * mult * Math.log10(Math.abs(compatibility));
+    }
+    const elapsedHours = (nowTimestamp - createdAt) / hourMs;
+    postWeight = postWeight - Math.pow(elapsedHours, 1.5);
+    return postWeight;
+};
+
+// const cursor = args?.cursor;
+
 const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs>, { userCore }: Context | Context2) => {
-    const cursor = args?.cursor;
     const { id: meId, universityId } = userCore;
 
-    // const friendIds = [meId, ...(await getUserRelations(meId, '"areFriends" = true')).map(data => data.user.id)];
-    const posts = fixPosts(
+    let posts = fixPosts(
         await prisma.post.findMany({
             where: { universityId },
             // where: { authorId: { in: userIds } },
             include: {
-                author: true,
+                author: {
+                    include: {
+                        relations1: { where: { user2Id: meId }, take: 1 },
+                        relations2: { where: { user1Id: meId }, take: 1 },
+                    },
+                },
                 reactions: { include: { users: { where: { userId: meId } } } },
                 comments: { include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } } },
             },
@@ -41,6 +61,24 @@ const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs
         }),
         meId
     );
+
+    const nowTimestamp = +new Date();
+    const cachedWeights: { [key: string | number]: number } = {};
+    posts = posts.sort((a, b) => {
+        let aWeight = cachedWeights[a.id];
+        let bWeight = cachedWeights[b.id];
+        if (!aWeight) {
+            aWeight = postWeightAlgorithm(a, nowTimestamp);
+            cachedWeights[a.id] = aWeight;
+        }
+        if (!bWeight) {
+            bWeight = postWeightAlgorithm(b, nowTimestamp);
+            cachedWeights[b.id] = bWeight;
+        }
+        if (bWeight > aWeight) return 1;
+        if (aWeight > bWeight) return -1;
+        return 0;
+    });
 
     return { id: 1, posts };
 };

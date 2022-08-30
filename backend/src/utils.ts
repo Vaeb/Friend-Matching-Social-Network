@@ -273,22 +273,30 @@ type FullPostReaction = (PostReaction & {
 });
 
 type FullPost = Post & {
-    author: User;
+    author: User & {
+        relations1?: UserRelation[];
+        relations2?: UserRelation[];
+    };
     reactions: FullPostReaction[];
     comments: FullComment[];
 };
 
-export const fixPosts = <T extends (FullPost | FullPost[])>(posts: T, meId: number): T extends FullPost ? GPost : GPost[] => {
+export type GPostExtra = GPost & {
+    relation?: UserRelation;
+};
+
+export const fixPosts = <T extends (FullPost | FullPost[])>(posts: T, meId: number): T extends FullPost ? GPostExtra : GPostExtra[] => {
     const wasArray = Array.isArray(posts);
     const postsArr: FullPost[] = wasArray ? posts : [posts];
     const newPosts = postsArr.map((rawPost) => {
         // const { author, comments, reactions, ...post } = rawPost;
         const numLikes = rawPost.reactions.find(({ type }) => type === 'like')?.num ?? 0;
         const meLiked = !!rawPost.reactions.find(({ type }) => type === 'like')?.users.some(({ userId }) => userId === meId);
-        const post: GPost = { ...rawPost, numLikes, comments: fixComments(rawPost.comments), meLiked };
+        const relation = rawPost.author.relations1?.[0] ?? rawPost.author.relations2?.[0] ?? undefined;
+        const post: GPostExtra = { ...rawPost, numLikes, comments: fixComments(rawPost.comments), meLiked, relation };
         return post;
     });
-    return (wasArray ? newPosts : newPosts[0]) as T extends FullPost ? GPost : GPost[];
+    return (wasArray ? newPosts : newPosts[0]) as T extends FullPost ? GPostExtra : GPostExtra[];
 };
 
 export const getChats = async (meId: number) => {
