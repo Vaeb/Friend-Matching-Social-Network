@@ -60,7 +60,6 @@ const UserMid = () => {
                     )) : null}
                 </SimpleGrid>
             </CustomScroll>
-            )
         </Stack>
     );
 };
