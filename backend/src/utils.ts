@@ -223,7 +223,7 @@ export const getBigUser = async (meId, userId: number, universityId?: number) =>
 
 export const setupMatchSettings = async (meId, universityId, onRegister = false) => { // Will need to update user_relations (and delete when matching disabled for uni)
     console.log(meId, universityId);
-    const matchSettings = await prisma.matchSettings.upsert({
+    const matchSettings = await prisma.matchSetting.upsert({
         where: { userId_universityId: { userId: meId, universityId } },
         update: {},
         create: {
@@ -236,7 +236,7 @@ export const setupMatchSettings = async (meId, universityId, onRegister = false)
 };
 
 // export const setupUserRelations = async (meId, universityId) => {
-//     const users = await prisma.matchSettings.findMany({
+//     const users = await prisma.matchSetting.findMany({
 //         where: {
 //             universityId,
 //             userId: { not: meId },

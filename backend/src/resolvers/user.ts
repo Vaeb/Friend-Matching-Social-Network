@@ -11,7 +11,7 @@ import { FriendRequestType, FriendStatus, Match, MatchesStore } from '../schema/
 import type { Error, Resolvers } from '../schema/generated';
 import { User } from '@prisma/client';
 import { MANUAL_MATCH, FRIEND_REQUEST, pubsub, AUTO_MATCH, MANUAL_MATCH_AVAILABLE } from '../pubsub';
-import { relevantAutoMatch, relevantFriendRequest, relevantManualMatch } from '../permissions';
+import { relevantMatch, relevantFriendRequest, relevantManualMatch } from '../permissions';
 
 const hashPassword = (rawPassword: string) => bcrypt.hash(rawPassword, 5);
 
@@ -65,7 +65,19 @@ const resolvers: Resolvers = {
             }) as any,
             subscribe: withFilter(
                 () => pubsub.asyncIterator(AUTO_MATCH),
-                relevantAutoMatch
+                relevantMatch
+            ) as any,
+        },
+        manualMatchAvailable: {
+            resolve: (async (payload, _, context: Context2) => {
+                const { id: meId } = context.userCore;
+                const { matchIdMap } = payload;
+
+                return matchIdMap[meId];
+            }) as any,
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(MANUAL_MATCH_AVAILABLE),
+                relevantMatch
             ) as any,
         },
         newManualMatch: {
@@ -82,18 +94,6 @@ const resolvers: Resolvers = {
             subscribe: withFilter(
                 () => pubsub.asyncIterator(MANUAL_MATCH),
                 relevantManualMatch
-            ) as any,
-        },
-        manualMatchAvailable: {
-            resolve: (async (payload, _, context: Context2) => {
-                const { id: meId } = context.userCore;
-                const { matchIdMap } = payload;
-
-                return matchIdMap[meId];
-            }) as any,
-            subscribe: withFilter(
-                () => pubsub.asyncIterator(MANUAL_MATCH_AVAILABLE),
-                relevantAutoMatch
             ) as any,
         },
     },
@@ -432,7 +432,8 @@ const resolvers: Resolvers = {
                     },
                 });
 
-                const k = 1;
+                const k1 = 2;
+                const k2 = 0.5;
                 const insertRecords: string[] = [];
                 console.log(eligibleUsersInterests);
                 for (const userDetails of eligibleUsersInterests) {
@@ -447,16 +448,24 @@ const resolvers: Resolvers = {
                     for (const { interestId, score: meScore } of meInterests) {
                         const youScore = youInterestsMap[interestId];
                         if (youScore === undefined) continue;
-                        compatibility += ( // Negative for majorly apart
-                            (50 - Math.abs(meScore - youScore))
-                                * (k ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
-                        ) / k;
+                        if ((meScore - 50) * (youScore - 50) >= 0) { // Compatibility on the same side
+                            compatibility += ( // Negative for majorly apart
+                                (50 - Math.abs(meScore - youScore))
+                                    * (k1 ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
+                            ) / k1;
+                        } else {
+                            compatibility += ( // Positive for majorly together
+                                (-Math.abs(meScore - youScore))
+                                    * (k2 ** (0.02 * Math.max(Math.abs(meScore - 50), Math.abs(youScore - 50))))
+                            ) / k2;
+                        }
                     }
 
                     const { compatibility: oldCompatibility, isSecond } = eligbleUserMap[youId];
                     if (Math.floor(compatibility) != Math.floor(oldCompatibility)) {
                         const isFirst = meId < youId;
-                        insertRecords.push(`(${isFirst ? meId : youId}, ${isFirst ? youId : meId}, ${compatibility}, timezone('utc', now()), timezone('utc', now()))`);
+                        insertRecords.push(`(${isFirst ? meId : youId}, ${isFirst ? youId : meId}, ${compatibility},
+                            timezone('utc', now()), timezone('utc', now()))`);
                     }
                 }
 
@@ -554,7 +563,7 @@ const resolvers: Resolvers = {
                 const { id: meId, universityId } = userCore;
                 console.log('Received request for updateMatchSettings:', meId, args);
 
-                await prisma.matchSettings.update({
+                await prisma.matchSetting.update({
                     where: { userId_universityId: { userId: meId, universityId } },
                     data: args,
                 });
@@ -575,7 +584,7 @@ const resolvers: Resolvers = {
                 const { id: meId, universityId } = userCore;
                 console.log('Received request for manualMatch:', meId);
                 
-                const userId = (await prisma.matchSettings.findUnique({
+                const userId = (await prisma.matchSetting.findUnique({
                     select: { nextManualMatchId: true },
                     where: { userId_universityId: { userId: meId, universityId } },
                 }))?.nextManualMatchId;
@@ -595,12 +604,12 @@ const resolvers: Resolvers = {
                 const numUpdated = await prisma.$executeRawUnsafe(addMatchQuery);
                 console.log('Updated', numUpdated, 'match!');
 
-                await prisma.matchSettings.update({
+                await prisma.matchSetting.update({
                     where: { userId_universityId: { userId: meId, universityId } },
                     data: { nextManualMatchId: null },
                 });
 
-                await prisma.matchSettings.update({
+                await prisma.matchSetting.update({
                     where: { userId_universityId: { userId, universityId } },
                     data: { nextManualMatchId: null },
                 });

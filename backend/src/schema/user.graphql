@@ -11,11 +11,6 @@ type Me {
     matchQuality: Int!
     visEmail: Int!
     visInterests: Int!
-    # relations: [UserRelation]
-    # posts(limit: Int): [Post]
-    # comments(limit: Int): [Int]!
-    # reactions(limit: Int): [Int]!
-    # savedPosts(limit: Int): [Post]
     updatedInterests: Date
     updatedAt: Date
     createdAt: Date
@@ -224,3 +219,4 @@ type Subscription {
     newManualMatch: MatchesStore!
     manualMatchAvailable: Int!
 }
+

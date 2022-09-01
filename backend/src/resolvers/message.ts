@@ -25,11 +25,8 @@ const resolvers: Resolvers = {
             resolve: (async (payload: any, _, { userCore }: Context2) => {
                 const { id: meId } = userCore;
 
-                console.log('Parsing messages', meId);
                 const userId = payload.fromId === meId ? payload.toId : payload.fromId;
                 const messages = await getMessages(payload.fromId, payload.toId, undefined);
-
-                // if (meId === payload.fromId) return null;
 
                 return { id: userId, messages };
             }) as any,
@@ -42,7 +39,6 @@ const resolvers: Resolvers = {
             resolve: (async (payload: any, _, { userCore }: Context2) => {
                 const { id: meId } = userCore;
 
-                console.log('Refreshing chats (subscr)');
                 const users = await getChats(meId);
 
                 return { id: meId, users };

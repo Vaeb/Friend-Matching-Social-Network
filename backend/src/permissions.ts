@@ -54,7 +54,7 @@ export const relevantFriendRequest = chainResolver((payload: FriendStatus, _, { 
     return false;
 });
 
-export const relevantAutoMatch = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
+export const relevantMatch = chainResolver((payload: any, _, { userCore: { id: meId } }) => {
     console.log('GOT AUTO/AVAILABLE MATCH SUBSCR...', meId);
     const { matchIdMap } = payload;
 

@@ -23,10 +23,15 @@ import { permPostNotAuthor } from '../permissions';
 */
 
 // Balanced (similar to Reddit)
+// const cursor = args?.cursor;
 
 const hourMs = 1000 * 60 * 60;
 const postWeightAlgorithm = (post: GPostExtra, nowTimestamp): number => {
-    const { numLikes, createdAt, relation: { areFriends, compatibility } } = post;
+    const {
+        numLikes,
+        createdAt,
+        relation: { areFriends, compatibility },
+    } = post;
     let postWeight = (1 + numLikes) * (areFriends ? 10 : 1);
     if (compatibility !== 0) {
         const mult = compatibility > 0 ? 1 : -1; // Reduction when compatibility is negative
@@ -37,15 +42,12 @@ const postWeightAlgorithm = (post: GPostExtra, nowTimestamp): number => {
     return postWeight;
 };
 
-// const cursor = args?.cursor;
-
 const getPostsWeighted = async (_parent, args: Partial<QueryGetPostsWeightedArgs>, { userCore }: Context | Context2) => {
     const { id: meId, universityId } = userCore;
 
     let posts = fixPosts(
         await prisma.post.findMany({
             where: { universityId },
-            // where: { authorId: { in: userIds } },
             include: {
                 author: {
                     include: {
@@ -92,7 +94,7 @@ setInterval(() => {
     const usePosts = [...freshPosts];
     freshPosts = [];
     // console.log(changedPostsMap);
-    const useIds = Object.assign({ ...changedPostsMap }, ...usePosts.map(post => ({ [post.id]: true })));
+    const useIds = Object.assign({ ...changedPostsMap }, ...usePosts.map((post) => ({ [post.id]: true })));
     changedPostsMap = {};
     pubsub.publish(NEW_POSTS, {
         posts: usePosts,
@@ -101,7 +103,7 @@ setInterval(() => {
     });
 }, postFrequency);
 
-type PostsPayload = { posts: Post[]; postIds: Record<string | number, boolean>, numChangedPosts: number };
+type PostsPayload = { posts: Post[]; postIds: Record<string | number, boolean>; numChangedPosts: number };
 
 const resolvers: Resolvers = {
     Subscription: {
@@ -147,11 +149,12 @@ const resolvers: Resolvers = {
         },
     },
     Query: {
-        // getPost: async (_parent, { id }) => {
-        //     return fixPosts(await prisma.post.findUnique({
+        // getPost: async (_parent, { id }, { userCore }: Context) => {
+        //     const { id: meId } = userCore;
+        //     const q = fixPosts(await prisma.post.findUnique({
         //         where: { id },
-        //         include: { author: true },
-        //     }));
+        //         include: { author: true, reactions: { include: { users: true } }, comments: true },
+        //     }), meId);
         // },
         // getPosts: async (_parent, { limit }, { userCore }: Context) => {
         //     const { universityId } = userCore;
@@ -163,7 +166,6 @@ const resolvers: Resolvers = {
         //     });
         // },
         getPostsFromUser: async (_parent, { userId, limit }, { userCore }: Context) => {
-            console.log('Received request for getPostsFromUser:', userId, limit);
             const { id: meId, universityId } = userCore;
 
             const posts = fixPosts(
@@ -171,8 +173,25 @@ const resolvers: Resolvers = {
                     where: { authorId: userId, universityId },
                     include: {
                         author: true,
-                        reactions: { include: { users: { where: { userId: meId } } } },
-                        comments: { include: { author: true, reactions: { include: { users: { where: { userId: meId } } } } } },
+                        reactions: {
+                            include: {
+                                users: {
+                                    where: { userId: meId },
+                                },
+                            },
+                        },
+                        comments: {
+                            include: {
+                                author: true,
+                                reactions: {
+                                    include: {
+                                        users: {
+                                            where: { userId: meId },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                     orderBy: { createdAt: 'desc' },
                     take: limit ?? undefined,

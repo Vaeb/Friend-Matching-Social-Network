@@ -82,7 +82,6 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
     // ///////////////////////////// MAIN /////////////////////////////
 
     for (const rowKey of rowKeys) {
-        // Can do some optimization to get smallest in each column here
         const row = userScores[rowKey];
         let smallestInRow = Infinity;
         const colScore = {};
@@ -95,7 +94,6 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
         // For each in row, minus smallest :AND: update smallest in each column seen
         for (const colKey of colKeys) {
             const score = colScore[colKey] - smallestInRow;
-            // const score = 1e3 + colScore[colKey];
             row[colKey] = score;
             if (score < smallestInCols[colKey]) smallestInCols[colKey] = score;
         }
@@ -142,7 +140,6 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
         // console.log(zeroEdges);
 
         const [coveredRows, coveredCols] = findMinCover(size, size, zeroEdges);
-        // console.log('coveredRows', coveredRows, 'coveredCols', coveredCols);
         scoreCover = [];
         for (const idx of coveredRows) {
             const name = rowKeys[idx];
@@ -154,7 +151,6 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
             coveredLines[name] = true;
             scoreCover.push(name);
         }
-        // console.log('scoreCover', scoreCover);
 
         const modifiedScores = cloneObj(userScores);
         for (const rowKey of rowKeys) {
@@ -169,24 +165,7 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
                 }
             }
         }
-        // console.log('Covered:');
-        // console.table(modifiedScores);
 
-        // scoreCover = [
-        //     ...new Set(
-        //         findMinCover(size, size, zeroEdges)
-        //             .map(rowOrCol =>
-        //                 rowOrCol.map((idx) => {
-        //                     const name = rowKeys[idx];
-        //                     coveredLines[name] = true;
-        //                     return name;
-        //                 })
-        //             )
-        //             .flat(1)
-        //     ),
-        // ];
-
-        // console.log('scoreCover', scoreCover);
         const coverSize = scoreCover.length;
         fullCover = coverSize >= size;
 
@@ -219,9 +198,6 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
                 }
             }
         }
-
-        // console.log('New:');
-        // console.table(userScores);
     }
 
     console.log(`[${coverAttempt}]`, 'Found minimal vertex cover:', scoreCover);
@@ -229,29 +205,25 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
     console.table(userScores);
 
     // Pick out the solution based on which lines only have 1 zero
-    let picked = 0;
+    let pickAttempt = 0;
     const results = [];
     const pickedLines = {};
-    let pickAttempt = 0;
+    let picked = 0;
     const pickGoal = size / 2;
     while (picked < pickGoal) {
         if (++pickAttempt > 10) {
             return matchAlgorithmSecond(originalUserScores, rowKeys, colKeys);
             // return null;
         }
-        // console.log(111, pickAttempt);
-        // console.log(`Attempt @ Picking optimal assignment #${++pickAttempt}`);
         for (const rowKey of rowKeys) {
             if (pickedLines[rowKey]) continue;
             const row = userScores[rowKey];
-            // console.log(rowKey, JSON.stringify(row));
             let zeroKey = null;
             let multiZeros = false;
             for (const colKey of colKeys) {
                 if (pickedLines[colKey]) continue;
                 const score = row[colKey];
                 if (score === 0) {
-                    // console.log('got 0', colKey);
                     if (zeroKey !== null) {
                         multiZeros = true;
                         break;
@@ -270,6 +242,7 @@ const matchAlgorithm = <T extends ScoresMap2>(userScores: T, rowKeys: string[], 
     }
 
     console.log(`[${pickAttempt}]`, 'Found optimal assignment:');
+    // console.log(`[${pickAttempt}]`, 'Found optimal assignment:');
     console.table(results);
 
     return results;
@@ -340,8 +313,10 @@ const matchSubset = async (matchType, university, baseDateIso, userScores: Score
         const { id: id1, quality: quality1 } = userMap[tag1];
         const { id: id2, quality: quality2 } = userMap[tag2];
         const originalScore = userScores[tag1][tag2];
-        console.log(id1, id2, userScores[tag1][tag2]);
-        if (id1 === -1 || id2 === -1 || originalScore === undefined || originalScore >= 0 || originalScore > qualityLevels[quality1] || originalScore > qualityLevels[quality2]) continue; // negated score
+        if (id1 === -1 || id2 === -1 || originalScore === undefined || originalScore >= 0 ||
+            originalScore > qualityLevels[quality1] || originalScore > qualityLevels[quality2]) {
+            continue;
+        }
         console.log(`[${university.shortName}]`, 'Found match:', tag1, tag2, id1, id2);
         matchedIds.push(id1, id2);   
         if (id1 < id2) {
@@ -353,8 +328,6 @@ const matchSubset = async (matchType, university, baseDateIso, userScores: Score
     console.log('matchedIds', matchedIds);
     console.log('updateRows', updateRows);
 
-    await callback(matchedIds, updateRows);
-
     // await prisma.userRelation.updateMany({
     //     where: {
     //         OR: updateRows, // Primary key combo
@@ -362,7 +335,7 @@ const matchSubset = async (matchType, university, baseDateIso, userScores: Score
     //     data: { haveMatched: true, matchDate: baseDate },
     // });
 
-    if (matchType === 'Auto') {
+    if (matchType === 'Auto' && updateRows.length > 0) {
         const bulkRows = updateRows.map(({ user1Id, user2Id }) =>
             `(${user1Id}, ${user2Id}, true, '${baseDateIso}', timezone('utc', now()))`
         );
@@ -376,11 +349,12 @@ const matchSubset = async (matchType, university, baseDateIso, userScores: Score
                 SET "haveMatched" = excluded."haveMatched", "matchDate" = excluded."matchDate", "updatedAt" = excluded."updatedAt";
         `;
 
-        console.log(queryUpsertRows);
         const numUpdated = await prisma.$executeRawUnsafe(queryUpsertRows);
 
         console.log(`[${university.name}] [${matchType}]: Added new matches!! ${numUpdated} user_relations rows (haveMatched)`);
     }
+
+    await callback(matchedIds, updateRows);
 
     return matches;
 };
@@ -420,10 +394,14 @@ const doMatch = async () => {
             FROM user_relations
             JOIN match_settings ms1
                 ON "user1Id" = ms1."userId" AND ms1."universityId" = ${university.id}
-                    AND ((ms1."manualEnabled" = true AND ms1."nextManualMatchId" IS NULL) OR (ms1."autoFreq" <> 0 AND CURRENT_DATE >= ms1."lastAutoMatched"::DATE + ms1."autoFreq"))
+                    AND ((ms1."manualEnabled" = true AND ms1."nextManualMatchId" IS NULL)
+                        OR (ms1."autoFreq" <> 0 AND CURRENT_DATE >= ms1."lastAutoMatched"::DATE + ms1."autoFreq")
+                    )
             JOIN match_settings ms2
                 ON "user2Id" = ms2."userId" AND ms2."universityId" = ${university.id}
-                    AND ((ms2."manualEnabled" = true AND ms2."nextManualMatchId" IS NULL) OR (ms2."autoFreq" <> 0 AND CURRENT_DATE >= ms2."lastAutoMatched"::DATE + ms2."autoFreq"))
+                    AND ((ms2."manualEnabled" = true AND ms2."nextManualMatchId" IS NULL)
+                        OR (ms2."autoFreq" <> 0 AND CURRENT_DATE >= ms2."lastAutoMatched"::DATE + ms2."autoFreq")
+                    )
             JOIN users u1
                 ON "user1Id" = u1."id" AND u1."matchingEnabled" = true
             LEFT JOIN university_students us1
@@ -433,7 +411,8 @@ const doMatch = async () => {
             LEFT JOIN university_students us2
                 ON "user2Id" = us2."userId" AND us2."universityId" = ${university.id}
             WHERE compatibility > 0 AND "haveMatched" = false AND "areFriends" = false
-                AND (ms1."studentsOnly" = false OR us2."universityId" IS NOT NULL) AND (ms2."studentsOnly" = false OR us1."universityId" IS NOT NULL);
+                AND (ms1."studentsOnly" = false OR us2."universityId" IS NOT NULL)
+                AND (ms2."studentsOnly" = false OR us1."universityId" IS NOT NULL);
         `;
         console.table(compatibleRelations);
 
@@ -470,14 +449,15 @@ const doMatch = async () => {
         // const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
         const autoMatches = await matchSubset('Auto', university, baseDateIso, autoUserScores, autoUserMap, async (matchedIds, updateRows: { user1Id: number, user2Id: number }[]) => {
             // console.log('Updating lastAutoMatched');
-            const numUpdated = await prisma.matchSettings.updateMany({
+            if (updateRows.length === 0) return;
+
+            const numUpdated = await prisma.matchSetting.updateMany({
                 where: {
                     universityId: university.id,
                     userId: { in: matchedIds },
                 },
                 data: {
                     lastAutoMatched: baseDate,
-                    // updatedAt: localISOTime,
                 },
             });
             console.log(`[${university.name}] [Auto]: Updated ${numUpdated.count} match_settings rows (lastAutoMatched)`);
@@ -504,12 +484,13 @@ const doMatch = async () => {
 
         console.log(`\n\n\n${'-'.repeat(14)}\nManual:`);
         await matchSubset('Manual', university, baseDateIso, manualUserScores, manualUsersMap, async (_, updateRows) => {
+            if (updateRows.length === 0) return;
+
             const bulkRows = updateRows.map(({ user1Id, user2Id }) =>
                 `(${user1Id}, ${university.id}, ${user2Id}, timezone('utc', now())),
                 (${user2Id}, ${university.id}, ${user1Id}, timezone('utc', now()))`
             );
 
-            // console.log('Updating nextManualMatchId');
             const queryUpsertRows = `
                 INSERT INTO match_settings
                     ("userId", "universityId", "nextManualMatchId", "updatedAt")
