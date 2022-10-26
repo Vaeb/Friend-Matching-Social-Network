@@ -6,6 +6,7 @@ Includes:
 - timelines and posts;
 - likes and comments;
 - user profiles and friend requests;
+- a sleek and modern design;
 - and much more.
 
 Built using WebSockets for instant transmission from user actions, including:
