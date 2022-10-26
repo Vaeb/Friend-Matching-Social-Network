@@ -1,5 +1,5 @@
 # Friend Matching Ssocial Network
-Social media platform created for use by universities across the U.K.
+Social media platform created for use by universities to connect their students online.
 
 Includes:
 - A dedicated chat system;
